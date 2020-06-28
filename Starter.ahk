@@ -582,7 +582,8 @@ checkCompilator() {
 
 			Afterwards choose Tray Menu > Compile Starter.exe or pass --compile-package option to this script and it will compile itself
 
-			Follow carefully "How to Use" instructions at `%URL to README.md`%
+			Follow "How to Use" instructions in README carefully
+			Press OK to open README file
 		)
 		MsgBox % text
 		Run https://github.com/temoridao/ahk/blob/master/README.md#starterahk
