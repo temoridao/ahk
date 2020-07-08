@@ -3,7 +3,7 @@
  *    Smart launcher for your scripts with optional ability to compile (combine) all of them into
  *    a single portable Starter.exe executable by one click.
  * Requirements:
- *    Latest version of AutoHotkey (tested on v1.1.32)
+ *    AutoHotkey v1.1.33+
  * Installation:
  *    git clone --recursive https://github.com/temoridao/ahk
  *        or download latest snapshot here: https://github.com/temoridao/ahk/releases
@@ -37,7 +37,7 @@ SetWorkingDir %A_ScriptDir%
 	; @Ahk2Exe-PostExec "BinMod.exe" "%A_WorkFileName%" "11.UPX." "1.UPX!.", 2
 	;-------------------------------------------------------------------------------------------------
 
-	global Config := { Version : "1.0.0"
+	global Config := { Version : "1.1.0"
 		;@Ahk2Exe-SetVersion %A_PriorLine~U)^(.+"){1}(.+)".*$~$2%
 
 		, Elevate         : CommonUtils.HasValue(A_Args, "--elevate")
@@ -48,7 +48,7 @@ SetWorkingDir %A_ScriptDir%
 		, UseCompression  : CommonUtils.HasValue(A_Args, "--compress-package")
 		, ProductName     : scriptBaseName()
 		, CompilerPath    : FileExist("Ahk2Exe.exe") ? "Ahk2Exe.exe"
-		                                             : A_AppData "\" A_ScriptName "\Ahk2Exe.exe" }
+		                                             : A_AhkPath "\..\Compiler\Ahk2Exe.exe" }
 ;}
 
 #NoEnv
@@ -69,7 +69,7 @@ SetBatchLines -1
 
 ;@Ahk2Exe-IgnoreBegin
 checkCompilator()
-if (Config.CompileMe && !A_IsCompiled) {
+if (Config.CompileMe) {
 	compilePackage()
 	ExitApp
 }
@@ -505,9 +505,6 @@ cleanTemporaryScripts() {
 compilePackage() {
 	Menu Tray, Tip, % A_ScriptName " (Compiling...)"
 	startTime := A_TickCount
-	if (!FileExist(Config.CompilerPath)) {
-		bootstrapCompiler()
-	}
 
 	compress := useCompression()
 	OnExit("cleanTemporaryScripts") ;Ensure that intermediate scripts will be deleted even in case of exception in the code below
@@ -525,13 +522,6 @@ compilePackage() {
 	WinExist(A_ScriptDir " ahk_exe explorer.exe") ? (WinRestore(), WinActivate(), CommonUtils.setExplorerSelection(WinExist(), [outFile]))
 	                                              : Run("explorer.exe /select`, " outFile)
 	return outFile
-}
-
-bootstrapCompiler() {
-	SplitPath(Config.CompilerPath,,compilerDirectory)
-	FileCreateDir % compilerDirectory
-	compilerSource := A_ScriptDir "\3rdparty\Ahk2Exe\Ahk2Exe.ahk"
-	RunWait(compilerSource " /in " compilerSource " /out " Config.CompilerPath, "3rdparty\Ahk2Exe")
 }
 
 preprocessScripts() {
