@@ -70,6 +70,9 @@ FileAppend(Text := "", Filename := "", Encoding := "") {
 FileCopy(SourcePattern, DestPattern, Overwrite := false) {
 	FileCopy, %SourcePattern%, %DestPattern%, %Overwrite%
 }
+FileCreateDir(DirName) {
+	FileCreateDir %DirName%
+}
 FileGetAttrib(Filename = "") {
 	FileGetAttrib, v, %Filename%
 	Return, v
@@ -99,6 +102,9 @@ FileReadLine(Filename, LineNum) {
 }
 FileRecycleEmpty(DriveLetter := "") {
 	FileRecycleEmpty, %DriveLetter%
+}
+FileRemoveDir(DirName, Recurse := "") {
+	FileRemoveDir %DirName%, %Recurse%
 }
 FileSelectFile(Options = "", RootDir = "", Prompt = "", Filter = "") {
 	FileSelectFile, v, %Options%, %RootDir%, %Prompt%, %Filter%
