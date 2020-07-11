@@ -1,4 +1,4 @@
-#include %A_LineFile%\..\CommonUtils.ahk
+#include %A_LineFile%\..\ScriptInfoUtils.ahk
 
 #include %A_LineFile%\..\..\3rdparty\Lib\ProcessInfo.ahk
 #include %A_LineFile%\..\..\3rdparty\AutoHotkey-JSON\JSON.ahk
@@ -8,7 +8,7 @@ class Serializable {
 		filePostfix := fileSubextensionName ? ("." fileSubextensionName) : ""
 		filePostfix .= ".state.json"
 
-		if (CommonUtils.isPipedExecution()) {
+		if (ScriptInfoUtils.isPipedExecution()) {
 			return GetModuleFileNameEx(GetCurrentParentProcessID()) . filePostfix
 		}
 
@@ -19,13 +19,18 @@ class Serializable {
 		return this.defaultPersistentStateFileName(this.__Class)
 	}
 
+	allowSavePersistentState() {
+		; return !ScriptInfoUtils.isPipedExecution() && !A_IsCompiled
+		return true
+	}
+
 	; Dumps \p dumpFromObj object's \p dumpProperties to the \p fileName on disk and returns string
 	; was written to file. Later this file can be loaded in __New() (for example) to restore state of the object.
 	; NOTE about serialization when script exits/reloads: serialize() function may not get access to
 	; the props of the object if it is called from its __Delete() function (at least for super-global object instances).
 	; As a workaround, call this function from OnExit()-registered handler if you want to save state on script exit/reload
 	serialize(fileName, ByRef dumpFromObj, dumpProperties*) {
-		if (!CommonUtils.allowSavePersistentState()) {
+		if (!Serializable.allowSavePersistentState()) {
 			return ""
 		}
 
@@ -56,7 +61,7 @@ class Serializable {
 	; This function should normally be called from \p restoreObj __New() method like this:
 	;	Serializable.deserialize(this, this.persistentStateFilename())
 	deserialize(ByRef restoreToObj, fileName := "") {
-		if (!CommonUtils.allowSavePersistentState()) {
+		if (!Serializable.allowSavePersistentState()) {
 			return
 		}
 

@@ -1,0 +1,15 @@
+#include %A_LineFile%\..\ImmutableClass.ahk
+
+class ScriptInfoUtils extends ImmutableClass {
+	isPipedExecution() {
+		return InStr(A_ScriptFullPath, "\.\pipe")
+	}
+
+	ShowAhkInfo() {
+		MsgBox % "You are running AHK " . A_AhkVersion (A_IsUnicode ? " Unicode" : " ANSI")
+		                                . (A_PtrSize = 8 ? " 64" : " 32") . "bit`n`n"
+		                                . "Executable: " A_AhkPath "`n`n"
+		                                . "Running through pipe: " !!ScriptInfoUtils.isPipedExecution()
+	}
+
+}
