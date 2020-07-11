@@ -7,12 +7,14 @@
 #include %A_LineFile%\..\
 	#include ShellEventsWatcher.ahk
 	#include UiUtils.ahk
+	#include Serializable.ahk
+
 
 #include %A_LineFile%\..\..\3rdparty\
 	#include CodeQuickTester\lib\WinEvents.ahk
 	#include Lib\Anchor.ahk
 
-class ClosedWindowsCollector extends CommonUtils.Serializable {
+class ClosedWindowsCollector extends Serializable {
 ;public:
 	/**
 	* After reaching \p savedWindowsCountLimit limit, the least recently saved window's info will be overriden
@@ -22,11 +24,11 @@ class ClosedWindowsCollector extends CommonUtils.Serializable {
 		this.m_keySequenceShowSavedWindowsSummary := keySequenceShowSavedWindowsSummary
 		this.m_savedWindowsCountLimit := savedWindowsCountLimit
 
-		CommonUtils.deserialize(this, this.persistentStateFilename())
+		Serializable.deserialize(this, this.persistentStateFilename())
 	}
 
 	serialize() {
-		CommonUtils.serialize(this.persistentStateFilename(), this, "m_savedWindowsInfo")
+		Serializable.serialize(this.persistentStateFilename(), this, "m_savedWindowsInfo")
 	}
 
 	__Delete() {
