@@ -73,6 +73,9 @@ FileCopy(SourcePattern, DestPattern, Overwrite := false) {
 FileCreateDir(DirName) {
 	FileCreateDir %DirName%
 }
+FileCreateShortcut(Target, LinkFile, WorkingDir:="", Args:="", Description:="", IconFile:="", ShortcutKey:="", IconNumber:="", RunState:="") {
+	FileCreateShortcut %Target%, %LinkFile%, %WorkingDir%, %Args%, %Description%, %IconFile%, %ShortcutKey%, %IconNumber%, %RunState%
+}
 FileGetAttrib(Filename = "") {
 	FileGetAttrib, v, %Filename%
 	Return, v
