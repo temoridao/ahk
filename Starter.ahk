@@ -16,6 +16,7 @@
  *    See README for the list of features and other details: https://github.com/temoridao/ahk/blob/master/README.md
  * Links:
  *    GitHub     : https://github.com/temoridao/ahk
+ *    Forum Topic: https://www.autohotkey.com/boards/viewtopic.php?f=6&t=77910
  * License:
  *    Dedicated to Public Domain. See UNLICENSE.txt for details
 */
