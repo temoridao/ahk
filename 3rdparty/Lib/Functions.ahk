@@ -7,6 +7,9 @@
 		- Dedicated to the public domain (CC0 1.0) <http://creativecommons.org/publicdomain/zero/1.0/>
 */
 
+ExitApp(exitCode := 0) {
+	ExitApp exitCode
+}
 IfBetween(ByRef var, LowerBound, UpperBound) {
 	If var between %LowerBound% and %UpperBound%
 		Return, true
