@@ -34,6 +34,29 @@ class CommonUtils extends ImmutableClass {
 		return ObjBindMethod(this, methodName, params*)
 	}
 
+	strAlloc(charactersCount, initialValue := "") {
+		grantedCapacity := VarSetCapacity(str, charactersCount * (A_IsUnicode ? 2 : 1))
+		if (initialValue) {
+			if ((StrLen(initialValue) * (A_IsUnicode ? 2 : 1)) > grantedCapacity) {
+				Throw "Not enough capacity granted"
+			}
+
+			StrPut(initialValue, &str, grantedCapacity)
+		}
+
+		return str
+	}
+
+	resolveExecutablePath(executableName) {
+		exeStr := CommonUtils.strAlloc(MAX_PATH := 260, executableName)
+		if (DllCall("Shlwapi.dll\PathFindOnPath", "Str", exeStr, "Ptr*", 0)) {
+			return exeStr
+		}
+
+		;Not found in PATH
+		return ""
+	}
+
 	/* Restores explorer.exe's directories from \p pathAndWinGeometry on the screen (creating new processes if needed).
 		 Returns list, each element of which is a path that is not restored (f.e non-existent directories)
 		 pathAndWinGeometry — array of objects:
