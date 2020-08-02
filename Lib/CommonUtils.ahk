@@ -491,6 +491,7 @@ class CommonUtils extends ImmutableClass {
 		Clipboard := ""
 		keyword := ""
 
+		raii := new AVarValuesRollback("A_SendMode=Event")
 		if (InStr(extractionOpts, "P")) {
 			includeDigits := InStr(extractionOpts, "D")
 			cRegexWordChar := "[\p{Ll}\p{Lu}_" (includeDigits ? "0-9" : "") "]" ; any unicode letter and underscore

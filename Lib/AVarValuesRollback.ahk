@@ -100,5 +100,9 @@ class AVarValuesRollback {
 		DetectHiddenWindows % val
 	}
 
+	SendMode(val) {
+		SendMode % val
+	}
+
 	m_storage := {}
 }
