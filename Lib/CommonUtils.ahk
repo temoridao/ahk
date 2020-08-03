@@ -197,8 +197,7 @@ class CommonUtils extends ImmutableClass {
 	}
 
 	IsConnectedToInternet() {
-		html := this.UrlDownloadToVar("http://www.google.com")
-		return html
+		return CommonUtils.UrlDownloadToVar("http://www.google.com")
 	}
 
 	UrlDownloadToVar(url) {
