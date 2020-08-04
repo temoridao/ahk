@@ -7,8 +7,7 @@
 #include %A_LineFile%\..\AVarValuesRollback.ahk
 #include %A_LineFile%\..\ImmutableClass.ahk
 #include %A_LineFile%\..\ScriptInfoUtils.ahk
-
-#include %A_LineFile%\..\..\3rdparty\Lib\Functions.ahk
+#include %A_LineFile%\..\Funcs.ahk
 
 class CommonUtils extends ImmutableClass {
 ;public:
@@ -29,10 +28,6 @@ class CommonUtils extends ImmutableClass {
 	}
 
 	static Null := ObjBindMethod({}, {})
-
-	getFuncObj(methodName, params*) {
-		return ObjBindMethod(this, methodName, params*)
-	}
 
 	strAlloc(charactersCount, initialValue := "") {
 		grantedCapacity := VarSetCapacity(str, charactersCount * (A_IsUnicode ? 2 : 1))
@@ -194,18 +189,6 @@ class CommonUtils extends ImmutableClass {
 
 	hibernate() {
 		DllCall("PowrProf\SetSuspendState", "int", 1, "int", 0, "int", 0)
-	}
-
-	IsConnectedToInternet() {
-		return CommonUtils.UrlDownloadToVar("http://www.google.com")
-	}
-
-	UrlDownloadToVar(url) {
-		ComObjError(false)
-		WebRequest := ComObjCreate("WinHttp.WinHttpRequest.5.1")
-		WebRequest.Open("GET", url)
-		WebRequest.Send()
-		Return WebRequest.ResponseText
 	}
 
 	ObjToString(Array, level=0) {
@@ -851,26 +834,6 @@ class CommonUtils extends ImmutableClass {
 		return Dllcall("GetKeyState", "int", GetKeyVK(ahkKeyName), "short") & (1<<15)
 	}
 
-	joyPovDirection(joyIndex := "") {
-		POV := GetKeyState(joyIndex "JoyPOV")  ; Get position of the POV control.
-		; Some joysticks might have a smooth/continuous POV rather than one in fixed increments.
-		; To support them all, use a range:
-		result := ""
-		if (POV < 0)                        ; No angle to report
-			result := ""
-		else if (POV > 31500)               ; 315 to 360 degrees: Forward
-			result := "Up"
-		else if POV between 0 and 4500      ; 0 to 45 degrees: Forward
-			result := "Up"
-		else if POV between 4501 and 13500  ; 45 to 135 degrees: Right
-			result := "Right"
-		else if POV between 13501 and 22500 ; 135 to 225 degrees: Down
-			result := "Down"
-		else                                ; 225 to 315 degrees: Left
-			result := "Left"
-		return result
-	}
-
 	runCallbackList(ByRef list) {
 		for each, callback in list {
 			if IsObject(callback) {
@@ -904,23 +867,7 @@ class CommonUtils extends ImmutableClass {
 	}
 
 ;private:
-	__Call(methodName, args*) {
-		if (!IsFunc(this[methodName])) {
-			throw "Couldn't find method ``" methodName "`` in ``" this.__Class "``!"
-		}
-	}
-
 	__New() {
 		throw "Creation of the ``" this.__Class "`` instances is forbidden!"
 	}
-}
-
-Clamp(value, min, max) {
-	if (min > max) {
-		Throw "Invalid parameters: min > max"
-	}
-
-	return value < min ? min
-	     : value > max ? max
-	     : value
 }

@@ -1,0 +1,26 @@
+#include %A_LineFile%\..\ImmutableClass.ahk
+
+class JoyUtil extends ImmutableClass
+{
+
+;public:
+	povDirection(joyIndex := "") {
+		POV := GetKeyState(joyIndex "JoyPOV")  ; Get position of the POV control.
+		; Some joysticks might have a smooth/continuous POV rather than one in fixed increments.
+		; To support them all, use a range:
+		result := ""
+		if (POV < 0)                        ; No angle to report
+			result := ""
+		else if (POV > 31500)               ; 315 to 360 degrees: Forward
+			result := "Up"
+		else if POV between 0 and 4500      ; 0 to 45 degrees: Forward
+			result := "Up"
+		else if POV between 4501 and 13500  ; 45 to 135 degrees: Right
+			result := "Right"
+		else if POV between 13501 and 22500 ; 135 to 225 degrees: Down
+			result := "Down"
+		else                                ; 225 to 315 degrees: Left
+			result := "Left"
+		return result
+	}
+}

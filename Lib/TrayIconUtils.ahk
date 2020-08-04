@@ -4,11 +4,10 @@
  * License:
  *    Dedicated to Public Domain. See UNLICENSE.txt for details
 */
-#Include %A_LineFile%\..\..\3rdparty\Lib\
-	#include Functions.ahk
-	#include TrayIcon.ahk
-
+#include %A_LineFile%\..\Funcs.ahk
 #include %A_LineFile%\..\ProcessTerminationWatcher.ahk
+
+#Include %A_LineFile%\..\..\3rdparty\Lib\TrayIcon.ahk
 
 ;IMPORTANT: if this doesn't work reliably, try to use #WinActivateForce directive in your script
 TrayIconUtils_removeTrayIcons(iconProcessIds, removeAttemptsCount := 3) {
