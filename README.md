@@ -37,7 +37,7 @@ updateSuspension(activatedHwnd) {
 }
 shouldSuspend() {
 	static cHotkeysSuspendApps := ["mstsc.exe", "TeamViewer.exe"]
-	return CommonUtils.HasValue(cHotkeysSuspendApps, WinGet("ProcessName", "A"))
+	return HasVal(cHotkeysSuspendApps, WinGet("ProcessName", "A"))
 }
 ```
 This will suspend all controlled scripts whenever Microsoft Remote Desktop or TeamViewer window becomes active and un-suspend all controlled scripts when those windows become inactive (useful if your remote machine also uses AutoHotkey scripts which may interfere with your local machine's hotkeys). You may add this code into some of injection files and get this functionality only in compiled or only in non-compiled version of Starter

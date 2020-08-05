@@ -250,7 +250,7 @@ class ClosedWindowsCollector extends Serializable {
 			titles.Push(value.path)
 		}
 
-		return CommonUtils.HasValue(titles, title)
+		return HasVal(titles, title)
 	}
 
 	m_ui := "" ;instance of WindowGroupsSummaryUi class

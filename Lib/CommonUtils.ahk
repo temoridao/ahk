@@ -85,7 +85,7 @@ class CommonUtils extends ImmutableClass {
 		}
 
 		for i, value in pathAndWinGeometry {
-			if (CommonUtils.HasValue(nonExistentFoldersIndices, i)) {
+			if (HasVal(nonExistentFoldersIndices, i)) {
 				continue ; Do not try to wait for non-existend folders
 			}
 
@@ -156,21 +156,6 @@ class CommonUtils extends ImmutableClass {
 	MouseIsOverTaskbar() {
 		raii := new AVarValuesRollback("A_TitleMatchMode=RegEx")
 		return this.MouseIsOver("ahk_class Shell_TrayWnd|Shell_SecondaryTrayWnd")
-	}
-
-	;Checks if array-like object `haystackArrayObj` contains a `needle`.
-	;Returns key (numeric index) corresponding to `needle` or 0 if nothing found
-	;
-	;Example:
-	;MsgBox % CommonUtils.HasValue(["orange", "banana", "apple"], "banana") ; Outputs "2"
-	HasValue(ByRef haystackArrayObj, ByRef needle) {
-		for index, value in haystackArrayObj {
-			if (value = needle) {
-				Return index
-			}
-		}
-
-		Return 0
 	}
 
 	displayText(text) {
@@ -769,7 +754,7 @@ class CommonUtils extends ImmutableClass {
 
 			scrolled := false
 			for item in window.Document.Folder.Items { ; 'Folder' property is ShellFolderView interface: https://docs.microsoft.com/en-us/windows/win32/shell/shellfolderview
-				if (!CommonUtils.HasValue(filesToSelect, item.path)) {
+				if (!HasVal(filesToSelect, item.path)) {
 					continue
 				}
 

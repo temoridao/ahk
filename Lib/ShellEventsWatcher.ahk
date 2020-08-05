@@ -114,7 +114,7 @@ class ShellEventsWatcher {
 		}
 
 		callback := IsObject(callback) ? callback : Func(callback)
-		if (index := CommonUtils.HasValue(this.m_callbacksMap[eventId], callback)) {
+		if (index := HasVal(this.m_callbacksMap[eventId], callback)) {
 			this.m_callbacksMap[eventId].removeAt(index)
 		}
 	}

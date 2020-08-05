@@ -186,7 +186,7 @@ class WinEventsWatcher {
 		}
 
 		callback := IsObject(callback) ? callback : Func(callback)
-		if (index := CommonUtils.HasValue(this.m_callbacksMap[eventId].callbacks, callback)) {
+		if (index := HasVal(this.m_callbacksMap[eventId].callbacks, callback)) {
 			this.m_callbacksMap[eventId].callbacks.removeAt(index)
 
 			if (!this.m_callbacksMap[eventId].callbacks.Count()) {

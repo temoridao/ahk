@@ -7,12 +7,46 @@
 
 #include %A_LineFile%\..\..\3rdparty\Lib\Functions.ahk
 
-Clamp(value, min, max) {
+/**
+ * Get value bounded between minimum and maximum
+ *
+ * Throws an exception if @p min > @p max
+ *
+ * @param   v    The value
+ * @param   min  The minimum
+ * @param   max  The maximum
+ *
+ * @return  If @p v compares less than @p min, returns @p min; otherwise if @p max compares less
+ *          than @p v, returns @p max; otherwise returns @p v
+ */
+Clamp(v, min, max) {
 	if (min > max) {
 		Throw "Invalid parameters: min > max"
 	}
 
-	return value < min ? min
-	     : value > max ? max
-	     : value
+	return v < min ? min
+	     : v > max ? max
+	     : v
+}
+
+/**
+ * Check if object has value (complement for built-in HasKey() method)
+ *
+ * @code{.ahk}
+ *    MsgBox % HasVal(["orange", "banana", "apple"], "banana") ; Outputs "2"
+ * @endcode
+ *
+ * @param   obj     The object to check value presence in
+ * @param   needle  The needle value
+ *
+ * @return  First key in @p obj which has value equal to @p needle. 0 returned if nothing found
+ */
+HasVal(ByRef obj, ByRef needle) {
+	for index, value in obj {
+		if (value = needle) {
+			Return index
+		}
+	}
+
+	Return 0
 }

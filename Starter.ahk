@@ -41,15 +41,14 @@ SetWorkingDir %A_ScriptDir%
 	global Config := { Version : "1.1.0"
 		;@Ahk2Exe-SetVersion %A_PriorLine~U)^(.+"){1}(.+)".*$~$2%
 
-		, Elevate         : CommonUtils.HasValue(A_Args, "--elevate")
-		, ShowTrayTip     : CommonUtils.HasValue(A_Args, "--enable-tray-tip") || !A_IsCompiled
+		, Elevate         : HasVal(A_Args, "--elevate")
+		, ShowTrayTip     : HasVal(A_Args, "--enable-tray-tip") || !A_IsCompiled
 
 		;========================Options for compilation process========================================
-		, CompileMe       : CommonUtils.HasValue(A_Args, "--compile-package")
-		, UseCompression  : CommonUtils.HasValue(A_Args, "--compress-package")
+		, CompileMe       : HasVal(A_Args, "--compile-package")
+		, UseCompression  : HasVal(A_Args, "--compress-package")
 		, ProductName     : scriptBaseName()
-		, CompilerPath    : FileExist("Ahk2Exe.exe") ? "Ahk2Exe.exe"
-		                                             : A_AhkPath "\..\Compiler\Ahk2Exe.exe" }
+		, CompilerPath    : FileExist("Ahk2Exe.exe") ? "Ahk2Exe.exe" : A_AhkPath "\..\Compiler\Ahk2Exe.exe" }
 ;}
 
 #NoEnv
@@ -142,7 +141,7 @@ setupTray()
 		;If this is one of the scripts managed by Starter.exe - just reload whole package, because
 		;scripts running through named pipe have title like ".\\pipe\..." instead of human-readable path
 		pid := WinGet("PID", winTitle)
-		if (A_IsCompiled && CommonUtils.HasValue(g_scriptsPids, pid)) {
+		if (A_IsCompiled && HasVal(g_scriptsPids, pid)) {
 				Reload
 				return 0
 		}
@@ -150,7 +149,7 @@ setupTray()
 		;If this is some other 3rdparty AHK script (NOT managed by Starter), or managed by Starter.ahk,
 		;reload it by passing /restart command line parameter to AutoHotkey.exe
 		if (scriptPath := CommonUtils.getAhkScriptFilePath(WinGet("ID", winTitle))) {
-			return reloadScript(CommonUtils.HasValue(g_scriptsPids, pid), scriptPath)
+			return reloadScript(HasVal(g_scriptsPids, pid), scriptPath)
 		}
 
 		;If title of currently active window contains a (possibly part) file name of one of the
@@ -160,7 +159,7 @@ setupTray()
 			fullPath := CommonUtils.getAhkScriptFilePath(hWnd)
 			SplitPath(fullPath, scriptName)
 			if (scriptName && InStr(activeWinTitle, scriptName)) {
-				return reloadScript(CommonUtils.HasValue(g_scriptsPids, WinGet("PID", "ahk_id" hWnd)), fullPath)
+				return reloadScript(HasVal(g_scriptsPids, WinGet("PID", "ahk_id" hWnd)), fullPath)
 			}
 		}
 
