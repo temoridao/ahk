@@ -850,9 +850,4 @@ class CommonUtils extends ImmutableClass {
 			return A_LoopFileLongPath
 		}
 	}
-
-;private:
-	__New() {
-		throw "Creation of the ``" this.__Class "`` instances is forbidden!"
-	}
 }
