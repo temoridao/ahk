@@ -1,3 +1,9 @@
+/**
+ * Description:
+ *    %TODO%
+ * License:
+ *    Dedicated to Public Domain. See UNLICENSE.txt for details
+*/
 #include %A_LineFile%\..\ImmutableClass.ahk
 
 class ScriptInfoUtils extends ImmutableClass {
