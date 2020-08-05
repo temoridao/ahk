@@ -1,12 +1,15 @@
 /*
- * Function: ErrMsg
- *     Get textual description of the operating system error
- * Parameters:
- *     ErrNum - Error number (A_LastError by default)
- * Returns:
- *     String
  * License:
  *    Dedicated to Public Domain. See UNLICENSE.txt for details
+ */
+
+/**
+ * Get textual description of the operating system error
+ *
+ * @param   ErrNum  The error number (A_LastError if not specified)
+ *
+ * @return  String with hexadecimal error number and textual representation with `r`n characters
+ *          replaced by spaces
  */
 ErrMsg(ErrNum := "") {
 	if !ErrNum {
