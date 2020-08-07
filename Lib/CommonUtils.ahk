@@ -6,7 +6,6 @@
 */
 #include %A_LineFile%\..\AVarValuesRollback.ahk
 #include %A_LineFile%\..\ImmutableClass.ahk
-#include %A_LineFile%\..\ScriptInfoUtils.ahk
 #include %A_LineFile%\..\Funcs.ahk
 
 class CommonUtils extends ImmutableClass {
