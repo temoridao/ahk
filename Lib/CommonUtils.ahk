@@ -7,6 +7,7 @@
 #include %A_LineFile%\..\AVarValuesRollback.ahk
 #include %A_LineFile%\..\ImmutableClass.ahk
 #include %A_LineFile%\..\Funcs.ahk
+#include %A_LineFile%\..\LogUtils.ahk
 
 class CommonUtils extends ImmutableClass {
 ;public:
