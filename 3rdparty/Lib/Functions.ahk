@@ -174,6 +174,9 @@ RegRead(RootKey, SubKey, ValueName = "") {
 	RegRead, v, %RootKey%, %SubKey%, %ValueName%
 	Return, v
 }
+Reload() {
+	Reload
+}
 Run(Target, WorkingDir = "", Mode = "") {
 	Run, %Target%, %WorkingDir%, %Mode%, v
 	Return, v
