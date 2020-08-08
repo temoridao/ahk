@@ -687,6 +687,17 @@ class CommonUtils extends ImmutableClass {
 		return ""
 	}
 
+	isDirectoryEmtpy(dirPath) {
+		empty := true
+		Loop Files, %dirPath%\*.*
+		{
+			empty := false
+			break
+		}
+
+		return empty
+	}
+
 	; Returns array with paths to selected files (if any) in the explorer.exe's window which
 	; satisfy \p winTitle criteria (leave it empty to use Last Found Window)
 	getSelectionFromExplorer(winTitle := "") {
