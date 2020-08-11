@@ -476,12 +476,15 @@ class CommonUtils extends ImmutableClass {
 	;  P - Use precise method of word extraction with regular expression.
 	;      By default, more naive method used, observing word boundaries with ^+{Left} and ^+{Right} shortcut supported in most text editors
 	;  D - include decimal digits as part of word in addition to letters and underscore. Has no effect unless "P" option is specified
+	;  x - remove word under cursor
 	getWordUnderCursor(extractionOpts := "") {
 		savedClipboard = Clipboard
 		Clipboard := ""
 		keyword := ""
 
 		raii := new AVarValuesRollback("A_SendMode=Event")
+		optRemoveWord := InStr(extractionOpts, "x")
+
 		if (InStr(extractionOpts, "P")) {
 			includeDigits := InStr(extractionOpts, "D")
 			cRegexWordChar := "[\p{Ll}\p{Lu}_" (includeDigits ? "0-9" : "") "]" ; any unicode letter and underscore
@@ -518,16 +521,22 @@ class CommonUtils extends ImmutableClass {
 				--firstNwPosToTheLeftOfCursor
 			}
 
+			cursorOffsetFromWordStart := selectionLengthBeforeCursor - firstNwPosToTheLeftOfCursor
+			wordLength := 0
 			if (firstNwPosToTheLeftOfCursor < rightNwPos || rightNwPos = 0) { ; The cursor is in the middle of the word, so extract the word
-				len := rightNwPos - firstNwPosToTheLeftOfCursor - 1
-				keyword := SubStr(str, firstNwPosToTheLeftOfCursor + 1, len <= 0 ? 1000 : len) ; 1000 here is a big number and means "all characters till end of line"
+				wordLength := rightNwPos - firstNwPosToTheLeftOfCursor - 1
+				keyword := SubStr(str, firstNwPosToTheLeftOfCursor + 1, wordLength <= 0 ? 1000 : wordLength) ; 1000 here is a big number and means "all characters till end of line"
 			} else if (SubStr(str, firstNwPosToTheLeftOfCursor + 1, 1) ~= cRegexWordChar) { ; If the next character is word-character, then cursor probably stay at the beginning of the word, so check characters to the right
 					pos := RegExMatch(str, cRegexNonWordChar,, firstNwPosToTheLeftOfCursor + 1)
 					if (pos) {
-						keyword := SubStr(str, firstNwPosToTheLeftOfCursor + 1, pos - firstNwPosToTheLeftOfCursor - 1)
+						wordLength := pos - firstNwPosToTheLeftOfCursor - 1
+						keyword := SubStr(str, firstNwPosToTheLeftOfCursor + 1, wordLength)
 					}
 			} else {
 				; OutputDebug % "Text cursor is not inside the word nor at the beginning of word"
+			}
+			if (optRemoveWord && wordLength) {
+				Send {Left %cursorOffsetFromWordStart%}+{Right %wordLength%}{BackSpace}
 			}
 
 			; OutputDebug % "L: " selectionLengthBeforeCursor " R: " selectionLengthAfterCursor " LNW: " firstNwPosToTheLeftOfCursor " RNW: " rightNwPos " Parsed: `'" keyword "`'"
@@ -539,10 +548,11 @@ class CommonUtils extends ImmutableClass {
 
 			;Select whole word to the right
 			Send {Left}^+{Right}^c
-			; ClipWait 0.2
+			ClipWait 0.2
 
-			;Restore previous cursor position
-			Send {Left}{Right %selectionLengthBeforeCursor%}
+			wordLength := StrLen(Clipboard)
+			(optRemoveWord && wordLength) ? Send("{BackSpace}")
+			                           : Send("{Left}{Right %selectionLengthBeforeCursor%}") ;Restore previous cursor position
 			keyword := RegExReplace(Clipboard, "\s") ;delete all whitespaces
 		}
 
