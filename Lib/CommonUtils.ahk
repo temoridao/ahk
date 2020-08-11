@@ -484,10 +484,11 @@ class CommonUtils extends ImmutableClass {
 
 		raii := new AVarValuesRollback("A_SendMode=Event")
 		optRemoveWord := InStr(extractionOpts, "x")
+		optUsePreciseMethod := InStr(extractionOpts, "P")
 
-		if (InStr(extractionOpts, "P")) {
-			includeDigits := InStr(extractionOpts, "D")
-			cRegexWordChar := "[\p{Ll}\p{Lu}_" (includeDigits ? "0-9" : "") "]" ; any unicode letter and underscore
+		if (optUsePreciseMethod) {
+			optIncludeDigits := InStr(extractionOpts, "D")
+			cRegexWordChar := "[\p{Ll}\p{Lu}_" (optIncludeDigits ? "0-9" : "") "]" ; any unicode letter and underscore
 			cRegexNonWordChar := "[^" SubStr(cRegexWordChar, 2) ; just ^-negated version of above regex
 
 			str := ""
