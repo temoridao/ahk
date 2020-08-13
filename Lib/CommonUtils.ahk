@@ -212,22 +212,25 @@ class CommonUtils extends ImmutableClass {
 
 		Return clipText
 	}
-	getTextStringThroughClipboard(length := 0, restoreCaretPosition := true) {
-		if (length = 0) {
-			return CommonUtils.GetSelectedTextThroughClipboard()
-		}
+
+	; @p options
+	; 	x - remove text after copying
+	getTextStringThroughClipboard(length := 0, restoreCaretPosition := true, options := "x") {
+		optRemoveText := InStr(options, "x")
 
 		charToMoveCaretBack := ""
 		if (length < 0) {
 			length := Abs(length)
 			Send +{Left %length%}
 			charToMoveCaretBack := "{Right}"
-		} else {
+		} else if (length > 0) {
 			Send +{Right %length%}
 			charToMoveCaretBack := "{Left}"
 		}
-		result := CommonUtils.GetSelectedTextThroughClipboard()
-		if (restoreCaretPosition) {
+		result := CommonUtils.GetSelectedTextThroughClipboard(0.1)
+		if (optRemoveText && result) {
+			Send {Bs}
+		} else if (restoreCaretPosition) {
 			Send % charToMoveCaretBack
 		}
 		return result
