@@ -20,6 +20,11 @@ logFatal(ByRef logMessage) {
 	OutputDebug % "F [" A_ScriptName "] " logMessage
 }
 
+logClear() {
+	;Special message clears DBGVIEW log window
+	OutputDebug DBGVIEWCLEAR
+}
+
 ; logDebug("Hello, I am test message")
 ; logInfo("Hello, I am test message")
 ; logWarn("Hello, I am test message")
