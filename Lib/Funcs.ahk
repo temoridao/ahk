@@ -50,3 +50,17 @@ HasVal(ByRef obj, ByRef needle) {
 
 	Return 0
 }
+
+/**
+ * Resolve absolute path from relative
+ *
+ * @param   path  The path, possibly relative or with ".."
+ *
+ * @return  The absolute path resolved from @p path
+ */
+GetFullPathName(path) {
+	cc := DllCall("GetFullPathName", "str", path, "uint", 0, "ptr", 0, "ptr", 0, "uint")
+	VarSetCapacity(buf, cc * (A_IsUnicode ? 2: 1))
+	DllCall("GetFullPathName", "str", path, "uint", cc, "str", buf, "ptr", 0, "uint")
+	return buf
+}
