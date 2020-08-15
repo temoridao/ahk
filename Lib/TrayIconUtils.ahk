@@ -60,6 +60,6 @@ TrayIconUtils_ensureTrayIconsHidden(pids) {
 	TrayIconUtils_removeTrayIcons(pids, 10)
 	; Watch explorer.exe's termination and execute A_ThisFunc when this happens to hide tray icons again.
 	; And restart watcher with new PID
-	Process Exist, explorer.exe
+	Process Wait, explorer.exe
 	return ptw.watch(ErrorLevel, Func(A_ThisFunc).Bind(pids))
 }
