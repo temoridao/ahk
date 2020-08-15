@@ -30,4 +30,11 @@ class JoyUtil extends ImmutableClass
 			result := "Left"
 		return result
 	}
+
+	ltPressed(joyIndex := "") {
+		return Round(GetKeyState(joyIndex "JoyZ")) > 50 ;If left analog trigger is pressed (50 in non-pressed state)
+	}
+	rtPressed(joyIndex := "") {
+		return Round(GetKeyState(joyIndex "JoyZ")) < 50 ;If right analog trigger is pressed (50 in non-pressed state)
+	}
 }
