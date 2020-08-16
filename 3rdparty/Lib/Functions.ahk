@@ -298,6 +298,10 @@ WinRestore(WinTitle = "", WinText = "", ExcludeTitle = "", ExcludeText = "") {
 	; PostMessage, 0x112, 0xF120,,, %winTitle%, %WinText% ; 0x112 = WM_SYSCOMMAND, 0xF120 = SC_RESTORE
 }
 
+WinKill(WinTitle := "", WinText := "", SecondsToWait := "", ExcludeTitle := "", ExcludeText := "") {
+	WinKill, %WinTitle%, %WinText%, %SecondsToWait%, %ExcludeTitle%, %ExcludeText%
+}
+
 WinMaximize(WinTitle = "", WinText = "", ExcludeTitle = "", ExcludeText = "") {
 	WinMaximize, %WinTitle%, %WinText%, %ExcludeTitle%, %ExcludeText%
 }
