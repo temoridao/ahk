@@ -135,6 +135,9 @@ Hotkey(KeyName, Label := "", Options := "") {
 }
 HotkeyIf(functor := "") {
 	if (functor) {
+		if (!IsObject(functor)) {
+			functor := Func(functor)
+		}
 		Hotkey If, % functor
 	} else {
 		Hotkey If
