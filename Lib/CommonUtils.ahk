@@ -158,6 +158,11 @@ class CommonUtils extends ImmutableClass {
 		return this.MouseIsOver("ahk_class Shell_TrayWnd|Shell_SecondaryTrayWnd")
 	}
 
+	MouseIsOverDesktop() {
+		CommonUtils.MouseIsOver()
+		return CommonUtils.IsDesktop()
+	}
+
 	displayText(text) {
 		ListVars
 		WinWaitActive ahk_class AutoHotkey
