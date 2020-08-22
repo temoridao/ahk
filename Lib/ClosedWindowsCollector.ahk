@@ -99,8 +99,9 @@ class ClosedWindowsCollector extends Serializable {
 			Gui New, +hWndhWnd +Resize
 			WinEvents.Register(hWnd, this)
 			this.m_hWnd := hWnd
+			Gui, Font,, % "Fira Code"
 
-			Gui Add, ListView, +hWndhWnd w800 h500 NoSortHdr, Path|Geometry [X, Y; WxH]
+			Gui Add, ListView, +hWndhWnd w800 h500 NoSortHdr, Dir & Path|Geometry [X, Y; WxH]
 			this.m_hWndListView := hWnd
 			functor := this.onListItemEvent.Bind(this)
 			GuiControl, +g, %hWnd%, %functor%
@@ -171,7 +172,13 @@ class ClosedWindowsCollector extends Serializable {
 				title := this.m_parent.m_savedWindowsInfo[i].path
 				g := this.m_parent.m_savedWindowsInfo[i].geometry
 				winGeometryText := Format("[{1}, {2}; {3}x{4}]", g.x, g.y, g.width, g.height)
-				LV_Add("", title, winGeometryText)
+				SplitPath(title, dirName), dirName := dirName ? dirName : title
+				LV_Add(""
+						;Width    : -15 -> left aligned minimum width of string
+						;Precision: .15 -> maximum characters to be printed
+						;NOTE: monospace font should be used in GUI for pleasant visual result
+					, Format("{:-15.15s}  | {}", dirName, title)
+					, winGeometryText)
 			}
 
 			if (focusedRow) {
