@@ -99,7 +99,8 @@ class ClosedWindowsCollector extends Serializable {
 			Gui New, +hWndhWnd +Resize
 			WinEvents.Register(hWnd, this)
 			this.m_hWnd := hWnd
-			Gui, Font,, % "Fira Code"
+			Gui Font,, % "Courier New"
+			Gui Font,, % "Fira Code"
 
 			Gui Add, ListView, +hWndhWnd w800 h500 NoSortHdr, Dir & Path|Geometry [X, Y; WxH]
 			this.m_hWndListView := hWnd
@@ -138,8 +139,10 @@ class ClosedWindowsCollector extends Serializable {
 			SetTimer(f, "Delete")
 		}
 
-		;Updates presence of '[✘]' marker near non-existent path
+		;Updates presence of marker near existent folders' path
 		updateWindowStatus() {
+			static cExistentWindowTitlePrefix := "[🔆] "
+
 			hWnd := this.m_hWnd
 			if (!WinExist("ahk_id" hWnd)) {
 				return
@@ -150,12 +153,17 @@ class ClosedWindowsCollector extends Serializable {
 
 			Loop % LV_GetCount() {
 				LV_GetText(text, A_Index)
-				if (WinExist(cleanPath := RegExReplace(text, "\Q" this.cExistentWindowTitlePostfix "\E"))) {
-					if (cleanPath == text)
-						LV_Modify(A_Index, "Col1", cleanPath . this.cExistentWindowTitlePostfix)
+
+				hasMarker := InStr(text, cExistentWindowTitlePrefix)
+				cleanPath := RegExReplace(text, "(^.+  \| )|(\Q" cExistentWindowTitlePrefix "\E)") ;Remove all from beginning of string upto "|" delimiter AND cExistentWindowTitlePrefix
+				if (WinExist(cleanPath)) {
+					if (!hasMarker) {
+						LV_Modify(A_Index, "Col1", StrReplace(text, "| ", "| " cExistentWindowTitlePrefix))
+					}
 				} else {
-					if (cleanPath != text)
-						LV_Modify(A_Index, "Col1", cleanPath)
+					if (hasMarker) {
+						LV_Modify(A_Index, "Col1", StrReplace(text, cExistentWindowTitlePrefix))
+					}
 				}
 			}
 		}
@@ -198,8 +206,6 @@ class ClosedWindowsCollector extends Serializable {
 		GuiSize() {
 			Anchor(this.m_hWndListView, "wh")
 		}
-
-		static cExistentWindowTitlePostfix := " [🔆]"
 
 		m_parent := {}
 		m_hWnd := ""
