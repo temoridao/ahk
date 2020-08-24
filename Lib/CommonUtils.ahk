@@ -98,7 +98,9 @@ class CommonUtils extends ImmutableClass {
 				}
 			}
 
-			CommonUtils.setExplorerSelection(WinGet("ID", value.path), value.selectedFiles)
+			if (value.selectedFiles.Length()) {
+				CommonUtils.setExplorerSelection(WinGet("ID", value.path), value.selectedFiles)
+			}
 		}
 
 		listOfFailedFolders := []
