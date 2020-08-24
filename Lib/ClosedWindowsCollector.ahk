@@ -131,7 +131,10 @@ class ClosedWindowsCollector extends Serializable {
 		;Display UI and block current thread until UI window closed
 		exec() {
 			LV_ModifyCol(1, "Auto") ; Auto expand first column to fit content
-			Gui Show,, Recently Closed (most recent at the top) — [Win+W]
+			Gui Show,
+			  , % Format("Recently Closed (most recent at the top) — {}, Enter, double click to reopen window from list; {} to show this dialog"
+			  , this.m_parent.m_keySequenceReopenSavedWindow
+			  , this.m_parent.m_keySequenceShowSavedWindowsSummary)
 			Gui +AlwaysOnTop
 			f := this.updateWindowStatus.Bind(this)
 			SetTimer(f, 100)
