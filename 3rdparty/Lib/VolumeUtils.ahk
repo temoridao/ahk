@@ -105,3 +105,69 @@ VA_SetAppMute(App, Muted) {
 	VA_ISimpleAudioVolume_SetMute(ISAV, Muted)
 	ObjRelease(ISAV)
 }
+
+/**
+ * Change current default audio endpoint device. Call this function without parameters to switch
+ * between all available playback devices one by one.If @p targetDeviceName specified, try to find
+ * matching device in all currently available devices of @p devType type. If matching device already
+ * active - does nothing. If matching device cannot be found, set @c ErrorLevel to string
+ * "Not found" and returns empty string
+ *
+ * @code{.ahk}
+ *    ;Win+S to switch audio output (playback) device
+ *    #s::switchAudioEndpointDevice()
+ * @endcode
+ *
+ * @param   devType           Device type to switch to, e.g. "playback", "capture". See
+ *                            VA_GetDevice() for list of possible values.
+ * @param   targetDeviceName  Search for device with name matching this parameter (by means of @c
+ *                            InStr()). If this parameter not specified (empty), just switches to
+ *                            the next device in @p devType's chain. You can find names for this
+ *                            parameter by clicking standard Windows volume icon in tray or in
+ *                            volume mixer.
+ *
+ * @return  Name of audio endpoint device actually applied after call to this function or empty
+ *          string in case of error
+ */
+switchAudioEndpointDevice(devType := "playback", targetDeviceName := "") {
+	currentDevName := VA_GetDeviceName(VA_GetDevice())
+	newDevIndex := 0
+
+	;Caller requests explicit device name (or part of it). Try to find it. If matching device is
+	;already active - set ErrorLevel and return empty string
+	if (targetDeviceName) {
+		if (InStr(currentDevName, targetDeviceName)) {
+			return currentDevName
+		}
+
+		while (dev := VA_GetDevice(devType ":" A_Index)) {
+			devName := VA_GetDeviceName(dev)
+			if (InStr(devName, targetDeviceName)) {
+				newDevIndex := A_Index
+			}
+		}
+
+		if (!newDevIndex) {
+			ErrorLevel := "Not found"
+			return ""
+		}
+	} else { ;No explicit device name provided. Switch to tne next available device if any
+		currentDevIndex := devCount := 0
+		while (dev := VA_GetDevice(devType ":" A_Index)) {
+			if (VA_GetDeviceName(dev) = currentDevName) {
+				currentDevIndex := A_Index
+			}
+			++devCount
+		}
+		if (devCount <= 1) {
+			return currentDevName
+		}
+		nextDevIndex := currentDevIndex + 1
+		newDevIndex := nextDevIndex > devCount ? 1 : nextDevIndex
+	}
+
+	devDescription := devType ":" newDevIndex
+	VA_SetDefaultEndpoint(devDescription, 0)
+	newDevName := VA_GetDeviceName(VA_GetDevice(devDescription))
+	return newDevName
+}
