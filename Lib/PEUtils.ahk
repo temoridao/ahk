@@ -15,7 +15,8 @@ class PEUtils extends ImmutableClass {
 	 *
 	 * @param   PEfilePath  The PE file path (.exe or .dll for example)
 	 *
-	 * @return  Build date for Exe/Dll file
+	 * @return  Build date for @p PEfilePath in YYYYMMDDHH24MISS format suitable for @c FormatTime
+	 *          builitin function
 	 */
 	buildDate(PEfilePath) {
 		date := 1970
