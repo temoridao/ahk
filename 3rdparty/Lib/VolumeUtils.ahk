@@ -130,11 +130,14 @@ VA_SetAppMute(App, Muted) {
  *          string in case of error
  */
 switchAudioEndpointDevice(devType := "playback", targetDeviceName := "") {
+	ErrorLevel = 0
+
 	currentDevName := VA_GetDeviceName(VA_GetDevice())
 	newDevIndex := 0
 
 	;Caller requests explicit device name (or part of it). Try to find it. If matching device is
-	;already active - set ErrorLevel and return empty string
+	;already active - do nothing and return full device name according to system. If nothing found -
+	;set ErrorLevel and return empty string
 	if (targetDeviceName) {
 		if (InStr(currentDevName, targetDeviceName)) {
 			return currentDevName
