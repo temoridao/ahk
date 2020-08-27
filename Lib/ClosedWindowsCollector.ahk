@@ -102,7 +102,7 @@ class ClosedWindowsCollector extends Serializable {
 			Gui Font,, % "Courier New"
 			Gui Font,, % "Fira Code"
 
-			Gui Add, ListView, +hWndhWnd w800 h500 NoSortHdr, Dir & Path|Geometry [X, Y; WxH]
+			Gui Add, ListView, +hWndhWnd w800 h500 NoSortHdr AltSubmit, Dir & Path|Geometry [X, Y; WxH]
 			this.m_hWndListView := hWnd
 			functor := this.onListItemEvent.Bind(this)
 			GuiControl, +g, %hWnd%, %functor%
@@ -116,7 +116,18 @@ class ClosedWindowsCollector extends Serializable {
 		}
 
 		onListItemEvent() {
-			this.openWindow(A_EventInfo)
+			if (A_GuiEvent = "DoubleClick") {
+				this.openWindow(A_EventInfo)
+			} else if (A_GuiEvent = "K") { ; Key press event
+				keyName := GetKeyName(Format("vk{:x}", A_EventInfo))
+				if (keyName = "c" && GetKeyState("Ctrl", "P")) { ; Ctrl+C combination
+					LV_GetText(text, LV_GetNext())
+					; OutputDebug % "Selection: " text
+					Clipboard := this.cleanupPath(text)
+					; Wait for key release to avoid repetitive invocation of this function and copying to clipboard every time
+					KeyWait % keyName
+				}
+			}
 		}
 		onEnterPressed() {
 			this.openWindow(LV_GetNext(0, "Focused"))
@@ -142,9 +153,12 @@ class ClosedWindowsCollector extends Serializable {
 			SetTimer(f, "Delete")
 		}
 
+		cleanupPath(dirtyPath) {
+			return RegExReplace(dirtyPath, "(^.+  \| )|(\Q" this.cExistentWindowTitlePrefix "\E)")
+		}
+
 		;Updates presence of marker near existent folders' path
 		updateWindowStatus() {
-			static cExistentWindowTitlePrefix := "[🔆] "
 
 			hWnd := this.m_hWnd
 			if (!WinExist("ahk_id" hWnd)) {
@@ -157,15 +171,15 @@ class ClosedWindowsCollector extends Serializable {
 			Loop % LV_GetCount() {
 				LV_GetText(text, A_Index)
 
-				hasMarker := InStr(text, cExistentWindowTitlePrefix)
-				cleanPath := RegExReplace(text, "(^.+  \| )|(\Q" cExistentWindowTitlePrefix "\E)") ;Remove all from beginning of string upto "|" delimiter AND cExistentWindowTitlePrefix
+				hasMarker := InStr(text, this.cExistentWindowTitlePrefix)
+				cleanPath := RegExReplace(text, "(^.+  \| )|(\Q" this.cExistentWindowTitlePrefix "\E)") ;Remove all from beginning of string upto "|" delimiter AND this.cExistentWindowTitlePrefix
 				if (WinExist(cleanPath)) {
 					if (!hasMarker) {
-						LV_Modify(A_Index, "Col1", StrReplace(text, "| ", "| " cExistentWindowTitlePrefix))
+						LV_Modify(A_Index, "Col1", StrReplace(text, "| ", "| " this.cExistentWindowTitlePrefix))
 					}
 				} else {
 					if (hasMarker) {
-						LV_Modify(A_Index, "Col1", StrReplace(text, cExistentWindowTitlePrefix))
+						LV_Modify(A_Index, "Col1", StrReplace(text, this.cExistentWindowTitlePrefix))
 					}
 				}
 			}
@@ -209,6 +223,8 @@ class ClosedWindowsCollector extends Serializable {
 		GuiSize() {
 			Anchor(this.m_hWndListView, "wh")
 		}
+
+		static cExistentWindowTitlePrefix := "[🔆] "
 
 		m_parent := {}
 		m_hWnd := ""
