@@ -47,7 +47,7 @@ class ClosedWindowsCollector extends Serializable {
 		; inside Hotkey command and allows ClosedWindowsCollector::__Delete() metafunction to be called on destruction.
 		; See https://www.autohotkey.com/boards/viewtopic.php?p=235969#p235969 for detailed explanation.
 		Hotkey(this.m_keySequenceReopenSavedWindow, ObjBindMethod(this.base, "restoreClosedFileExplorerWindow", &this))
-		HotKey(this.m_keySequenceShowSavedWindowsSummary, ObjBindMethod(this.base, "showSavedWindowsSummary", &this))
+		HotKey(this.m_keySequenceShowSavedWindowsSummary, ObjBindMethod(this.base, "showSavedWindowsSummary", &this), "T2")
 
 		this.m_isRunning := true
 	}
@@ -271,6 +271,10 @@ class ClosedWindowsCollector extends Serializable {
 
 	showSavedWindowsSummary(thisObjAddress) {
 		this := object(thisObjAddress)
+		if (this.m_ui && WinExist("ahk_id" this.m_ui.m_hWnd)) {
+			return WinRestore(), WinActivate()
+		}
+
 		this.m_ui := new ClosedWindowsCollector.SavedWindowsSummaryUi(this)
 		this.m_ui.exec()
 		this.m_ui := ""
