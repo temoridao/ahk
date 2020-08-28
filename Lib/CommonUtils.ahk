@@ -52,22 +52,68 @@ class CommonUtils extends ImmutableClass {
 		return ""
 	}
 
-	/* Restores explorer.exe's directories from \p pathAndWinGeometry on the screen (creating new processes if needed).
-		 Returns list, each element of which is a path that is not restored (f.e non-existent directories)
-		 pathAndWinGeometry — array of objects:
-		"pathAndWinGeometry": [{
-			"geometry": {
-				"height": 680,
-				"width": 1306,
-				"x": 257,
-				"y": 235
-			},
-			"path": "C:\\Users\\cool_user\\Desktop\\"
-			"selectedFiles": ["/Absolute/Path/To/File"],
-		}]
-	*/
-	reopenExplorerWindows(pathAndWinGeometry) {
+	/**
+	 * Finds a nearest existing directory.
+	 *
+	 * Goes up in the @p path directory hierarchy until valid existing directory found
+	 *
+	 * @param   dirPath  The dir path
+	 *
+	 * @return  The nearest existing parent directory from the @p dirPath hierarchy or @p dirPath
+	 *          itself if it is already exist
+	 */
+	findNearestExistingDirectory(dirPath) {
+		while (dirPath) {
+			if (InStr(FileExist(dirPath), "D")) {
+				return dirPath
+			} else {
+				if (!InStr(dirPath, "\")) {
+					dirPath := ""
+					break
+				}
+				dirPath := RegExReplace(dirPath, "(.*)\\{1,}.*$", "$1")
+			}
+		}
+
+		return dirPath
+	}
+
+	/**
+	 * Restores explorer directories along with their geometry
+	 *
+	 * Restores explorer.exe's directories from @p pathAndWinGeometry on the screen, creating new
+	 * instances or restoring already opened windows.
+	 *
+	 * The @p pathAndWinGeometry is an array of objects and has the following structure
+	 * (@c geometry and @c selectedFiles keys are optional):
+	 * @code
+	 * "pathAndWinGeometry": [{
+	 *   "geometry": {
+	 *    "height": 680,
+	 *    "width": 1306,
+	 *    "x": 257,
+	 *    "y": 235
+	 *   },
+	 *   "path": "C:\Users\cool_user\Desktop\"
+	 *   "selectedFiles": ["C:\Absolute\Path\To\Files\To\Be\Selected"],
+	 * }]
+	 * @endcode
+	 *
+	 * The @p options can have the following values:
+	 * - A
+	 *  If directory specified by @c path key doesn't exist, try to open its parent directory. The
+	 *  process continues until the first existing directory found up to root drive letter
+	 *
+	 * @param   pathAndWinGeometry  The path to directory and its window geometry to be restored.
+	 *                              See detailed description for the structure of this object
+	 * @param   options             The options affecting restoration behavior
+	 *
+	 * @return  An array, each element of which is a path that cannot be restored (or partially
+	 *          restored if @c "A" option specified in @p options)
+	 */
+	reopenExplorerWindows(pathAndWinGeometry, options := "") {
 		raii := new AVarValuesRollback("A_TitleMatchMode=3") ; Exact title match
+		optTryOpenNearestDirectory := InStr(options, "A")
 
 		nonExistentFoldersIndices := []
 		for i, value in pathAndWinGeometry {
@@ -76,22 +122,31 @@ class CommonUtils extends ImmutableClass {
 				continue
 			}
 
-			if (!FileExist(value.path)) {
+			path := value.path
+			if (!FileExist(path)) {
 				nonExistentFoldersIndices.Push(i)
-				continue
+
+				if (optTryOpenNearestDirectory) {
+					if (!(path := CommonUtils.findNearestExistingDirectory(path))) {
+						continue
+					}
+				} else {
+					continue
+				}
+
 			}
 
-			WinExist(value.path) ? WinActivate() : Run("explorer.exe """ value.path """")
+			WinExist(path) ? WinActivate() : Run("explorer.exe """ path """")
 		}
 
 		for i, value in pathAndWinGeometry {
 			if (HasVal(nonExistentFoldersIndices, i)) {
-				continue ; Do not try to wait for non-existend folders
+				continue ; Do not try to wait for non-existent folders
 			}
 
 			WinWait % value.path,,2
 			if (value.geometry) {
-				if (value.geometry.x = -32000) { ;this means that window was minimzed when closed, so restore it with some default geometry
+				if (value.geometry.x = -32000) { ;this means that window was minimized when closed, so restore it with some default geometry
 					WinMove % value.path,, A_ScreenWidth/8, A_ScreenHeight/6, A_ScreenWidth/1.3, A_ScreenHeight/1.3
 				} else {
 					WinMove % value.path,, value.geometry.x, value.geometry.y, value.geometry.width, value.geometry.height
@@ -110,8 +165,8 @@ class CommonUtils extends ImmutableClass {
 
 		return listOfFailedFolders
 	}
-	reopenExplorerWindow(path, winGeom := "", selectedFile := "") {
-		return CommonUtils.reopenExplorerWindows([{path : path, geometry: winGeom, selectedFiles: [selectedFile]}])
+	reopenExplorerWindow(path, winGeom := "", selectedFile := "", options := "") {
+		return CommonUtils.reopenExplorerWindows([{path : path, geometry: winGeom, selectedFiles: [selectedFile]}], options)
 	}
 	; Special folders like "This PC", "Control Panel", etc which represented as CLSID values f.e. ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}
 	isSpecialFolder(path) {

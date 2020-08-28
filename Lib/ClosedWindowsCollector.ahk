@@ -262,7 +262,7 @@ class ClosedWindowsCollector extends Serializable {
 		this := object(thisObjAddress)
 
 		if (this.m_savedWindowsInfo.Length()) {
-			failedToOpenList :=  row > 0 ? CommonUtils.reopenExplorerWindow(this.m_savedWindowsInfo[row].path, this.m_savedWindowsInfo[row].geometry) : CommonUtils.reopenExplorerWindows([this.m_savedWindowsInfo.Pop()])
+			failedToOpenList :=  row > 0 ? CommonUtils.reopenExplorerWindow(this.m_savedWindowsInfo[row].path, this.m_savedWindowsInfo[row].geometry, "", "A") : CommonUtils.reopenExplorerWindows([this.m_savedWindowsInfo.Pop()], "A")
 			if (failedToOpenList.Length()) {
 				MsgBox % 262144 + 48, Failed To Open Folder, % failedToOpenList[1]
 			}
