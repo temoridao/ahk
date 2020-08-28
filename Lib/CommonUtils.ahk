@@ -511,6 +511,52 @@ class CommonUtils extends ImmutableClass {
 		Return resultIcon
 	}
 
+	/**
+	 * Converts AHK hotkey into human readable representation
+	 *
+	 * @code{.ahk}
+	 * ;Displays "You just press: RCtrl-LShift-T"
+	 * ~*^+t::MsgBox % "You just press: " CommonUtils.hotkeyToDisplayString(A_ThisHotkey)
+	 * @endcode
+	 *
+	 * @param   hotkeyEncoded  The hotkey encoded according to AutoHotkey rules
+	 * @param   joiner         The string which joins individual keys in the resulting value
+	 *
+	 * @return  Human readable representation of AHK-encoded hotkey
+	 */
+	hotkeyToDisplayString(hotkeyEncoded, joiner := "-") {
+		static cModifiers := {  "^" : "Ctrl"
+													, "!" : "Alt"
+													, "+" : "Shift"
+													, "#" : "Win"}
+
+		static cModifiersPlacement := { "<" : "L"
+		                              , ">" : "R" }
+
+		if (cModifiers.HasKey(joiner) || cModifiersPlacement.HasKey(joiner)) {
+			Throw "Joiner is equivalent to one of special symbols"
+		}
+
+		r := hotkeyEncoded
+		r := RegexReplace(r, "i)([\*~\$])|(\s+up\s*)") ; "^t up" -> "^t"
+		r := RegexReplace(r, "\s+&\s+", joiner)        ; "F3 & t" -> "F3<joiner>t"
+
+		; Uppercase single-letter keys, i.e. "^p" becomes "^P", but "^PgDn" will be untouched
+		if (pos := RegexMatch(r, "\b\w\b")) {
+			r := StrReplace(r, needle:=SubStr(r, pos, 1), Format("{:U}", needle))
+		}
+
+		for k, v in cModifiers {
+			r := StrReplace(r, k, v . joiner)
+		}
+
+		for k, v in cModifiersPlacement {
+			r := StrReplace(r, k, v)
+		}
+
+		return r
+	}
+
 	;Function-wrapper to use in SetTimer instead of LABEL:
 	DisableSplash() {
 		SplashImage Off
