@@ -264,7 +264,7 @@ class ClosedWindowsCollector extends Serializable {
 		if (this.m_savedWindowsInfo.Length()) {
 			failedToOpenList :=  row > 0 ? CommonUtils.reopenExplorerWindow(this.m_savedWindowsInfo[row].path, this.m_savedWindowsInfo[row].geometry, "", "A") : CommonUtils.reopenExplorerWindows([this.m_savedWindowsInfo.Pop()], "A")
 			if (failedToOpenList.Length()) {
-				MsgBox % 262144 + 48, Failed To Open Folder, % failedToOpenList[1]
+				CommonUtils.ShowToolTip("Failed to restore folder: " failedToOpenList[1], 5000)
 			}
 		}
 	}
