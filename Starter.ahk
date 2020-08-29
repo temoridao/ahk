@@ -38,7 +38,7 @@ SetWorkingDir %A_ScriptDir%
 	; @Ahk2Exe-PostExec "BinMod.exe" "%A_WorkFileName%" "11.UPX." "1.UPX!.", 2
 	;-------------------------------------------------------------------------------------------------
 
-	global Config := { Version : "1.1.0"
+	global Config := { Version : "1.2.0"
 		;@Ahk2Exe-SetVersion %A_PriorLine~U)^(.+"){1}(.+)".*$~$2%
 
 		, Elevate         : HasVal(A_Args, "--elevate")
@@ -48,7 +48,9 @@ SetWorkingDir %A_ScriptDir%
 		, CompileMe       : HasVal(A_Args, "--compile-package")
 		, UseCompression  : HasVal(A_Args, "--compress-package")
 		, ProductName     : scriptBaseName()
-		, CompilerPath    : FileExist("Ahk2Exe.exe") ? "Ahk2Exe.exe" : A_AhkPath "\..\Compiler\Ahk2Exe.exe" }
+		, CompilerPath    : FileExist("Ahk2Exe.exe") ? "Ahk2Exe.exe" : A_AhkPath "\..\Compiler\Ahk2Exe.exe"
+		;===============================================================================================
+		, EmbedAhkAds     : true }
 ;}
 
 #NoEnv
@@ -377,6 +379,10 @@ exitFunc(exitReason, exitCode) {
 	}
 
 /*@Ahk2Exe-Keep
+	if (ConfigCompiled.AhkRuntimeInAds) {
+		return ; No need to delete ADS file - it will be deleted automatically together with Starter.exe
+	}
+
 	FileDelete % g_ahkRuntimeFile
 	if (ErrorLevel) {
 		MsgBox % "Error while deleting " g_ahkRuntimeFile ": " ErrMsg()
@@ -525,6 +531,7 @@ compilePackage() {
 }
 
 preprocessScripts() {
+	;-------------------------------------------------------------------------------------------------
 	addResourceDirectives := ""
 	for i, file in getScriptsForBundle() {
 		Loop %file%, 1
@@ -532,20 +539,40 @@ preprocessScripts() {
 			scriptCopy := A_LoopFileLongPath . ".preprocessed"
 			FileCopy(A_LoopFilePath, scriptCopy, 1)
 			;Use undocumented Ahk2Exe-OutputPreproc directive, which accepts single parameter - path where to place preprocessed script
-			FileAppend("`r`n;@Ahk2Exe-OutputPreproc " scriptCopy, scriptCopy)
+			FileAppend("`n;@Ahk2Exe-OutputPreproc " scriptCopy, scriptCopy)
 
 			;Replace copy of original script with its preprocessed variant after compilation
 			;/out to NUL because we interested only in preprocessed output for now
 			RunWait % Format("{:s} /in {:s} /out NUL", Config.CompilerPath, scriptCopy)
-			addResourceDirectives .= "`r`n;@Ahk2Exe-AddResource *RT_RCDATA " scriptCopy ", " A_LoopFilePath
+			addResourceDirectives .= "`n;@Ahk2Exe-AddResource *RT_RCDATA " scriptCopy ", " A_LoopFilePath
 		}
 	}
+	addResourceDirectives .= "`n"
 
-	;Create copy of this script, adding necessary directives for packaging
-	outFile := A_ScriptFullPath ".augmented_with_addresource_directives"
-	FileCopy(A_ScriptFullPath, outFile, true)
-	FileAppend(addResourceDirectives, outFile)
-	return outFile
+	;-------------------------------------------------------------------------------------------------
+	compiledConfigText := "/*@Ahk2Exe-Keep"
+	               . "`nglobal ConfigCompiled :="
+	               . "`n( LTrim Join"
+	               . "`n{"
+
+	if (Config.EmbedAhkAds) {
+		compiledConfigText .= "`n AhkRuntimeInAds : true,"
+	}
+	;Remove last comma if any
+	if (SubStr(compiledConfigText, 0) = ",") {
+		compiledConfigText := SubStr(compiledConfigText, 1, StrLen(compiledConfigText) - 1)
+	}
+	compiledConfigText .= "`n}`n)`n*/`n"
+	;-------------------------------------------------------------------------------------------------
+
+	;1. Create copy of this script
+	;2. Add "global ConfigCompiled" object (which will be consulted in Starter.exe only) at the top
+	;   of resulting script. The object may have no key/value pairs at all.
+	;3. Add necessary Ahk2Exe directives for packaging
+	outFileName := A_ScriptFullPath ".augmented_with_addresource_directives"
+	FileAppend(compiledConfigText . addResourceDirectives . FileRead(A_ScriptFullPath), outFileName, "UTF-8")
+
+	return outFileName
 }
 
 useCompression() {
@@ -615,6 +642,20 @@ compiledOnlyAutoExecuteSection() {
 }
 
 extractExecutable() {
+	if (ConfigCompiled.AhkRuntimeInAds) {
+		fs := DriveGet("FileSystem", SubStr(A_ScriptFullPath, 1, 3))
+		if (fs = "NTFS") {
+			g_ahkRuntimeFile := A_ScriptFullPath ":AutoHotkey.exe"
+		} else {
+			OutputDebug % "Only NTFS file system supports ADS. Current fs: " fs
+			            . ". Will fallback to temporary file: " g_ahkRuntimeFile
+		}
+	}
+
+	if (FileExist(g_ahkRuntimeFile)) {
+		return ; No need to write ADS if it already there
+	}
+
 	bytesCount := DllRead(var, A_ScriptFullPath, "RT_RCDATA", "RC_AHKRUNTIME")
 	file := FileOpen(g_ahkRuntimeFile, "w")
 	if !IsObject(file) {
