@@ -53,6 +53,8 @@ SetWorkingDir %A_ScriptDir%
 		, EmbedAhkAds     : true }
 ;}
 
+global g_scriptResourceAliasPrefix := "StarterExeResourcePrefix_"
+
 #NoEnv
 #Warn UseUnsetLocal
 #Warn UseUnsetGlobal
@@ -228,10 +230,11 @@ scriptBaseName() {
 	return SubStr(A_ScriptName, 1, InStr(A_ScriptName, ".ahk") -1)
 }
 
+;Returns all scripts from Config Section, then all scripts from Starter.txt in that order
 getScriptsForBundle() {
 	RegExMatch(FileRead(A_ScriptFullPath), "isO);\{ Config Section.+?;\}", matchObj)
 	configSection := matchObj[0]
-	scripts := {}
+	result := []
 	pos := 1
 	while pos := RegExMatch(configSection
 	                      , "imO);" (Config.CompileMe ? "" : "\s*") "@Ahk2Exe-AddResource \*RT_RCDATA (.+\.ahk)$"
@@ -239,7 +242,9 @@ getScriptsForBundle() {
 	                      , pos) {
 		match := matchObj[1]
 		pos += StrLen(match)
-		scripts[match] := ""
+		if (!HasVal(result, match)) {
+			result.Push(match)
+		}
 	}
 
 	if (FileExist(runPlanFile := scriptBaseName() ".txt")) {
@@ -267,12 +272,6 @@ getScriptsForBundle() {
 			}
 		}
 	}
-
-	result := []
-	for script in scripts {
-		result.Push(script)
-	}
-
 	; MsgBox % "Scripts to " (Config.CompileMe ? "compile: " : "launch: ") . CommonUtils.ObjToString(result)
 
 	if (result.Length() = 0) {
@@ -282,13 +281,12 @@ getScriptsForBundle() {
 	return result
 
 	RememberScriptPath:
-		if (Config.CompileMe) {
-			if (fileWantCompile) {
-				scripts[isDirectory ? A_LoopFileLongPath : path] := ""
-			}
-		} else {
-			scripts[isDirectory ? A_LoopFileLongPath : path] := ""
-		}
+		scriptPath := isDirectory ? A_LoopFileLongPath : path
+		if (HasVal(result, scriptPath))
+			return
+		if (Config.CompileMe && !fileWantCompile)
+			return
+		result.Push(scriptPath)
 		return
 } putTextToClipboard(text) {
 	Clipboard := text
@@ -359,20 +357,27 @@ showHelpDialog() {
 
 setupTrayTip() {
 	for i, name in g_scriptNames {
-		g_trayTip .= " * " RegExReplace(name, "i)(.*\\)?(.+)\.ahk", "$2") "`n" ; Extract file's base name without extension
+		g_trayTip .= " * " RegExReplace(cleanupScriptResourceAlias(name), "i)(.*\\)?(.+)\.ahk", "$2") "`n" ; Extract file's base name without extension
 	}
 
 	Menu Tray, Tip, % g_trayTip
 }
 
-exitFunc(exitReason, exitCode) {
-	for i, pid in g_scriptsPids {
-		AhkScriptController.sendCommand("ahk_pid" pid, AhkScriptController.ID_FILE_EXIT)
-	}
+cleanupScriptResourceAlias(resourceAlias) {
+	return RegExReplace(resourceAlias, "i)" g_scriptResourceAliasPrefix "\d+_") ; Case-insensitive, because Ahk2Exe makes resource aliases uppercase
+}
 
-	for i, pid in g_scriptsPids {
+exitFunc(exitReason, exitCode) {
+	;Exit scripts in reverse order of launching
+
+	len := g_scriptsPids.Length()
+	Loop % len {
+		AhkScriptController.sendCommand("ahk_pid" g_scriptsPids[len - A_Index + 1], AhkScriptController.ID_FILE_EXIT)
+	}
+	Loop % len {
+		pid := g_scriptsPids[len - A_Index + 1]
 		winTitle := "ahk_pid" pid " ahk_class AutoHotkey"
-		WinWaitClose % winTitle,,1
+		WinWaitClose % winTitle,,2
 		if (ErrorLevel) {
 			MsgBox % "Wait for process exiting timed out (PID: " pid ")"
 		}
@@ -534,6 +539,7 @@ preprocessScripts() {
 	;-------------------------------------------------------------------------------------------------
 	addResourceDirectives := ""
 	for i, file in getScriptsForBundle() {
+		scriptIndex := A_Index
 		Loop %file%, 1
 		{
 			scriptCopy := A_LoopFileLongPath . ".preprocessed"
@@ -544,7 +550,9 @@ preprocessScripts() {
 			;Replace copy of original script with its preprocessed variant after compilation
 			;/out to NUL because we interested only in preprocessed output for now
 			RunWait % Format("{:s} /in {:s} /out NUL", Config.CompilerPath, scriptCopy)
-			addResourceDirectives .= "`n;@Ahk2Exe-AddResource *RT_RCDATA " scriptCopy ", " A_LoopFilePath
+
+			;Add prefix to resource alias to allow further sorting and maintain correct launch order. See ResourceAliasSortFunctor()
+			addResourceDirectives .= "`n;@Ahk2Exe-AddResource *RT_RCDATA " scriptCopy ", " g_scriptResourceAliasPrefix . scriptIndex "_" A_LoopFilePath
 		}
 	}
 	addResourceDirectives .= "`n"
@@ -712,6 +720,13 @@ fetchScriptsList() {
 		MsgBox % "No suitable resources found!"
 		ExitApp -2
 	}
+	g_scriptNames := sortArray(g_scriptNames, "F ResourceAliasSortFunctor")
+	; MsgBox % CommonUtils.ObjToString(g_scriptNames)
+}
+ResourceAliasSortFunctor(a1, a2) {
+	; Sorts in ascending numeric order. This method works only if the difference is never so large as to overflow a signed 64-bit integer.
+	return (RegExReplace(a1, "i)^" g_scriptResourceAliasPrefix "(\d+)_.+$", "$1"))
+	     - (RegExReplace(a2, "i)^" g_scriptResourceAliasPrefix "(\d+)_.+$", "$1"))
 }
 
 ExecScript(ahkPath, scriptText, scriptCommandLineParams := "", workingDir := "") {

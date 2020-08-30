@@ -64,3 +64,30 @@ GetFullPathName(path) {
 	DllCall("GetFullPathName", "str", path, "uint", cc, "str", buf, "ptr", 0, "uint")
 	return buf
 }
+
+/**
+ * Sort array object
+ *
+ * @param   arr      The array object
+ * @param   options  Sorting options similar to builit-in 'Sort' command
+ *
+ * @return  Sorted copy of @p arr according to @p options, or empty array if error occurs
+ */
+sortArray(arr, options:="") {
+	if (!IsObject(arr)) {
+		throw "Object expected"
+	}
+
+	list := ""
+	for i, item in arr {
+		list .= item "`n"
+	}
+
+	list := Trim(list, "`n")
+	Sort list, %options%
+
+	result := []
+	Loop Parse, list, `n
+		result.Push(A_LoopField)
+	return result
+}
