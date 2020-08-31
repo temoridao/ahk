@@ -93,7 +93,7 @@ if (Config.Elevate) {
 */
 
 OnExit("exitFunc")
-global g_scriptsPids := runScripts(), g_toggleSuspend := false
+global g_scriptsPids := runScripts(), g_forceSuspend := false
 setupTray()
 
 ;Place your custom code here if needed
@@ -202,11 +202,11 @@ setupTray()
 	toggleSuspendScripts() {
 		Suspend Permit
 		suspendAllScriptsOnTheSystem := InStr(A_ThisHotkey, "!")
-		setSuspend(g_toggleSuspend := !g_toggleSuspend, !suspendAllScriptsOnTheSystem)
+		setSuspend(g_forceSuspend := !g_forceSuspend, !suspendAllScriptsOnTheSystem)
 
 		suspendEnabledText := suspendAllScriptsOnTheSystem ? " Ⓢ  ALL " : " Ⓢ "
 		suspendDisabledText := suspendAllScriptsOnTheSystem ? " 🔆  ALL " : " 🔆 "
-		CommonUtils.ShowSplashPictureWithText(,,, g_toggleSuspend ? suspendEnabledText : suspendDisabledText,,,100)
+		CommonUtils.ShowSplashPictureWithText(,,, g_forceSuspend ? suspendEnabledText : suspendDisabledText,,,100)
 	}
 
 setSuspend(willSuspend, childScriptsOnly := true) {
