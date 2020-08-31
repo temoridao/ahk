@@ -53,8 +53,6 @@ SetWorkingDir %A_ScriptDir%
 		, EmbedAhkAds     : true }
 ;}
 
-global g_scriptResourceAliasPrefix := "StarterExeResourcePrefix_"
-
 #NoEnv
 #Warn UseUnsetLocal
 #Warn UseUnsetGlobal
@@ -63,13 +61,16 @@ global g_scriptResourceAliasPrefix := "StarterExeResourcePrefix_"
 ;Second instance is prohibited by manual check in checkForExistingInstance() function.
 #SingleInstance OFF
 
-SetTitleMatchMode 2 ;Match anywhere
-DetectHiddenWindows ON
-SetBatchLines -1
 #include <CommonUtils>
 #include <AhkScriptController>
 #include <TrayIconUtils>
 #include <ErrMsg>
+
+SetTitleMatchMode 2 ;Match anywhere
+DetectHiddenWindows ON
+SetBatchLines -1
+
+global g_scriptResourceAliasPrefix := "StarterExeResourcePrefix_"
 
 ;@Ahk2Exe-IgnoreBegin
 checkCompilator()
@@ -92,7 +93,7 @@ if (Config.Elevate) {
 */
 
 OnExit("exitFunc")
-global g_scriptsPids := runScripts(), g_trayTip := "", g_toggleSuspend := false
+global g_scriptsPids := runScripts(), g_toggleSuspend := false
 setupTray()
 
 ;Place your custom code here if needed
@@ -356,11 +357,12 @@ showHelpDialog() {
 }
 
 setupTrayTip() {
+	tip := ""
 	for i, name in g_scriptNames {
-		g_trayTip .= " * " RegExReplace(cleanupScriptResourceAlias(name), "i)(.*\\)?(.+)\.ahk", "$2") "`n" ; Extract file's base name without extension
+		tip .= " * " RegExReplace(cleanupScriptResourceAlias(name), "i)(.*\\)?(.+)\.ahk", "$2") "`n" ; Extract file's base name without extension
 	}
 
-	Menu Tray, Tip, % g_trayTip
+	Menu Tray, Tip, % tip
 }
 
 cleanupScriptResourceAlias(resourceAlias) {
@@ -464,9 +466,9 @@ OnScriptTrayCommandClicked() {
 		fileBaseName := ""
 		SplitPath(fullPath,,,, fileBaseName)
 
-		; g_trayTip := RegExReplace(g_trayTip, "s)\R? \* \Q" fileBaseName "\E\R?")
-		g_trayTip := RegExReplace(g_trayTip, "\* " fileBaseName, "✘ " fileBaseName)
-		Menu Tray, Tip, % g_trayTip
+		; tip := RegExReplace(A_IconTip, "s)\R? \* \Q" fileBaseName "\E\R?")
+		tip := RegExReplace(A_IconTip, "\* " fileBaseName, "✘ " fileBaseName)
+		Menu Tray, Tip, % tip
 
 		for i, scriptPath in g_scriptNames {
 			if InStr(fullPath, scriptPath) {
