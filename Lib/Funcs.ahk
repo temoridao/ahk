@@ -91,3 +91,7 @@ sortArray(arr, options:="") {
 		result.Push(A_LoopField)
 	return result
 }
+
+SplashImageOff() {
+	SplashImage OFF
+}

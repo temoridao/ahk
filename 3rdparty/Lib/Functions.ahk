@@ -169,6 +169,9 @@ PixelGetColor(X, Y, RGB = "") {
 PixelSearch(ByRef OutputVarX, ByRef OutputVarY, X1, Y1, X2, Y2, ColorID, Variation = "", Mode = "") {
 	PixelSearch, OutputVarX, OutputVarY, %X1%, %Y1%, %X2%, %Y2%, %ColorID%, %Variation%, %Mode%
 }
+Progress(ProgressParam1 , SubText:="", MainText:="", WinTitle:="", FontName:="") {
+	Progress, %ProgressParam1% , %SubText%, %MainText%, %WinTitle%, %FontName%
+}
 Random(Min = "", Max = "") {
 	Random, v, %Min%, %Max%
 	Return, v
@@ -208,6 +211,9 @@ SoundGetWaveVolume(DeviceNumber = "") {
 StatusBarGetText(Part = "", WinTitle = "", WinText = "", ExcludeTitle = "", ExcludeText = "") {
 	StatusBarGetText, v, %Part%, %WinTitle%, %WinText%, %ExcludeTitle%, %ExcludeText%
 	Return, v
+}
+SplashTextOff() {
+	SplashTextOff
 }
 SplitPath(ByRef InputVar, ByRef OutFileName = "", ByRef OutDir = "", ByRef OutExtension = "", ByRef OutNameNoExt = "", ByRef OutDrive = "") {
 	SplitPath, InputVar, OutFileName, OutDir, OutExtension, OutNameNoExt, OutDrive
@@ -255,6 +261,9 @@ StringUpper(ByRef InputVar, T = "") {
 SysGet(Subcommand, Param3 = "") {
 	SysGet, v, %Subcommand%, %Param3%
 	Return, v
+}
+ToolTip(Text:="", X:="", Y:="", WhichToolTip:="") {
+	ToolTip, %Text%, %X%, %Y%, %WhichToolTip%
 }
 Transform(Cmd, Value1, Value2 = "") {
 	Transform, v, %Cmd%, %Value1%, %Value2%

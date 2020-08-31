@@ -88,13 +88,13 @@ class CommonUtils extends ImmutableClass {
 	 * (@c geometry and @c selectedFiles keys are optional):
 	 * @code
 	 * "pathAndWinGeometry": [{
+	 *   "path": "C:\Users\cool_user\Desktop\"
 	 *   "geometry": {
 	 *    "height": 680,
 	 *    "width": 1306,
 	 *    "x": 257,
 	 *    "y": 235
 	 *   },
-	 *   "path": "C:\Users\cool_user\Desktop\"
 	 *   "selectedFiles": ["C:\Absolute\Path\To\Files\To\Be\Selected"],
 	 * }]
 	 * @endcode
@@ -457,32 +457,12 @@ class CommonUtils extends ImmutableClass {
 
 	ShowToolTip(text, timeout := 3000) {
 		ToolTip % text
-		SetTimer RemoveToolTip, -%timeout%
-		Return
-
-		RemoveToolTip:
-		ToolTip
-		Return
-	}
-
-	ShowSplashText(text, timeout := 3000) {
-		SplashTextOn,,, % text
-		SetTimer RemoveSplash, -%timeout%
-		Return
-
-		RemoveSplash:
-		SplashTextOff
-		Return
+		SetTimer("ToolTip", -timeout)
 	}
 
 	ShowText(text, timeout := 3000) {
 		Progress, B zh0 Fs16 W500, % text
-		SetTimer RemoveText, -%timeout%
-		Return
-
-		RemoveText:
-		Progress Off
-		Return
+		SetTimer(Func("Progress").Bind("OFF"), -timeout)
 	}
 
 	;Assigns icon to script if finds one in %baseDir% with name identical to calling script
@@ -555,11 +535,6 @@ class CommonUtils extends ImmutableClass {
 		}
 
 		return r
-	}
-
-	;Function-wrapper to use in SetTimer instead of LABEL:
-	DisableSplash() {
-		SplashImage Off
 	}
 
 	;Activates window under mouse cursor, sends `inputToSend` and activates previously active window
