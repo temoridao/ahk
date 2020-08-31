@@ -12,7 +12,7 @@ class ProcessTerminationWatcher {
 	watch(watchedPid, callback) {
 		Process Exist, % watchedPid
 		if !ErrorLevel {
-				OutputDebug % "Requested PID " watchedPid " doesn't exit anymore"
+				OutputDebug % "Requested PID " watchedPid " doesn't exist anymore"
 				return false
 		}
 		; OutputDebug %  "Start watching PID " watchedPid
