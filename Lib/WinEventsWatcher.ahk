@@ -4,7 +4,7 @@
  * License:
  *    Dedicated to Public Domain. See UNLICENSE.txt for details
 */
-#include %A_LineFile%\..\CommonUtils.ahk
+#include %A_LineFile%\..\Funcs.ahk
 
 ; Class accepts Func/BoundFunc objects and plain function name as callbacks
 ; Example usage:
