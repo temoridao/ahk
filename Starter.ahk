@@ -525,7 +525,8 @@ compilePackage() {
 	outFile := A_ScriptDir "\" Config.ProductName (compress ? "c" : "") ".exe"
 
 	;CMD cheat-sheet: Ahk2Exe.exe /in infile.ahk [/out outfile.exe] [/icon iconfile.ico] [/bin AutoHotkeySC.bin] [/mpress 1 (true) or 0 (false)] [/cp codepage]
-	RunWait % Config.CompilerPath " /in " inFile " /out " outFile . (compress ? " /compress 2" : ""),,UseErrorLevel
+	RunWait % Config.CompilerPath " /in """ inFile """ /out """ outFile """" . (compress ? " /compress 2" : ""),,UseErrorLevel
+
 	cleanTemporaryScripts()
 
 	MsgBox % Format("Compilation finished!`n`nProduct: {1} v{2}`n`n{3} seconds elapsed"
@@ -551,7 +552,7 @@ preprocessScripts() {
 
 			;Replace copy of original script with its preprocessed variant after compilation
 			;/out to NUL because we interested only in preprocessed output for now
-			RunWait % Format("{:s} /in {:s} /out NUL", Config.CompilerPath, scriptCopy)
+			RunWait % Format("{:s} /in ""{:s}"" /out NUL", Config.CompilerPath, scriptCopy)
 
 			;Add prefix to resource alias to allow further sorting and maintain correct launch order. See ResourceAliasSortFunctor()
 			addResourceDirectives .= "`n;@Ahk2Exe-AddResource *RT_RCDATA " scriptCopy ", " g_scriptResourceAliasPrefix . scriptIndex "_" A_LoopFilePath
