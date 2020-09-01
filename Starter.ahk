@@ -47,7 +47,7 @@ SetWorkingDir %A_ScriptDir%
 		;========================Options for compilation process========================================
 		, CompileMe       : HasVal(A_Args, "--compile-package")
 		, UseCompression  : HasVal(A_Args, "--compress-package")
-		, ProductName     : scriptBaseName()
+		, ProductName     : GetCmdParameterValue("--product-name", scriptBaseName())
 		, CompilerPath    : FileExist("Ahk2Exe.exe") ? "Ahk2Exe.exe" : A_AhkPath "\..\Compiler\Ahk2Exe.exe"
 		;===============================================================================================
 		, EmbedAhkAds     : true }

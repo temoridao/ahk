@@ -95,3 +95,13 @@ sortArray(arr, options:="") {
 SplashImageOff() {
 	SplashImage OFF
 }
+
+GetCmdParameterValue(parameterName, defaultValue := "") {
+	value := defaultValue
+	if (i := HasVal(A_Args, parameterName)) {
+		if (A_Args.Length() > i) {
+			value := A_Args[i+1]
+		}
+	}
+	return value
+}
