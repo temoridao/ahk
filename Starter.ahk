@@ -21,6 +21,7 @@
  *    Dedicated to Public Domain. See UNLICENSE.txt for details
 */
 SetWorkingDir %A_ScriptDir%
+ListLines Off
 
 ;{ Config Section
 	;       Commented lines below starting with @ are directives for Ahk2Exe compiler
