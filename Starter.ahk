@@ -36,7 +36,7 @@ ListLines Off
 	;@Ahk2Exe-Bin Unicode 64*
 	;@Ahk2Exe-AddResource *RT_RCDATA %A_AhkPath%, RC_AHKRUNTIME
 	; @Ahk2Exe-SetMainIcon Starter.exe.ico
-	; @Ahk2Exe-PostExec "BinMod.exe" "%A_WorkFileName%" "11.UPX." "1.UPX!.", 2
+	;@Ahk2Exe-Obey SelfCompilationCommand, RunWait %A_AhkPath% "%A_ScriptFullPath%" --compile-package`, "%A_ScriptFullPath%\.."
 	;-------------------------------------------------------------------------------------------------
 
 	global Config := { Version : "1.2.0"
@@ -77,6 +77,7 @@ global g_scriptResourceAliasPrefix := "StarterExeResourcePrefix_"
 checkCompilator()
 if (Config.CompileMe) {
 	compilePackage()
+	terminateRootCompiler()
 	ExitApp
 }
 
@@ -539,6 +540,16 @@ compilePackage() {
 	return outFile
 }
 
+; Terminates Ahk2Exe process which waits on 'Ahk2Exe-Obey SelfCompilationCommand' directive
+terminateRootCompiler() {
+	for i, hWnd in WinGet("List", "ahk_exe Ahk2Exe.exe") {
+		pid := WinGet("PID", "ahk_id" hWnd)
+		if (InStr(CommonUtils.getProcessCommandLine(pid), A_ScriptName)) {
+			Process Close, % pid
+		}
+	}
+}
+
 preprocessScripts() {
 	;-------------------------------------------------------------------------------------------------
 	addResourceDirectives := ""
@@ -582,7 +593,12 @@ preprocessScripts() {
 	;   of resulting script. The object may have no key/value pairs at all.
 	;3. Add necessary Ahk2Exe directives for packaging
 	outFileName := A_ScriptFullPath ".augmented_with_addresource_directives"
-	FileAppend(compiledConfigText . addResourceDirectives . FileRead(A_ScriptFullPath), outFileName, "UTF-8")
+
+	thisScriptText := FileRead(A_ScriptFullPath)
+	; Delete @Ahk2Exe-Obey directive from preprocessed script to prevent eternal spawning of Ahk2Exe processes
+	thisScriptText := RegExReplace(thisScriptText, "m)^\s*;@Ahk2Exe-Obey SelfCompilationCommand.+$")
+
+	FileAppend(compiledConfigText . addResourceDirectives . thisScriptText, outFileName, "UTF-8")
 
 	return outFileName
 }
