@@ -359,7 +359,7 @@ showHelpDialog() {
 setupTrayTip() {
 	tip := ""
 	for i, name in g_scriptNames {
-		tip .= " * " RegExReplace(cleanupScriptResourceAlias(name), "i)(.*\\)?(.+)\.ahk", "$2") "`n" ; Extract file's base name without extension
+		tip .= " * " RegExReplace(cleanupScriptResourceAlias(name), "i)(.*[/\\])?(.+)\.ahk", "$2") "`n" ; Extract file's base name without extension
 	}
 
 	Menu Tray, Tip, % tip
