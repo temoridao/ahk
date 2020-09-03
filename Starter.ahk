@@ -76,7 +76,6 @@ global g_scriptResourceAliasPrefix := "StarterExeResourcePrefix_"
 ;@Ahk2Exe-IgnoreBegin
 if (Config.CompileMe) {
 	compilePackage()
-	terminateRootCompiler()
 	ExitApp
 }
 
@@ -527,8 +526,24 @@ compilePackage() {
 
 	;CMD cheat-sheet: Ahk2Exe.exe /in infile.ahk [/out outfile.exe] [/icon iconfile.ico] [/bin AutoHotkeySC.bin] [/mpress 1 (true) or 0 (false)] [/cp codepage]
 	RunWait % Config.CompilerPath " /in """ inFile """ /out """ outFile """" . (compress ? " /compress 2" : ""),,UseErrorLevel
-
 	cleanTemporaryScripts()
+
+	; Terminates Ahk2Exe process and its child which waits on 'Ahk2Exe-Obey SelfCompilationCommand' directive
+	; And delete orphaned temporary file(s)
+	orphanedFile := ""
+	for i, hWnd in WinGet("List", "ahk_exe Ahk2Exe.exe") {
+		compilerPid := WinGet("PID", "ahk_id" hWnd)
+		if (InStr(CommonUtils.getProcessCommandLine(compilerPid), A_ScriptName)) { ; If this is compiler which compiles us
+			wmi := ComObjGet("winmgmts:")
+			queryEnum := wmi.ExecQuery("SELECT * FROM Win32_Process WHERE ParentProcessId=" compilerPid)._NewEnum()
+			queryEnum[procCompilerChild] ;AutoHotkey.exe which waits in RunWait from Obey
+			if (RegExMatch(procCompilerChild.CommandLine, "~Ahk2Exe.+\.tmp")) {
+				orphanedFile := RegExReplace(procCompilerChild.CommandLine, ".+?(\Q" A_Temp "\E\\~Ahk2Exe.+\.tmp)", "$1")
+				Process Close, % compilerPid
+				Process Close, % procCompilerChild.ProcessId
+			}
+		}
+	}
 
 	MsgBox % Format("Compilation finished!`n`nProduct: {1} v{2}`n`n{3} seconds elapsed"
 		             , outFile
@@ -536,17 +551,12 @@ compilePackage() {
 		             , (A_TickCount - startTime) / 1000)
 	WinExist(A_ScriptDir " ahk_exe explorer.exe") ? (WinRestore(), WinActivate(), CommonUtils.setExplorerSelection(WinExist(), [outFile]))
 	                                              : Run("explorer.exe /select`, " outFile)
-	return outFile
-}
 
-; Terminates Ahk2Exe process which waits on 'Ahk2Exe-Obey SelfCompilationCommand' directive
-terminateRootCompiler() {
-	for i, hWnd in WinGet("List", "ahk_exe Ahk2Exe.exe") {
-		pid := WinGet("PID", "ahk_id" hWnd)
-		if (InStr(CommonUtils.getProcessCommandLine(pid), A_ScriptName)) {
-			Process Close, % pid
-		}
-	}
+	logDebug("Deleting orphanded temporary: " orphanedFile)
+	FileDelete % orphanedFile
+	TrayIconUtils_removeOrphans()
+
+	return outFile
 }
 
 preprocessScripts() {
