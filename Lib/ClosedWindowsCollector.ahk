@@ -8,12 +8,32 @@
 	#include ShellEventsWatcher.ahk
 	#include UiUtils.ahk
 	#include Serializable.ahk
+	#include CommonUtils.ahk
 
 
 #include %A_LineFile%\..\..\3rdparty\
 	#include CodeQuickTester\lib\WinEvents.ahk
 	#include Lib\Anchor.ahk
 
+/**
+ * Basic usage:
+ *
+ * @code{.ahk}
+   #include <ClosedWindowsCollector>
+
+   hotkeyReopenWindow       := "#w"
+   , hotkeyShowSavedWindows := "#+w"
+   , maxSavedWindowsCount   := 50
+
+   global g_collector := new ClosedWindowsCollector(hotkeyReopenWindow
+                                                   , hotkeyShowSavedWindows
+                                                   , maxSavedWindowsCount)
+   ;Start monitoring of explorer.exe windows closing and save some info about them for reference/restoring later
+   g_collector.start()
+   ;Open, close some folders and try above hotkeys
+ * @endcode
+ *
+ */
 class ClosedWindowsCollector extends Serializable {
 ;public:
 	/**
