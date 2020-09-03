@@ -74,7 +74,6 @@ SetBatchLines -1
 global g_scriptResourceAliasPrefix := "StarterExeResourcePrefix_"
 
 ;@Ahk2Exe-IgnoreBegin
-checkCompilator()
 if (Config.CompileMe) {
 	compilePackage()
 	terminateRootCompiler()
@@ -616,24 +615,6 @@ useCompression() {
 	}
 
 	return compress
-}
-
-checkCompilator() {
-	if (A_IsCompiled) {
-		text =
-		(LTrim
-			This script must be compiled with latest Ahk2Exe compiler which supports @Ahk2Exe directives from
-			https://github.com/AutoHotkey/Ahk2Exe.git
-
-			Afterwards choose Tray Menu > Compile Starter.exe or pass --compile-package option to this script and it will compile itself
-
-			Follow "How to Use" instructions in README carefully
-			Press OK to open README file
-		)
-		MsgBox % text
-		Run https://github.com/temoridao/ahk/blob/master/README.md#starterahk
-		ExitApp -1
-	}
 }
 
 ;--------------------------End of Starter.ahk-only Functions--------------------------
