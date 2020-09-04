@@ -1,28 +1,23 @@
 # Starter.ahk
-Smart launcher for your scripts with optional ability to compile (combine) all of them into single portable `Starter.exe` executable by one click!
+Smart launcher for your scripts with ability to compile/combine all of them into single portable _Starter.exe_ by one click!
 
 #### How to Use:
-1. Clone this repo `git clone --recursive https://github.com/temoridao/ahk` or [download latest snapshot](https://github.com/temoridao/ahk/releases)
-2. Double click on `Starter.ahk` — you'll see a message with simple instruction prompting you for the list of scripts to launch. Press OK and `Starter.txt` file will be opened ready for adding paths to your scripts or even whole directories (they scanned for `*.ahk` files)
-3. Add you favorite scripts, save .txt file and launch `Starter.ahk` again
+1. Clone this repo `git clone --recursive https://github.com/temoridao/ahk` or [download latest self-contained snapshot](https://github.com/temoridao/ahk/releases)
+2. Double click on _Starter.ahk_ — you'll see a message box prompting you for the list of scripts to launch. Press OK and _Starter.txt_ will be opened ready for adding paths to your scripts or even whole directories (they will be scanned for `*.ahk` files, non-recursively)
+3. Add your favorite scripts, save .txt file and launch _Starter.ahk_ again
 4. Done!
 
-5. Optional: right click on tray icon > `Compile Starter.exe` will create portable `Starter.exe` with all your scripts built-in (marked with `~`, see below)
+Optional: If you compile this script (with `Compile Script` entry from context menu, or in tray menu), it will embed all scripts you specified in the .txt (marked with `~`, see below) into _Starter.exe_'s resources (thanks to new Ahk2Exe). Now you have all your scritps in a single portable _Starter.exe_ (which can be copied to USB stick, etc).
 
-#### Full List of Features
-* Launch and centrally control the scripts you specified in Starter.txt (folders supported). Tray icons will be automatically hidden (even after restarting explorer.exe, see `ProcessTerminationWatcher.ahk` for details)
-* Right click on tray icon > `Compile Starter.exe` and you'll get single portable `Starter.exe` with all scripts built-in (you should mark them for compilation with `~` symbol at the beginning of the path, detailed explanation available in `Starter.txt` on first launch).
-NOTE: don't try to compile it "manually by hand", it will not work as expected, always use tray menu or `--compile-package` switch
-* _Win+Shift+Esc_ — restart all controlled scripts
-* _Win+Shift+\`_ (my favorite!) — restart **any AHK script** (controlled by Starter or not) if its window currently active. AND if previous step failed, checks if active window's title contains name of any script currently running on the system and, if matched, reloads it — extremely useful for debugging purposes (if your text editor contains name of currently edited script in the title, which is true for any sane editor)
-* _Win+Shift+S_ / _Win+Shift+Alt+S_ — suspend controlled / all currently running on the system scripts
-* _Win+Alt+Esc_ — temporary suspend controlled / all currently running on the system scripts, and automatically restore after specified interval (3 seconds by default)
-* Double click on Tray Icon will show Gui with short summary of controlled scripts (individual control of each script available in context menu of tray icon)
-* List of supported command line switches available in the Config Section. Some of them are disabled by default, such as `--elevate`, or disabled only for compiled version of Starter, such as `--show-tray-tip`
+#### List of Features
+* Launch and centrally control the scripts you specified in _Starter.txt_ (folders supported). Tray icons will be automatically hidden (even after restarting explorer.exe, see `ProcessTerminationWatcher.ahk` for details)
+* Compile it to get _Starter.exe_ with all scripts embeded (you should mark them for compilation with `~` symbol at the beginning of the path, as explained in _Starter.txt_ on first launch)
+* Individual control of each script available in right click context menu of tray icon
+* List of supported command line switches available in the _Config Section_ (top part of script). Some of them are disabled by default, such as `--elevate`, or disabled only for compiled version, such as `--show-tray-tip`. Feel free to experiment.
 * Custom tray icon will be automatically picked up if it located near script and has name of the script plus extension, f.e. Starter.ahk.ico (png, jpg supported). Or you can pass your own path, see CommonUtils.setupTrayIcon() method
-* Custom `Starter.exe` icon can be specified in Config Section (_@Ahk2Exe-SetMainIcon_ directive)
-* If you need compression for your executable, place `upx.exe` near the `Ahk2Exe.exe`. By default compiler copied to %A_AppData%\%A_ScriptName%, but if you manually place it near `Starter.ahk`, the latter takes precedence. Also note that compressed executable has `c` letter appended to its name by default, f.e. `Starterc.exe`
-* Your custom code can be added at the bottom of auto-execute section or to any optional injection file(s) (need to manually create them) for compiled, non-compiled or both forms of Starter (see comments in the script). For example, add the following code at the bottom of auto-execute section:
+* Custom _Starter.exe_ icon can be specified in Config Section with _@Ahk2Exe-SetMainIcon_ directive (remove space between semicolon and `@` to enable it). By default, an icon named _Starter.exe.ico_ expected
+* If you need compression for your executable, place upx.exe near the Ahk2Exe.exe. Also note that compressed executable will have `c` (from **c**ompressed) letter appended to its name by default, f.e. _Starterc.exe_
+* Your custom code can be added at the bottom of auto-execute section or to any optional injection file(s) (need to manually create them) for compiled, non-compiled or both forms of _Starter_ (see comments in the script). This is a convenient method of applying common logic for all your scripts at once. For example, add the following code at the bottom of auto-execute section:
 
 ```AutoHotkey
 #include <ShellEventsWatcher>
@@ -37,10 +32,17 @@ updateSuspension(activatedHwnd) {
 }
 shouldSuspend() {
 	static cHotkeysSuspendApps := ["mstsc.exe", "TeamViewer.exe"]
-	return HasVal(cHotkeysSuspendApps, WinGet("ProcessName", "A"))
+	return HasVal(cHotkeysSuspendApps, WinGet("ProcessName", "A")) ;NOTE: WinGet() here is a function wrapper around `WinGet` command. See 3rdparty\Lib\Functions.ahk
 }
 ```
-This will suspend all controlled scripts whenever Microsoft Remote Desktop or TeamViewer window becomes active and un-suspend all controlled scripts when those windows become inactive (useful if your remote machine also uses AutoHotkey scripts which may interfere with your local machine's hotkeys). You may add this code into some of injection files and get this functionality only in compiled or only in non-compiled version of Starter
+This will suspend all controlled scripts whenever Microsoft Remote Desktop or TeamViewer window becomes active and un-suspend them when those windows become inactive (useful if your remote machine also uses AutoHotkey which may interfere with your local machine's hotkeys). Or add this code into some of injection files.
+
+#### Builit-in Hotkeys
+* **Win+Shift+\\** (my favorite!) — restart **any AutoHotkey script** (controlled by Starter or not) if its window currently active. If previous check failed, then active window's title analyzed if it contains name of **any** script currently running on the system and, if match found, reloads it — extremely useful for debugging purposes (if your text editor contains name of currently edited script in the title, which is true for any sane editor)
+* **Win+Shift+Esc** — restart all controlled scripts
+* **Win+Shift+S** / **Win+Shift+Alt+S** — suspend controlled / all currently running on the system scripts
+* **Win+Alt+Esc** — temporary suspend all currently running on the system scripts, and automatically restore previous state after specified interval (3 seconds by default)
+
 
 # TrayIconsSummary.ahk
 Show simple Gui with a brief summary of taskbar's tray icons

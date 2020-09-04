@@ -15,7 +15,7 @@
  *    Starter.ahk can be compiled into single portable .exe file, containing all your controlled
  *    scripts (either by right click in explorer > Compile Script or with tray menu > Compile Starter.exe).
  *
- *    See README for the list of features and other details: https://github.com/temoridao/ahk/blob/master/README.md
+ *    See README for the list of features and other details: https://github.com/temoridao/ahk#starterahk
  * Links:
  *    GitHub     : https://github.com/temoridao/ahk
  *    Forum Topic: https://www.autohotkey.com/boards/viewtopic.php?f=6&t=77910
@@ -41,7 +41,7 @@ ListLines Off
 	;@Ahk2Exe-Obey SelfCompilationCommand, RunWait %A_AhkPath% "%A_ScriptFullPath%" --compile-package`, "%A_ScriptFullPath%\.."
 	;-------------------------------------------------------------------------------------------------
 
-	global Config := { Version : "1.2"
+	global Config := { Version : "2.0"
 		;@Ahk2Exe-SetVersion %A_PriorLine~U)^(.+"){1}(.+)".*$~$2%
 
 		, Elevate         : HasVal(A_Args, "--elevate")
@@ -321,7 +321,7 @@ showHelpDialog() {
 	exampleTxtFile =
 	(LTrim
 		;Lines started with semicolon are comments and ignored, as well as empty lines
-		;Each line in this file is a script path to launch (can be absolute or relative to this file)
+		;Each line in this file is a script path (or folder with scripts) to launch (can be absolute or relative to this file)
 		;Put tilde (~) at the beginning of path to mark the script or folder for inclusion into compiled %baseName%.exe
 
 		;--------------------------------------Some Examples--------------------------------------------
