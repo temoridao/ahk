@@ -317,21 +317,27 @@ reloadScript(oldPidIndex, scriptPath) {
 showHelpDialog() {
 	baseName := scriptBaseName()
 	helpTxt := A_ScriptName " cannot find any scripts to " (Config.CompileMe ? "compile" : "launch") ".`r`n"
-	         . "You must specify which scripts to launch/compile in the " baseName ".txt.`r`n`r`n"
+	         . "The scripts to launch/compile should be specified in " baseName ".txt.`r`n`r`n"
 	exampleTxtFile =
 	(LTrim
 		;Lines started with semicolon are comments and ignored, as well as empty lines
-		;Each line here is a script path to launch (can be absolute or relative to this file)
-		;Put tilde (~) at the beginning of path to mark the script for inclusion into compiled %baseName%.exe
+		;Each line in this file is a script path to launch (can be absolute or relative to this file)
+		;Put tilde (~) at the beginning of path to mark the script or folder for inclusion into compiled %baseName%.exe
 
-		;**************************************Some examples********************************************
-		;3rdparty\GoodScript.ahk
-		;~Automation.ahk
-		;~C:\path\to\AnotherGoodScript.ahk
-		;Specify path to directory and ALL .ahk files in that directory will be launched or compiled (if preceded with ~) into Starter.exe
-		;D:\Path\To\MyScriptsFolder
-		;***********************************************************************************************
-		;Put your scripts below and launch %A_ScriptName% when you are done.
+		;--------------------------------------Some Examples--------------------------------------------
+		;                                      -------------
+		;3rdparty\MyGoodScriptToLaunch.ahk
+		;~ThisScriptWillBeCompiled.ahk
+		;~C:\path\to\AnotherScriptWhichWillBeCompiled.ahk
+		;
+		;Specify path to directory so all .ahk files in that directory will be launched
+		;or compiled (if preceded with ~) into Starter.exe
+		;
+		;D:\Path\To\DirectoryWithScritpsToLaunch
+		;~D:\Path\To\DirectoryWithScriptsToLaunchAndCompile
+		;
+		;-----------------------------------------------------------------------------------------------
+		;Put path to your scripts below and run %A_ScriptName% when you are done.
 
 	)
 	MsgBox % helpTxt "(Press OK to start editing scripts list)"
