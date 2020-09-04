@@ -37,7 +37,7 @@ ListLines Off
 	;-------------------------------------------------------------------------------------------------
 	;@Ahk2Exe-Bin Unicode 64*
 	;@Ahk2Exe-AddResource *RT_RCDATA %A_AhkPath%, RC_AHKRUNTIME
-	; @Ahk2Exe-SetMainIcon Starter.exe.ico
+	; @Ahk2Exe-SetMainIcon %A_ScriptName~\..+$~.exe%.ico
 	;@Ahk2Exe-Obey SelfCompilationCommand, RunWait %A_AhkPath% "%A_ScriptFullPath%" --compile-package`, "%A_ScriptFullPath%\.."
 	;-------------------------------------------------------------------------------------------------
 
@@ -224,7 +224,7 @@ setSuspend(willSuspend, childScriptsOnly := true) {
 
 checkForExistingInstance() {
 	if (WinGet("List", A_ScriptName " ahk_class AutoHotkey").Length() > 1) {
-		MsgBox % "Already exists"
+		MsgBox % "Already running"
 		ExitApp
 	}
 }
