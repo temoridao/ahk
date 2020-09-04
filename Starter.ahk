@@ -1,17 +1,19 @@
 ﻿/**
  * Description:
- *    Smart launcher for your scripts with optional ability to compile (combine) all of them into
- *    a single portable Starter.exe executable by one click.
+ *    Smart launcher for your scripts with optional ability to compile/combine them into
+ *    a single portable Starter.exe executable by single click.
  * Requirements:
  *    AutoHotkey v1.1.33+
  * Installation:
  *    git clone --recursive https://github.com/temoridao/ahk
  *        or download latest snapshot here: https://github.com/temoridao/ahk/releases
  *
- *    Launch Starter.ahk and it will create Starter.txt, prompting you for the list of scripts.
- *    After you have done, save txt file and launch Starter.ahk again. Now you have all your scripts
- *    running under control of Starter.ahk.
- *    To compile your scripts into single portable .exe file, select Tray Menu > Compile Starter.exe
+ *    Launch Starter.ahk and it will create Starter.txt, prompting you for the list of scripts to
+ *    control.
+ *    After you have done, save .txt file and launch Starter.ahk again. Now you have all your
+ *    scripts running under control of Starter.ahk.
+ *    Starter.ahk can be compiled into single portable .exe file, containing all your controlled
+ *    scripts (either by right click in explorer > Compile Script or with tray menu > Compile Starter.exe).
  *
  *    See README for the list of features and other details: https://github.com/temoridao/ahk/blob/master/README.md
  * Links:
@@ -289,8 +291,6 @@ getScriptsForBundle() {
 			return
 		result.Push(scriptPath)
 		return
-} putTextToClipboard(text) {
-	Clipboard := text
 }
 
 runScript(path) {
@@ -315,37 +315,26 @@ reloadScript(oldPidIndex, scriptPath) {
 }
 
 showHelpDialog() {
-	helpTxt := A_ScriptName " cannot find any scripts to " (Config.CompileMe ? "compile" : "launch") ".`r`nYou must specify which scripts to launch/compile in the " scriptBaseName() ".txt like this:`r`n`r`n"
+	baseName := scriptBaseName()
+	helpTxt := A_ScriptName " cannot find any scripts to " (Config.CompileMe ? "compile" : "launch") ".`r`n"
+	         . "You must specify which scripts to launch/compile in the " baseName ".txt.`r`n`r`n"
 	exampleTxtFile =
 	(LTrim
+		;Lines started with semicolon are comments and ignored, as well as empty lines
 		;Each line here is a script path to launch (can be absolute or relative to this file)
-		;Each line where first character is tilde (~) is also a script path to launch BUT it will additionally be compiled into Starter.exe (Tray Menu > Compile Starter.exe)
-		;Lines started with semicolon are comments and ignored as well as empty lines
-		;Some examples:
-		3rdparty\GoodScript.ahk
-		~Automation.ahk
-		~C:\path\to\AnotherGoodScript.ahk
+		;Put tilde (~) at the beginning of path to mark the script for inclusion into compiled %baseName%.exe
 
-		;Specify path to directory and ALL .ahk files in that directory will be launched or compiled (if preceded with ~) into single Starter.exe file
-		D:\Path\To\MyScriptsFolder
-
-
-	)
-	helpConfigSection := "=============================`r`nAlternatively you can specify which script to launch/compile directly at the top of " A_ScriptName " Config Section like this:`r`n`r`n"
-	exampleConfigSection =
-	(LTrim
-		;Config Section at the top of Starter.ahk:
-		;@Ahk2Exe-AddResource *RT_RCDATA MyCoolScript1.ahk
-		;@Ahk2Exe-AddResource *RT_RCDATA work\Automation.ahk
-		;@Ahk2Exe-AddResource *RT_RCDATA D:\storage\GoodScript.ahk
-
+		;**************************************Some examples********************************************
+		;3rdparty\GoodScript.ahk
+		;~Automation.ahk
+		;~C:\path\to\AnotherGoodScript.ahk
+		;Specify path to directory and ALL .ahk files in that directory will be launched or compiled (if preceded with ~) into Starter.exe
+		;D:\Path\To\MyScriptsFolder
+		;***********************************************************************************************
+		;Put your scripts below and launch %A_ScriptName% when you are done.
 
 	)
-	HotkeyIf(Func("WinActive").Bind("ahk_pid" DllCall("GetCurrentProcessId"), "", "", "")),
-	HotKey("^c", Func("putTextToClipboard").Bind(exampleTxtFile exampleConfigSection))
-	HotkeyIf()
-
-	MsgBox % helpTxt exampleTxtFile helpConfigSection exampleConfigSection "(Press Ctrl+C to copy examples above)"
+	MsgBox % helpTxt "(Press OK to start editing scripts list)"
 	if (!FileExist(txtFile := scriptBaseName() ".txt")) {
 		FileAppend(exampleTxtFile, txtFile)
 	}
