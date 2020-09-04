@@ -538,7 +538,7 @@ compilePackage() {
 			queryEnum := wmi.ExecQuery("SELECT * FROM Win32_Process WHERE ParentProcessId=" compilerPid)._NewEnum()
 			queryEnum[procCompilerChild] ;AutoHotkey.exe which waits in RunWait from Obey
 			if (RegExMatch(procCompilerChild.CommandLine, "~Ahk2Exe.+\.tmp")) {
-				orphanedFile := RegExReplace(procCompilerChild.CommandLine, ".+?(\Q" A_Temp "\E\\~Ahk2Exe.+\.tmp)", "$1")
+				orphanedFile := CommonUtils.makeAbsolutePath(RegExReplace(procCompilerChild.CommandLine, ".+?(\Q" A_Temp "\E\\~Ahk2Exe.+\.tmp)", "$1"))
 				Process Close, % compilerPid
 				Process Close, % procCompilerChild.ProcessId
 			}
@@ -554,6 +554,9 @@ compilePackage() {
 
 	logDebug("Deleting orphanded temporary: " orphanedFile)
 	FileDelete % orphanedFile
+	if (ErrorLevel) {
+		logWarn("Error deleting file: " ErrMsg())
+	}
 	TrayIconUtils_removeOrphans()
 
 	return outFile
