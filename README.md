@@ -11,7 +11,7 @@ Optional: If you compile this script (with `Compile Script` entry from context m
 
 #### List of Features
 * Launch and centrally control the scripts you specified in _Starter.txt_ (folders supported). Tray icons will be automatically hidden (even after restarting explorer.exe, see `ProcessTerminationWatcher.ahk` for details)
-* Compile it to get _Starter.exe_ with all scripts embeded (you should mark them for compilation with `~` symbol at the beginning of the path, as explained in _Starter.txt_ on first launch)
+* Compile it to get _Starter.exe_ with all scripts embedded (you should mark them for compilation with `~` symbol at the beginning of the path, as explained in _Starter.txt_ on first launch)
 * Individual control of each script available in right click context menu of tray icon
 * List of supported command line switches available in the _Config Section_ (top part of script). Some of them are disabled by default, such as `--elevate`, or disabled only for compiled version, such as `--show-tray-tip`. Feel free to experiment.
 * Custom tray icon will be automatically picked up if it located near script and has name of the script plus extension, f.e. Starter.ahk.ico (png, jpg supported). Or you can pass your own path, see CommonUtils.setupTrayIcon() method
