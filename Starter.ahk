@@ -41,7 +41,7 @@ ListLines Off
 	;@Ahk2Exe-Obey SelfCompilationCommand, RunWait %A_AhkPath% "%A_ScriptFullPath%" --compile-package`, "%A_ScriptFullPath%\.."
 	;-------------------------------------------------------------------------------------------------
 
-	global Config := { Version : "1.2.0"
+	global Config := { Version : "1.2"
 		;@Ahk2Exe-SetVersion %A_PriorLine~U)^(.+"){1}(.+)".*$~$2%
 
 		, Elevate         : HasVal(A_Args, "--elevate")
