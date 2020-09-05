@@ -34,6 +34,8 @@
  *
  * Usage:
  * @code{.ahk}
+   #include <AVarValuesRollback>
+
    SetTitleMatchMode 3 ;Exact match
    MsgBox % "Before function call: " A_TitleMatchMode
    testFunc()
@@ -44,6 +46,7 @@
    testFunc() {
     ;Set new values for A_-variables while remembering their current values beforehand
     raii := new AVarValuesRollback("A_TitleMatchMode=RegEx|A_BatchLines=44|A_WinDelay=96")
+    ;or alternatively: raii := avarguard("A_TitleMatchMode=RegEx|A_BatchLines=44|A_WinDelay=96")
     MsgBox % "Inside function: " A_TitleMatchMode
 
     MsgBox % "A_BatchLines will be restored from '" A_BatchLines "' to '" raii.StoredValue["A_BatchLines"] "' and A_TitleMatchMode from '" A_TitleMatchMode "' to '" raii.StoredValue["A_TitleMatchMode"] "' upon 'raii' object destruction"
@@ -120,4 +123,13 @@ class AVarValuesRollback {
 	}
 
 	m_storage := {}
+}
+
+/**
+ * Convenience factory function for QpcTimer class
+ *
+ * @return  New AVarValuesRollback object instance
+ */
+avarguard(aVarsString) {
+	return new AVarValuesRollback(aVarsString)
 }

@@ -1,12 +1,36 @@
 /**
- * Description:
- *    %TODO%
- * License:
- *    Dedicated to Public Domain. See UNLICENSE.txt for details
-*/
+ * @file
+ * @copyright Dedicated to Public Domain. See UNLICENSE.txt for details
+ */
+
 #include %A_LineFile%\..\ErrMsg.ahk
 
-; TODO: document usage
+/**
+ * Allows to subscribe on system process termination event and execute user defined callback when
+ * this occur.
+ *
+ * @code{.ahk}
+   #Persistent
+   #NoEnv
+
+   #incldue <ProcessTerminationWatcher>
+
+   global g_ptw := new ProcessTerminationWatcher()
+   Run notepad,,,procPid
+   g_ptw.watch(procPid, Func("onProcessTerminated").Bind(procPid))
+
+   onProcessTerminated(pid) {
+   	MsgBox 4,, % "Process with PID " pid " just terminated.`n`n"
+   	           . "Would you like to repeat?"
+   	IfMsgBox, No
+   		ExitApp
+
+   	;Run notepad and subscribe again
+   	Run notepad,,,procPid
+   	g_ptw.watch(procPid, Func(A_ThisFunc).Bind(procPid))
+   }
+ * @endcode
+ */
 class ProcessTerminationWatcher {
 
 	watch(watchedPid, callback) {

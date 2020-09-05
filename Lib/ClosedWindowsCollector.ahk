@@ -2,6 +2,7 @@
  * @file
  * @copyright Dedicated to Public Domain. See UNLICENSE.txt for details
 */
+
 #include %A_LineFile%\..\
 	#include ShellEventsWatcher.ahk
 	#include UiUtils.ahk
