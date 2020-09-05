@@ -4,7 +4,7 @@
  *
  * Using these wrappers make code more clear and self-documented, f.e.:
  *
- * @code
+ * @code{.ahk}
    #incldue <JoyButtons>
 
    global g_JoyNumber := 1

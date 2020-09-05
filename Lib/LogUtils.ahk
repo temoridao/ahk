@@ -2,7 +2,9 @@
  * @file
  * Helper functions for logging
  *
- * @code
+ * @code{.ahk}
+   #include <LogUtils>
+
    logDebug("Hello, I am test message")
    logInfo("Hello, I am test message")
    logWarn("Hello, I am test message")

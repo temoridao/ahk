@@ -14,7 +14,7 @@
  *
  * For available events see: https://docs.microsoft.com/en-us/windows/win32/winauto/event-constants
  *
- * @code
+ * @code{.ahk}
    #include <WinEventsWatcher>
 
    wev := new WinEventsWatcher({(EVENT_OBJECT_DESTROY := 0x8001)  : ["onWinDestroy"]
