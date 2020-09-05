@@ -1,13 +1,15 @@
 ﻿/**
- * License:
- *    Dedicated to Public Domain. See UNLICENSE.txt for details
+ * @file
+ * @copyright Dedicated to Public Domain. See UNLICENSE.txt for details
 */
 
 /**
- * @class  ImmutableClass
+ * Rejects adding of new properties to the derived class and throws exception on attempt
+ * to call non-existent methods
  *
- * Prohibits adding of new properties to the derived class and throws on attempt to call
- * non-existent methods
+ * This class is useful to catch subtle errors when creating/using your own classes. Just inherit
+ * your class from ImmutableClass
+ *
  */
 class ImmutableClass {
 

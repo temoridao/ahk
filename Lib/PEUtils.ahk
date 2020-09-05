@@ -1,5 +1,14 @@
+/**
+ * @file
+ * @copyright Dedicated to Public Domain. See UNLICENSE.txt for details
+*/
+
 #include %A_LineFile%\..\ImmutableClass.ahk
 
+/**
+ * Contains utility functions to work with PE formatted files
+ * (https://en.wikipedia.org/wiki/Portable_Executable)
+ */
 class PEUtils extends ImmutableClass {
 	/**
 	 * Get build date for Exe/Dll file
@@ -7,10 +16,10 @@ class PEUtils extends ImmutableClass {
 	 * Determine build date of current AutoHotkey interpreter:
 	 *
 	 * @code{.ahk}
-	 *  #include <PEUtils>
-	 *
-	 *  FormatTime formattedTime, % PEUtils.buildDate(A_AhkPath)
-	 *  MsgBox % "AutoHotkey.exe build date: " formattedTime
+	   #include <PEUtils>
+
+	   FormatTime formattedTime, % PEUtils.buildDate(A_AhkPath)
+	   MsgBox % "AutoHotkey.exe build date: " formattedTime
 	 * @endcode
 	 *
 	 * @param   PEfilePath  The PE file path (.exe or .dll for example)

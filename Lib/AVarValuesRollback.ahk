@@ -1,45 +1,57 @@
 ﻿/**
- * Description:
- *    RAII [https://en.wikipedia.org/wiki/RAII] class for temporarily change A_-variables at object
- *    construction time and restore their previous values upon destruction. Very useful for libray code
- *    which generally should not change A_-variables as a side effect.
- *
- *    This line:
- *    	raii := new AVarValuesRollback("A_TitleMatchMode=RegEx|A_BatchLines=44|A_WinDelay=96")
- *    Is equivalent to:
- *    	prevTitleMatchMode := A_TitileMatchMode
- *    	prevBatchLines := A_BatchLines
- *    	prevWinDelay := A_WinDelay
- *    	;...
- *    	SetTitleMatchMode %prevTitleMatchMode%
- *    	SetBatchLines %prevBatchLines%
- *    	SetWinDelay %prevWinDelay%
- *
- *    NOTE: avoid using mutliple AVarValuesRollback objects inside one function.
- *    Seems like objects' destruction order in AutoHotkey is not determined so pay attention
- *    if you use multiple RAII objects at the same time. In this case you need manually destroy additional
- *    AVarValuesRollback objects by assigning empty string "" to them in right time because otherwise
- *    they may leave your A_-variables at inconsistent state.
- * Usage:
- *    SetTitleMatchMode 3 ; Exact match
- *    MsgBox % "Before function call: " A_TitleMatchMode
- *    testFunc()
- *    MsgBox % "After function call: " A_TitleMatchMode
- *
- *    ;----------------End of Auto-Execute section----------------
- *    testFunc() {
- *    	raii := new AVarValuesRollback("A_TitleMatchMode=RegEx|A_BatchLines=44|A_WinDelay=96") ; Set new values for A_-variables while remembering their current values beforehand:
- *    	Msgbox % "Inside function: " A_TitleMatchMode
- *
- *    	Msgbox % "A_BatchLines will be restored from '" A_BatchLines "' to '" raii.StoredValue["A_BatchLines"] "' and A_TitleMatchMode from '" A_TitleMatchMode "' to '" raii.StoredValue["A_TitleMatchMode"] "' upon 'raii' object destruction"
- *    	; Here 'raii' object destroyed effectively restoring previous values of A_-variables which was modified at construction
- *    }
- *
- * TODO:
- *    Add method wrappers for all supported A_-variables
- * License:
- *    Dedicated to Public Domain. See UNLICENSE.txt for details
+ * @file
+ * @copyright Dedicated to Public Domain. See UNLICENSE.txt for details
 */
+/**
+ * RAII style class for temporarily change A_-variables and restore their previous values
+ *
+ * RAII [https://en.wikipedia.org/wiki/RAII] class for temporarily change A_-variables at
+ * object construction time and restore their previous values upon destruction. Very useful for
+ * library code which generally should not change A_-variables as a side effect.
+ *
+ * The line:
+ * @code{.ahk}
+   raii := new AVarValuesRollback("A_TitleMatchMode=RegEx|A_BatchLines=44|A_WinDelay=96")
+   ;...
+ * @endcode Is equivalent to:
+ *
+ * @code{.ahk}
+   prevTitleMatchMode := A_TitileMatchMode
+   prevBatchLines := A_BatchLines
+   prevWinDelay := A_WinDelay
+   ;...
+   SetTitleMatchMode %prevTitleMatchMode%
+   SetBatchLines %prevBatchLines%
+   SetWinDelay %prevWinDelay%
+ * @endcode
+ *
+ * @warning Avoid using multiple AVarValuesRollback objects inside the same function. Seems like
+ *          objects' destruction order in AutoHotkey is not determined so pay attention if you use
+ *          multiple RAII objects at the same time. In this case you need manually destroy
+ *          additional AVarValuesRollback objects by assigning empty string "" to them in right time
+ *          because otherwise they may leave your A_-variables at inconsistent state.
+ *
+ * Usage:
+ * @code{.ahk}
+   SetTitleMatchMode 3 ;Exact match
+   MsgBox % "Before function call: " A_TitleMatchMode
+   testFunc()
+   MsgBox % "After function call: " A_TitleMatchMode
+
+   ;--------------------------End of auto-execute section--------------------------
+
+   testFunc() {
+    ;Set new values for A_-variables while remembering their current values beforehand
+    raii := new AVarValuesRollback("A_TitleMatchMode=RegEx|A_BatchLines=44|A_WinDelay=96")
+    MsgBox % "Inside function: " A_TitleMatchMode
+
+    MsgBox % "A_BatchLines will be restored from '" A_BatchLines "' to '" raii.StoredValue["A_BatchLines"] "' and A_TitleMatchMode from '" A_TitleMatchMode "' to '" raii.StoredValue["A_TitleMatchMode"] "' upon 'raii' object destruction"
+    ;Here 'raii' object destroyed effectively restoring previous values of A_-variables which was modified at construction
+   }
+ * @endcode
+ *
+ * @todo    Add method wrappers for all supported A_-variables
+ */
 class AVarValuesRollback {
 	__New(aVarsString, delimiterCharacter := "|") {
 		Loop Parse, aVarsString, %delimiterCharacter%
@@ -66,7 +78,9 @@ class AVarValuesRollback {
 
 	__Call(methodName, args*) {
 		if (!IsFunc(this[methodName])) {
-			Throw "You're trying to remember value of 'A_" methodName "' variable, but method '" methodName "(val)' doesn't exist in class '" this.__Class "'. Please, add the missing method and try again."
+			Throw "You're trying to remember value of 'A_" methodName "' variable, but method '" methodName
+			    . "(val)' doesn't exist in class '" this.__Class
+			    . "'. Please, add the missing method and try again."
 		}
 	}
 

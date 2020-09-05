@@ -1,16 +1,28 @@
 /**
- * Description:
- *    %TODO%
- * License:
- *    Dedicated to Public Domain. See UNLICENSE.txt for details
+ * @file
+ * @copyright Dedicated to Public Domain. See UNLICENSE.txt for details
 */
+
 #include %A_LineFile%\..\AVarValuesRollback.ahk
 #include %A_LineFile%\..\ImmutableClass.ahk
 
-; Class determines info about script by inspecting state of its standard AHK-MainWindow's menu items.
-; This means that if script to inspect has custom main window, an AhkScriptController cannot work as expected
-; NOTE: this class uses current A_TitleMatchMode
-; NOTE: this class is Singletone (all methods are static, you don't need to create instance of AhkScriptController to call its methods)
+/**
+ * Allows to send command to any running script
+ *
+ * Example commands are "Exit", "Pause", "Edit", etc.
+ *
+ * There are number of convenience methods such as setPause(), setSuspend() as well as function to
+ * send arbitrary command: sendCommand(). Possible commands defineds as static consts in the body of
+ * class and start with `ID_`
+ *
+ * Class determines info about script by inspecting state of its standard main window's menu items.
+ * This means that if a target script has custom main window, the AhkScriptController cannot work as
+ * expected
+ *
+ * @note    This class uses current A_TitleMatchMode
+ * @note    This class is Singletone (all methods are static, you don't need to create instance of
+ *          AhkScriptController to call its methods)
+ */
 class AhkScriptController extends ImmutableClass
 {
 ;public:
@@ -51,10 +63,11 @@ class AhkScriptController extends ImmutableClass
 	}
 
 ;private:
-
-	;This simple proxy class transparently wraps AhkScriptController and sets A_DetectHiddenWindows
-	;to ON before any wrapped class method call and restores variable value back (thanks to AVarValuesRollback).
-	;This approach eliminates code duplication for each method.
+	/**
+	 * This simple proxy class transparently wraps AhkScriptController and sets A_DetectHiddenWindows
+	 * to ON before any wrapped class method call and restores variable value back (thanks to
+	 * AVarValuesRollback). This approach eliminates code duplication for each method.
+	 */
 	class ProxyWrapper {
 		__New(objectToBeProxied) {
 			ObjRawSet(this, "ProxyWrapper", objectToBeProxied)
@@ -67,7 +80,7 @@ class AhkScriptController extends ImmutableClass
 		}
 	}
 
-	; The idea of this __New() constructor generalized in SuperGlobalSingleton.ahk
+	/** The idea of this __New() constructor generalized in @ref SuperGlobalSingleton.ahk */
 	__New() {
 		if (AhkScriptController.__selfInitInstance) {
 			return AhkScriptController.__selfInitInstance
@@ -83,19 +96,20 @@ class AhkScriptController extends ImmutableClass
 			%className% := new AhkScriptController.ProxyWrapper(this)
 		}
 	}
+	/*
+	 ;NOTE: the next __New() method alsoe works, but client code needs to "create" instance object
+	 ;every time it uses class, f.e. 't := new AhkScriptController(), t.method1()',
+	 ;so less convenient than __New() above.
+	 __New() {
+	 	static instance := ""
 
-	; NOTE: this __New() method works, but user needs to "create" instance object every time it uses
-	; class, f.e. 't := new AhkScriptController(), t.method1()', so less convenient than __New() above.
-	; __New() {
-	; 	static instance := ""
+	 	if (!instance) {
+	 		instance := new ProxyWrapper(this)
+	 	}
 
-	; 	if (!instance) {
-	; 		instance := new ProxyWrapper(this)
-	; 	}
-
-	; 	return instance
-	; }
-
+	 	return instance
+	 }
+	 */
 
 	ahkWinIsSuspended(hWnd) {
 		return this.ahkWinGetMenuState(AhkScriptController.ID_FILE_SUSPEND, hWnd)
@@ -145,18 +159,18 @@ class AhkScriptController extends ImmutableClass
 	static __selfInitInstance := new AhkScriptController.ProxyWrapper(new AhkScriptController())
 	static WM_COMMAND := 0x111
 	; AHK main window menu id list; source: https://www.autohotkey.com/boards/viewtopic.php?p=130390&sid=01258c2cea1ba45d58ae36d5488b51d8#p130390
-	static ID_TRAY_OPEN := 65300
-		 , ID_FILE_RELOADSCRIPT := 65400 ;ID_TRAY_RELOADSCRIPT := 65303
-		 , ID_FILE_EDITSCRIPT := 65401 ;ID_TRAY_EDITSCRIPT := 65304
-		 , ID_FILE_WINDOWSPY := 65402 ;ID_TRAY_WINDOWSPY := 65302
-		 , ID_FILE_PAUSE := 65403 ;ID_TRAY_PAUSE := 65306
-		 , ID_FILE_SUSPEND := 65404 ;ID_TRAY_SUSPEND := 65305
-		 , ID_FILE_EXIT := 65405 ;ID_TRAY_EXIT := 65307
-		 , ID_VIEW_LINES := 65406
-		 , ID_VIEW_VARIABLES := 65407
-		 , ID_VIEW_HOTKEYS := 65408
-		 , ID_VIEW_KEYHISTORY := 65409
-		 , ID_VIEW_REFRESH := 65410
-		 , ID_HELP_USERMANUAL := 65411 ;ID_TRAY_HELP := 65301
-		 , ID_HELP_WEBSITE := 65412
+	static ID_TRAY_OPEN         := 65300
+		   , ID_FILE_RELOADSCRIPT := 65400 ;ID_TRAY_RELOADSCRIPT := 65303
+		   , ID_FILE_EDITSCRIPT   := 65401 ;ID_TRAY_EDITSCRIPT := 65304
+		   , ID_FILE_WINDOWSPY    := 65402 ;ID_TRAY_WINDOWSPY := 65302
+		   , ID_FILE_PAUSE        := 65403 ;ID_TRAY_PAUSE := 65306
+		   , ID_FILE_SUSPEND      := 65404 ;ID_TRAY_SUSPEND := 65305
+		   , ID_FILE_EXIT         := 65405 ;ID_TRAY_EXIT := 65307
+		   , ID_VIEW_LINES        := 65406
+		   , ID_VIEW_VARIABLES    := 65407
+		   , ID_VIEW_HOTKEYS      := 65408
+		   , ID_VIEW_KEYHISTORY   := 65409
+		   , ID_VIEW_REFRESH      := 65410
+		   , ID_HELP_USERMANUAL   := 65411 ;ID_TRAY_HELP := 65301
+		   , ID_HELP_WEBSITE      := 65412
 }

@@ -1,15 +1,15 @@
 /**
- * Description:
- *    %TODO%
- * License:
- *    Dedicated to Public Domain. See UNLICENSE.txt for details
+ * @file
+ * @copyright Dedicated to Public Domain. See UNLICENSE.txt for details
 */
 
 #include %A_LineFile%\..\ImmutableClass.ahk
 
+/**
+ * Contains utility functions for joysticks
+ */
 class JoyUtil extends ImmutableClass
 {
-
 ;public:
 	povDirection(joyIndex := "") {
 		POV := GetKeyState(joyIndex "JoyPOV")  ; Get position of the POV control.

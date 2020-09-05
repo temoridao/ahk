@@ -1,14 +1,17 @@
 ﻿/**
- * Description:
- *    %TODO%
- * License:
- *    Dedicated to Public Domain. See UNLICENSE.txt for details
+ * @file
+ * @copyright Dedicated to Public Domain. See UNLICENSE.txt for details
 */
+
 #include %A_LineFile%\..\AVarValuesRollback.ahk
 #include %A_LineFile%\..\ImmutableClass.ahk
 #include %A_LineFile%\..\Funcs.ahk
 #include %A_LineFile%\..\LogUtils.ahk
 
+/**
+ * Utility class containing various useful functions, constants, etc not belonging to
+ * particular category
+ */
 class CommonUtils extends ImmutableClass {
 ;public:
 	class Constants {
@@ -87,16 +90,16 @@ class CommonUtils extends ImmutableClass {
 	 * The @p pathAndWinGeometry is an array of objects and has the following structure
 	 * (@c geometry and @c selectedFiles keys are optional):
 	 * @code
-	 * "pathAndWinGeometry": [{
-	 *   "path": "C:\Users\cool_user\Desktop\"
-	 *   "geometry": {
-	 *    "height": 680,
-	 *    "width": 1306,
-	 *    "x": 257,
-	 *    "y": 235
-	 *   },
-	 *   "selectedFiles": ["C:\Absolute\Path\To\Files\To\Be\Selected"],
-	 * }]
+	   "pathAndWinGeometry": [{
+	     "path": "C:\Users\cool_user\Desktop\"
+	     "geometry": {
+	      "height": 680,
+	      "width": 1306,
+	      "x": 257,
+	      "y": 235
+	     },
+	     "selectedFiles": ["C:\Absolute\Path\To\Files\To\Be\Selected"],
+	   }]
 	 * @endcode
 	 *
 	 * The @p options can have the following values:
@@ -495,8 +498,8 @@ class CommonUtils extends ImmutableClass {
 	 * Converts AHK hotkey into human readable representation
 	 *
 	 * @code{.ahk}
-	 * ;Displays "You just press: RCtrl-LShift-T"
-	 * ~*^+t::MsgBox % "You just press: " CommonUtils.hotkeyToDisplayString(A_ThisHotkey)
+	   ;Displays "You just press: RCtrl-LShift-T"
+	   ~*^+t::MsgBox % "You just press: " CommonUtils.hotkeyToDisplayString(A_ThisHotkey)
 	 * @endcode
 	 *
 	 * @param   hotkeyEncoded  The hotkey encoded according to AutoHotkey rules

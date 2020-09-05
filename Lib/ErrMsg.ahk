@@ -1,7 +1,7 @@
-/*
- * License:
- *    Dedicated to Public Domain. See UNLICENSE.txt for details
- */
+/**
+ * @file
+ * @copyright Dedicated to Public Domain. See UNLICENSE.txt for details
+*/
 
 /**
  * Get textual description of the operating system error

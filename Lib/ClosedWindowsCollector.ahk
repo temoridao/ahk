@@ -1,8 +1,6 @@
 ﻿/**
- * Description:
- *    %TODO%
- * License:
- *    Dedicated to Public Domain. See UNLICENSE.txt for details
+ * @file
+ * @copyright Dedicated to Public Domain. See UNLICENSE.txt for details
 */
 #include %A_LineFile%\..\
 	#include ShellEventsWatcher.ahk
@@ -10,35 +8,47 @@
 	#include Serializable.ahk
 	#include CommonUtils.ahk
 
-
 #include %A_LineFile%\..\..\3rdparty\
 	#include CodeQuickTester\lib\WinEvents.ahk
 	#include Lib\Anchor.ahk
 
 /**
- * Basic usage:
+ * Collects titles of closing explorer.exe's windows and provides UI to access this data
  *
+ * Also has functionality to dump collected data to .json file and load it later. See usage example
+ * for details.
+ *
+ * Usage Example:
  * @code{.ahk}
    #include <ClosedWindowsCollector>
 
-   hotkeyReopenWindow       := "#w"
-   , hotkeyShowSavedWindows := "#+w"
-   , maxSavedWindowsCount   := 50
+   hotkeyReopenWindow := "#w", hotkeyShowSavedWindows := "#+w"
 
-   global g_collector := new ClosedWindowsCollector(hotkeyReopenWindow
-                                                   , hotkeyShowSavedWindows
-                                                   , maxSavedWindowsCount)
-   ;Start monitoring of explorer.exe windows closing and save some info about them for reference/restoring later
-   g_collector.start()
-   ;Open, close some folders and try above hotkeys
+   global g_collector := new ClosedWindowsCollector(hotkeyReopenWindow, hotkeyShowSavedWindows)
+   OnExit("exitFunc") ;Serialize data to .json file upon script exit
+
+   g_collector.start() ;Start monitoring of explorer.exe windows closing and save some info about them for reference/restoring later
+   ;Now open, close some folders and try above hotkeys
+
+   ;--------------------------End of auto-execute section--------------------------
+
+   exitFunc() {
+   	g_collector.serialize()
+   }
  * @endcode
- *
  */
 class ClosedWindowsCollector extends Serializable {
 ;public:
+
 	/**
-	* After reaching \p savedWindowsCountLimit limit, the least recently saved window's info will be overriden
-	*/
+	 * The constructor
+	 *
+	 * @param   keySequenceReopenSavedWindow        The key sequence reopen saved window
+	 * @param   keySequenceShowSavedWindowsSummary  The key sequence show saved windows summary
+	 * @param   savedWindowsCountLimit              The maximum windows count to remember. After
+	 *                                              reaching this limit, the least recently saved
+	 *                                              window's info will be overridden
+	 */
 	__New(keySequenceReopenSavedWindow, keySequenceShowSavedWindowsSummary, savedWindowsCountLimit := 10) {
 		this.m_keySequenceReopenSavedWindow := keySequenceReopenSavedWindow
 		this.m_keySequenceShowSavedWindowsSummary := keySequenceShowSavedWindowsSummary
@@ -128,7 +138,9 @@ class ClosedWindowsCollector extends Serializable {
 			GuiControl, +g, %hWnd%, %functor%
 			SetExplorerTheme(hWnd)
 
-			Gui Add, Button, Hidden Default +hWndhWnd w0 h0 yp, FakeButtonToReceiveEnterPress ; `yp` positions 0x0 size button at the y-coordinate of the previous control (tree view) to prevent adding visual margin (Gui Margin) for invisible fake button
+			; `yp` positions 0x0 size button at the y-coordinate of the previous control (tree view) to
+			; prevent adding visual margin (Gui Margin) for invisible fake button
+			Gui Add, Button, Hidden Default +hWndhWnd w0 h0 yp, FakeButtonToReceiveEnterPress
 			functor := this.onEnterPressed.Bind(this)
 			GuiControl, +g, %hWnd%, %functor%
 
@@ -192,7 +204,7 @@ class ClosedWindowsCollector extends Serializable {
 				LV_GetText(text, A_Index)
 
 				hasMarker := InStr(text, this.cExistentWindowTitlePrefix)
-				cleanPath := RegExReplace(text, "(^.+  \| )|(\Q" this.cExistentWindowTitlePrefix "\E)") ;Remove all from beginning of string upto "|" delimiter AND this.cExistentWindowTitlePrefix
+				cleanPath := RegExReplace(text, "(^.+  \| )|(\Q" this.cExistentWindowTitlePrefix "\E)") ;Remove all from beginning of string up to "|" delimiter AND this.cExistentWindowTitlePrefix
 				if (WinExist(cleanPath)) {
 					if (!hasMarker) {
 						LV_Modify(A_Index, "Col1", StrReplace(text, "| ", "| " this.cExistentWindowTitlePrefix))
@@ -257,7 +269,9 @@ class ClosedWindowsCollector extends Serializable {
 
 		winTitle := "ahk_id" hWnd
 		title := WinGetTitle(winTitle)
-		if (!InStr(title, "\") || IfNotIn(WinGetClass(winTitle), "CabinetWClass,ExploreWClass")) { ; Skip folders with "special" names like "Downloads", "Documents", etc. They do not have path in the window title so not have a backslash too. Also skip unwanted wnd classes
+		; Skip folders with "special" names like "Downloads", "Documents", etc.
+		; They do not have path in the window title so not have a backslash too. Also skip unwanted wnd classes
+		if (!InStr(title, "\") || IfNotIn(WinGetClass(winTitle), "CabinetWClass,ExploreWClass")) {
 			return
 		}
 

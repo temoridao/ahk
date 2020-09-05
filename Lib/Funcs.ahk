@@ -1,8 +1,8 @@
 /**
- * Description:
- *    %TODO%
- * License:
- *    Dedicated to Public Domain. See UNLICENSE.txt for details
+ * @file
+ * Contains basic utitlity functions primarily enhancing standard AutoHotkey functions/commands
+ *
+ * @copyright Dedicated to Public Domain. See UNLICENSE.txt for details
 */
 
 #include %A_LineFile%\..\..\3rdparty\Lib\Functions.ahk
@@ -33,7 +33,7 @@ Clamp(v, min, max) {
  * Check if object has value (complement for built-in HasKey() method)
  *
  * @code{.ahk}
- *    MsgBox % HasVal(["orange", "banana", "apple"], "banana") ; Outputs "2"
+   MsgBox % HasVal(["orange", "banana", "apple"], "banana") ; Outputs "2"
  * @endcode
  *
  * @param   obj     The object to check value presence in
@@ -96,6 +96,14 @@ SplashImageOff() {
 	SplashImage OFF
 }
 
+/**
+ * Gets the command line positional parameter's value
+ *
+ * @param   parameterName  The parameter name
+ * @param   defaultValue   The default value
+ *
+ * @return  The command line value next to @p parameterName or @p defaultValue if not found
+ */
 GetCmdParameterValue(parameterName, defaultValue := "") {
 	value := defaultValue
 	if (i := HasVal(A_Args, parameterName)) {

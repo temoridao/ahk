@@ -1,8 +1,15 @@
 /**
- * Description:
- *    Helper functions for logging
- * License:
- *    Dedicated to Public Domain. See UNLICENSE.txt for details
+ * @file
+ * Helper functions for logging
+ *
+ * @code
+   logDebug("Hello, I am test message")
+   logInfo("Hello, I am test message")
+   logWarn("Hello, I am test message")
+   logCritical("Hello, I am test message")
+   logFatal("Hello, I am test message")
+   @endcode
+ * @copyright Dedicated to Public Domain. See UNLICENSE.txt for details
 */
 logDebug(ByRef logMessage) {
 	OutputDebug % "D [" A_ScriptName "] " logMessage
@@ -19,14 +26,6 @@ logCritical(ByRef logMessage) {
 logFatal(ByRef logMessage) {
 	OutputDebug % "F [" A_ScriptName "] " logMessage
 }
-
 logClear() {
-	;Special message clears DBGVIEW log window
-	OutputDebug DBGVIEWCLEAR
+	OutputDebug DBGVIEWCLEAR ;Special message clears DBGVIEW log window
 }
-
-; logDebug("Hello, I am test message")
-; logInfo("Hello, I am test message")
-; logWarn("Hello, I am test message")
-; logCritical("Hello, I am test message")
-; logFatal("Hello, I am test message")

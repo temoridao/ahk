@@ -1,8 +1,24 @@
 /**
- * Description:
- *    Joy buttons aliases
- * License:
- *    Dedicated to Public Domain. See UNLICENSE.txt for details
+ * @file
+ * Contains named functoinal wrappers around joystick button indices
+ *
+ * Using these wrappers make code more clear and self-documented, f.e.:
+ *
+ * @code
+   #incldue <JoyButtons>
+
+   global g_JoyNumber := 1
+   , g_JoystickPrefix := "Joy" g_JoyNumber
+
+   jh(JoyLS(), "onLeftStickPress")
+   jh(JoyBack(), FSend("{Escape}"))
+
+   ;jh -> JoyHotkey
+   jh(KeyName, Label := "", Options := "") {
+   	Hotkey % g_JoystickPrefix . KeyName, %Label%, %Options%
+   }
+ * @endcode
+ * @copyright Dedicated to Public Domain. See UNLICENSE.txt for details
 */
 
 JoyA() {

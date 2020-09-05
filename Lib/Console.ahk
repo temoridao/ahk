@@ -1,11 +1,14 @@
-/*
- * Description:
- *     Write text to win32 console
- * Usage:
- *    #include <Console> ; Assuming Console.ahk in your library
- *    F12::Console.PrintLine("Hello, I am written to console")
- * License:
- *    Dedicated to Public Domain. See UNLICENSE.txt for details
+/**
+ * @file
+ * @copyright Dedicated to Public Domain. See UNLICENSE.txt for details
+*/
+/**
+ * Write text to win32 console
+ *
+ * @code{.ahk}
+ * #include <Console> ;Assuming Console.ahk in your library
+ * F12::Console.PrintLine("Hello, I am written to console")
+ * @endcode
 */
 class Console {
 ;public:
