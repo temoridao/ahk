@@ -1,11 +1,12 @@
 /**
- * Description:
- *    %TODO%
- * License:
- *    Dedicated to Public Domain. See UNLICENSE.txt for details
-*/
+ * @file
+ * @copyright Dedicated to Public Domain. See UNLICENSE.txt for details
+ */
 #include %A_LineFile%\..\ImmutableClass.ahk
 
+/**
+ * Utitility functions to work with URLs
+ */
 class UrlUtil extends ImmutableClass
 {
 	IsConnectedToInternet() {

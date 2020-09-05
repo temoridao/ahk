@@ -1,18 +1,24 @@
 /**
- * Description:
- *    Collects text input. Collected text accessible through Text property of the class.
- *    NOTE: All [:cntrl:] characters (except new line) are ignored
- * Usage:
- *    #include <TextInputCollector> ; Assuming TextInputCollector.ahk is in your Lib folder
+ * @file
+ * @copyright Dedicated to Public Domain. See UNLICENSE.txt for details
+ */
+/**
+ * Collects text input
  *
- *    ;Create new input collector and start it
- *    inputCollector := new TextInputCollector()
- *    inputCollector.start()
+ * Collected text accessible through Text property of the class.
  *
- *    ;Win+Shift+i - display collected text input
- *    #+i::MsgBox % inputCollector.Text
- * License:
- *    Dedicated to Public Domain. See UNLICENSE.txt for details
+ * @note All `[:cntrl:]` characters (except new line) are ignored
+ *
+ * @code{.ahk}
+   #include <TextInputCollector> ; Assuming TextInputCollector.ahk is in your Lib folder
+
+   ;Create new input collector and start it
+   inputCollector := new TextInputCollector()
+   inputCollector.start()
+
+   ;Win+Shift+i - display collected text input
+   #+i::MsgBox % inputCollector.Text
+ * @endcode
 */
 class TextInputCollector {
 	__New() {

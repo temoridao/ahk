@@ -1,11 +1,13 @@
 /**
- * Description:
- *    %TODO%
- * License:
- *    Dedicated to Public Domain. See UNLICENSE.txt for details
-*/
+ * @file
+ * @copyright Dedicated to Public Domain. See UNLICENSE.txt for details
+ */
+
 #include %A_LineFile%\..\ImmutableClass.ahk
 
+/**
+ * Contains utility functions which return various info about script
+ */
 class ScriptInfoUtils extends ImmutableClass {
 	isPipedExecution() {
 		return InStr(A_ScriptFullPath, "\.\pipe")

@@ -1,19 +1,22 @@
-/*
- * Class: QpcTimer
- *    Measure time period with high resolution OS timer (QueryPerformanceCounter)
+/**
+ * @file
+ * @copyright Dedicated to Public Domain. See UNLICENSE.txt for details
+*/
+/**
+ * Measure time periods with high resolution OS timer (QueryPerformanceCounter)
  *
- * Usage:
- *    #include <QpcTimer>
+ * @code{.ahk}
+ * #include <QpcTimer>
  *
- *    t := qpc()
- *    Sleep 500
- *    MsgBox % "Elapsed milliseconds: " t.elapsedMs()
- *    Sleep 600
- *    MsgBox % "Elapsed milliseconds: " t.restart()
- *    MsgBox % "Elapsed after restart: " t.elapsedMs()
- *
- * License:
- *    Dedicated to Public Domain. See UNLICENSE.txt for details
+   t := qpc()
+   Sleep 500
+   MsgBox % "Elapsed milliseconds: " t.elapsedMs()
+
+   Sleep 600
+   MsgBox % "Elapsed milliseconds: " t.restart()
+
+   MsgBox % "Elapsed after restart: " t.elapsedMs()
+ * @endcode
 */
 class QpcTimer {
 	__New() {
@@ -46,15 +49,11 @@ class QpcTimer {
 	m_frequency := m_before := 0
 }
 
-/* Function: qpc
- *    Factory function for QpcTimer class
+/**
+ * Convenience factory function for QpcTimer class
  *
- * Parameters: No
- *
- * Returns:
- *    New QpcTimer object instance
- *
-*/
+ * @return  New QpcTimer object instance
+ */
 qpc() {
 	return new QpcTimer()
 }

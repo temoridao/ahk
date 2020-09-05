@@ -1,9 +1,12 @@
 /**
- * Description:
- *    Utility functions based on TrayIcon.ahk library
- * License:
- *    Dedicated to Public Domain. See UNLICENSE.txt for details
-*/
+ * @file
+ *
+ * Utility functions based on TrayIcon libary from
+ * https://www.autohotkey.com/boards/viewtopic.php?f=6&t=1229
+ *
+ * @copyright  Dedicated to Public Domain. See UNLICENSE.txt for details
+ */
+
 #include %A_LineFile%\..\Funcs.ahk
 #include %A_LineFile%\..\ProcessTerminationWatcher.ahk
 
@@ -43,7 +46,11 @@ TrayIconUtils_removeTrayIcons(iconProcessIds, removeAttemptsCount := 3) {
 	}
 }
 
-; Removes tray icons for non-existent processes which were forcibly closed, crashed, etc
+;
+
+/**
+ * Removes tray icons for non-existent processes which were forcibly closed, crashed, etc
+ */
 TrayIconUtils_removeOrphans() {
 	for i, iconData in TrayIcon_GetInfo() {
 		if (!iconData.process) {
@@ -52,9 +59,15 @@ TrayIconUtils_removeOrphans() {
 	}
 }
 
-; Hide tray icons which belong to processes with \p pids and
-; start tracking of explorer.exe termination/startup to hide tray icons again when this happens
-; Returns \c true if explorer.exe successfully started watching or \c false otherwise
+/**
+ * Hide tray icons which belong to processes with @p pids and start tracking of explorer.exe
+ * termination/startup to hide tray icons again when this happens (becuase hidden tray icons become
+ * visible again on explorer.exe restart)
+ *
+ * @param   pids  List of process identifiers (PID) for scripts to hide tray icons of
+ *
+ * @return  @c true if explorer.exe successfully started watching or @c false otherwise
+ */
 TrayIconUtils_ensureTrayIconsHidden(pids) {
 	static ptw := new ProcessTerminationWatcher()
 	TrayIconUtils_removeTrayIcons(pids, 10)

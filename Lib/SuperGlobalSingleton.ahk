@@ -1,29 +1,36 @@
-/*
- * Description:
- *    Helper to make your class a singleton.
- *    The __New() method below creates a singleton overwriting super-global class variable.
- *    Details: https://www.autohotkey.com/boards/viewtopic.php?p=176521&sid=8ec30ce3f8837578d8b2a426adc6932a#p176521
+/**
+ * @file
+ * Helper to make your class a singleton.
  *
- * Usage:
- *    F12::MySingletonClass.myMethod()
+ * The __New() method below creates a singleton overwriting super-global class variable.
+ * Details: https://www.autohotkey.com/boards/viewtopic.php?p=176521&sid=8ec30ce3f8837578d8b2a426adc6932a#p176521
  *
- *    class MySingletonClass {
- *    	;You basically need only next 2 lines (in any order) inside your class definition to make it singleton
- *    	#include SuperGlobalSingleton.ahk
- *    	static __self := new MySingletonClass()
+ * @code{.ahk}
+   F12::MySingletonClass.myMethod()
+
+   class MySingletonClass {
+   	;You basically need only next 2 lines (in any order) inside your class definition to make it singleton
+   	#include SuperGlobalSingleton.ahk
+   	static __self := new MySingletonClass()
+
+   	;Declare optional method for any initialization required. It will be called from __New()
+   	__InitSingleton() {
+   		this.myDataField := "Cool data"
+   	}
+
+   	;The rest of class definition as usual, with properties, methods, whatever...
+   	myMethod() {
+   		MsgBox % "Hello from MySingletonClass! MySingletonClass.myDataFiled is '" MySingletonClass.myDataField "'"
+   	}
+   }
  *
- *    	;Declare optional method for any initialization required. It will be called from __New()
- *    	__InitSingleton() {
- *    	 this.myDataField := "Cool data"
- *    	}
+ * @copyright Dedicated to Public Domain. See UNLICENSE.txt for details
+ */
+/**
+ * The constructor of your singleton which overrides super-global class variable.
  *
- *    	;The rest of class definition as usual, with properties, methods, whatever...
- *    	myMethod() {
- *    	 MsgBox % "Hello from MySingletonClass! MySingletonClass.myDataFiled is '" MySingletonClass.myDataField "'"
- *    	}
- *    }
- * License:
- *    Dedicated to Public Domain. See UNLICENSE.txt for details
+ * It should be #include'd/copied into your class unmodified. See documentation for this file
+ * for code example
  */
 __New() {
 	if (this.__self) {

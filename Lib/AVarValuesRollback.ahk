@@ -13,8 +13,9 @@
  * @code{.ahk}
    raii := new AVarValuesRollback("A_TitleMatchMode=RegEx|A_BatchLines=44|A_WinDelay=96")
    ;...
- * @endcode Is equivalent to:
+ * @endcode
  *
+ * Is equivalent to:
  * @code{.ahk}
    prevTitleMatchMode := A_TitileMatchMode
    prevBatchLines := A_BatchLines

@@ -1,11 +1,15 @@
 ﻿/**
- * Description:
- *    Make your class a Singletone [https://en.wikipedia.org/wiki/Singleton_pattern]
- * Usage:
- *    Derive your custom class from SingletonBase to make your class a singleton.
- *    You can use your class like `YourClass.Instance.yourMethod()`
- * License:
- *    Dedicated to Public Domain. See UNLICENSE.txt for details
+ * @file
+ * @copyright Dedicated to Public Domain. See UNLICENSE.txt for details
+ */
+
+/**
+ * Make your class a Singletone [https://en.wikipedia.org/wiki/Singleton_pattern]
+ *
+ * Derive your custom class from SingletonBase to make your class a singleton.
+ * You will be able to use your class like `YourClass.Instance.yourMethod()`
+ *
+ * @see SuperGlobalSingleton
 */
 class SingletonBase {
 	__NewInit := SingletonBase.__New.Call(this)
