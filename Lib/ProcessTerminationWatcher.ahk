@@ -83,7 +83,8 @@ class ProcessTerminationWatcher {
 			DllCall("GlobalFree", "Ptr",this.m_procData[pid].ahkRegisterCallback, "Ptr")
 
 			;IMPORTANT: using async timer call beacuse UnregisterWait() must NOT be called from within userCallback (according to docs).
-			SetTimer(ObjBindMethod(this, "unregisterWait", this.m_procData[pid].hWait), "-100")
+			functor := ObjBindMethod(this, "unregisterWait", this.m_procData[pid].hWait)
+			SetTimer %functor%, -100
 
 			this.m_procData.Remove(pid)
 		}
@@ -114,5 +115,5 @@ ProccessTerminationWatcher_WaitOrTimerCallback(lpParameter, TimerOrWaitFired) {
 	this := object(lpParameter)
 	userCallback := this.m_procData[terminatedPid].userCallback
 	this.unwatch(terminatedPid)
-	userCallback.Call()
+	SetTimer %userCallback%, -1
 }
