@@ -23,9 +23,6 @@
  * @code{.ahk}
    #include <ShellEventsWatcher>
 
-   eventWinCreated := ShellEventsWatcher.HSHELL_WINDOWCREATED ;Fires when a top-level window is first created
-   watcher := new ShellEventsWatcher({(eventWinCreated) : ["onTopLevelWindowCreated"]})
-
    ;Create watcher providing event and callback(s) in constructor and start immediately
    eventWinCreated := ShellEventsWatcher.HSHELL_WINDOWCREATED ;Fires when a top-level window is first created
    watcher := new ShellEventsWatcher({(eventWinCreated) : ["onTopLevelWindowCreated"]})
@@ -41,6 +38,8 @@
    ;--------------------------End of auto-execute section--------------------------
 
    onTopLevelWindowCreated(hWnd) {
+   	;No need to restore previous values of A_TitleMatchMode and A_WinDelay:
+   	;this callback executed in context of OnMessage() handler thread and doesn't influence global values
    	SetTitleMatchMode 2 ;Match anywhere
    	SetWinDelay 0       ;Set minimal delay for window operations
 
