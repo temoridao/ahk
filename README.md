@@ -7,7 +7,7 @@ Smart launcher for your scripts with ability to compile/combine all of them into
 3. Add your favorite scripts, save .txt file and launch _Starter.ahk_ again
 4. Done!
 
-Optional: If you compile this script (with `Compile Script` entry from context menu, or in tray menu), it will embed all scripts you specified in the .txt (marked with `~`, see below) into _Starter.exe_'s resources (thanks to new Ahk2Exe). Now you have all your scritps in a single portable _Starter.exe_ (which can be copied to USB stick, etc).
+Optional: If you compile this script (with `Compile Script` entry from context menu, or in tray menu), it will embed all scripts you specified in the .txt (marked with `~`, see below) into _Starter.exe_'s resources (thanks to new Ahk2Exe). Now you have all your scripts in a single portable _Starter.exe_ (which can be copied to USB stick, etc).
 
 #### List of Features
 * Launch and centrally control the scripts you specified in _Starter.txt_ (folders supported). Tray icons will be automatically hidden (even after restarting explorer.exe, see `ProcessTerminationWatcher.ahk` for details)
