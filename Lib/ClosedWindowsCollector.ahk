@@ -45,16 +45,16 @@ class ClosedWindowsCollector extends Serializable {
 	/**
 	 * The constructor
 	 *
-	 * @param   keySequenceReopenSavedWindow        The key sequence reopen saved window
-	 * @param   keySequenceShowSavedWindowsSummary  The key sequence show saved windows summary
+	 * @param   keySequenceReopenSavedWindow        The hotkey to reopen most recent saved window
+	 * @param   keySequenceShowSavedWindowsSummary  The hotkey to show saved windows summary UI
 	 * @param   savedWindowsCountLimit              The maximum windows count to remember. After
 	 *                                              reaching this limit, the least recently saved
 	 *                                              window's info will be overridden
 	 */
 	__New(keySequenceReopenSavedWindow, keySequenceShowSavedWindowsSummary, savedWindowsCountLimit := 10) {
-		this.m_keySequenceReopenSavedWindow := keySequenceReopenSavedWindow
+		this.m_keySequenceReopenSavedWindow       := keySequenceReopenSavedWindow
 		this.m_keySequenceShowSavedWindowsSummary := keySequenceShowSavedWindowsSummary
-		this.m_savedWindowsCountLimit := savedWindowsCountLimit
+		this.m_savedWindowsCountLimit             := savedWindowsCountLimit
 
 		Serializable.deserialize(this, this.persistentStateFilename())
 	}
@@ -72,7 +72,8 @@ class ClosedWindowsCollector extends Serializable {
 			return
 		}
 
-		this.m_windowDestroyEventsWatcher := new ShellEventsWatcher({(ShellEventsWatcher.HSHELL_WINDOWDESTROYED) : [ObjBindMethod(this.base, "onWinDestroy", &this)]})
+		eventDestroy := ShellEventsWatcher.HSHELL_WINDOWDESTROYED
+		this.m_windowDestroyEventsWatcher := new ShellEventsWatcher({(eventDestroy) : [ObjBindMethod(this.base, "onWinDestroy", &this)]})
 
 		; Binding to "this.base", e.g. reference to class, not an instance object.
 		; This will not hold an additional reference to "this" object in the resulting BoundFunc object stored
@@ -325,11 +326,11 @@ class ClosedWindowsCollector extends Serializable {
 		return HasVal(titles, title)
 	}
 
-	m_ui := "" ;instance of WindowGroupsSummaryUi class
-	m_savedWindowsInfo := []
-	m_savedWindowsCountLimit := 0
-	m_windowDestroyEventsWatcher := {}
-	m_keySequenceReopenSavedWindow := "" ; hotkey to open recent window
+	m_ui                                 := "" ;instance of WindowGroupsSummaryUi class
+	m_isRunning                          := false
+	m_savedWindowsInfo                   := []
+	m_savedWindowsCountLimit             := 0
+	m_windowDestroyEventsWatcher         := {}
+	m_keySequenceReopenSavedWindow       := "" ; hotkey to open recent window
 	m_keySequenceShowSavedWindowsSummary := "" ; hotkey to show quick summary of closed windows which can be restored
-	m_isRunning := false
 }

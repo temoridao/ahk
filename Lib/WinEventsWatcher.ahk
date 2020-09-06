@@ -218,7 +218,7 @@ class WinEventsWatcher {
 			eventIdN : { hHook : Ptr(winEventHookHandleN), callbacks : [Func("Callback1"), Func("Callback2").Bind(44), ..., Func("CallbackN")] }
 		}
 	*/
-	m_callbacksMap := {}
+	m_isRunning        := false
+	m_callbacksMap     := {}
 	m_mainCallbackProc := ""
-	m_isRunning := false
 }
