@@ -6,7 +6,7 @@
 #include %A_LineFile%\..\Funcs.ahk
 
 /**
- * Allows subscription to various window events (activation, creation, closing, etc) and execute
+ * Allows to subscribe for various window events (activation, creation, closing, etc) and execute
  * user defined callback(s) when these events occur
  *
  * See documentation for RegisterShellHookWindow() function:

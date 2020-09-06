@@ -23,9 +23,10 @@
  * @code{.ahk}
    #include <ClosedWindowsCollector>
 
-   hotkeyReopenWindow := "#w", hotkeyShowSavedWindows := "#+w"
+   hotkeyReopenWindow         := "#w"  ;Win+W
+   , hotkeyShowSavedWindowsUi := "#+w" ;Win+Shift+W
 
-   global g_collector := new ClosedWindowsCollector(hotkeyReopenWindow, hotkeyShowSavedWindows)
+   global g_collector := new ClosedWindowsCollector(hotkeyReopenWindow, hotkeyShowSavedWindowsUi)
    OnExit("exitFunc") ;Serialize data to .json file upon script exit
 
    g_collector.start() ;Start monitoring of explorer.exe windows closing and save some info about them for reference/restoring later
