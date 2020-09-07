@@ -126,7 +126,7 @@ class AVarValuesRollback {
 }
 
 /**
- * Convenience factory function for QpcTimer class
+ * Convenience factory function for AVarValuesRollback class
  *
  * @return  New AVarValuesRollback object instance
  */
