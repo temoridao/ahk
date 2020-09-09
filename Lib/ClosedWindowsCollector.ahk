@@ -135,7 +135,7 @@ class ClosedWindowsCollector extends Serializable {
 			Gui Font,, % "Courier New"
 			Gui Font,, % "Fira Code"
 
-			Gui Add, ListView, +hWndhWnd w800 h500 NoSortHdr AltSubmit, Dir & Path|Geometry [X, Y; WxH]
+			Gui Add, ListView, +hWndhWnd w920 h560 NoSortHdr AltSubmit, Dir & Path|Geometry [X, Y; WxH]
 			this.m_hWndListView := hWnd
 			functor := this.onListItemEvent.Bind(this)
 			GuiControl, +g, %hWnd%, %functor%
@@ -174,13 +174,17 @@ class ClosedWindowsCollector extends Serializable {
 			WinActivate("ahk_id" this.m_hWnd)
 		}
 
+		title() {
+			return Format("[{}] Recently Closed (most recent at the top) — {}, Enter, double click to reopen window from list; "
+			  	       . "{} to show this dialog"
+			  , this.m_parent.m_savedWindowsInfo.Length()
+			  , CommonUtils.hotkeyToDisplayString(this.m_parent.m_keySequenceReopenSavedWindow)
+			  , CommonUtils.hotkeyToDisplayString(this.m_parent.m_keySequenceShowSavedWindowsSummary))
+		}
 		;Display UI and block current thread until UI window closed
 		exec() {
 			LV_ModifyCol(1, "Auto") ; Auto expand first column to fit content
-			Gui Show,
-			  , % Format("Recently Closed (most recent at the top) — {}, Enter, double click to reopen window from list; {} to show this dialog"
-			  , CommonUtils.hotkeyToDisplayString(this.m_parent.m_keySequenceReopenSavedWindow)
-			  , CommonUtils.hotkeyToDisplayString(this.m_parent.m_keySequenceShowSavedWindowsSummary))
+			Gui Show,, % this.title()
 			Gui +AlwaysOnTop
 			f := this.updateWindowStatus.Bind(this)
 			SetTimer(f, 100)
@@ -203,6 +207,7 @@ class ClosedWindowsCollector extends Serializable {
 			SetTitleMatchMode 3
 			Gui %hWnd%:Default
 
+			WinSetTitle % this.title()
 			Loop % LV_GetCount() {
 				LV_GetText(text, A_Index)
 
@@ -303,6 +308,9 @@ class ClosedWindowsCollector extends Serializable {
 			if (failedToOpenList.Length()) {
 				CommonUtils.ShowToolTip("Failed to restore folder: " failedToOpenList[1], 5000)
 			}
+		}
+		if (this.m_ui) {
+			this.m_ui.refresh()
 		}
 	}
 
