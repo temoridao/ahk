@@ -233,6 +233,10 @@ scriptBaseName() {
 	return SubStr(A_ScriptName, 1, InStr(A_ScriptName, ".ahk") -1)
 }
 
+runPlanFileName() {
+	return scriptBaseName() ".txt"
+}
+
 ;Returns all scripts from Config Section, then all scripts from Starter.txt in that order
 getScriptsForBundle() {
 	RegExMatch(FileRead(A_ScriptFullPath), "isO);\{ Config Section.+?;\}", matchObj)
@@ -250,7 +254,7 @@ getScriptsForBundle() {
 		}
 	}
 
-	if (FileExist(runPlanFile := scriptBaseName() ".txt")) {
+	if (FileExist(runPlanFile := runPlanFileName())) {
 		Loop Read, %runPlanFile%
 		{
 			if (A_LoopReadLine ~= "^\s*;") ;Skip comment lines starting with ";"
@@ -426,6 +430,9 @@ setupTray() {
 	showSummaryText := "Show Scripts Summary"
 	Menu Tray, Add, %showSummaryText%, showScriptsSummary
 
+	editTxt := "Edit " runPlanFileName()
+	Menu Tray, Add, %editTxt%, editRunPlanFile
+
 	Menu Tray, Add
 
 	Menu Tray, Standard
@@ -500,6 +507,10 @@ showScriptsSummary() {
 	GuiEscape:
 		Gui Destroy
 		return
+}
+
+editRunPlanFile() {
+	Run % runPlanFileName()
 }
 
 cleanTemporaryScripts() {
