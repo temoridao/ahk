@@ -68,6 +68,8 @@ XInput_Init(dll="xinput1_3")
     _XInput_GetState        := DllCall("GetProcAddress" ,"ptr",_XInput_hm ,"astr","XInputGetState")
     _XInput_SetState        := DllCall("GetProcAddress" ,"ptr",_XInput_hm ,"astr","XInputSetState")
     _XInput_GetCapabilities := DllCall("GetProcAddress" ,"ptr",_XInput_hm ,"astr","XInputGetCapabilities")
+    _XInput_GetSecretState  := DllCall("GetProcAddress" ,"ptr",_XInput_hm , "uint",100) ;Locate function by ordinal 100 instead of string
+
 
     if !(_XInput_GetState && _XInput_SetState && _XInput_GetCapabilities)
     {
@@ -118,6 +120,43 @@ XInput_GetState(UserIndex)
         sThumbRX:       NumGet(xiState, 12, "Short")
         sThumbRY:       NumGet(xiState, 14, "Short")
     )}
+}
+
+/**
+ * Get state of Guide central button of XBox controller
+ *
+ * It may be required to disable game bar in windows settings, because it steals Guide key state
+ * from detection by this function
+ *
+ * @param   UserIndex  Index of connected controller to get info from
+ *
+ * @return  @c true if Guide button pressed, @c false otherwise
+ */
+XInput_GetStateGuideButton(UserIndex) {
+	static guide_button_value := 0x0400
+	/* the secret function outputs a different struct than the official GetState.
+	typedef struct
+	{
+	    unsigned long eventCount;
+	    WORD wButtons;
+	    BYTE bLeftTrigger;
+	    BYTE bRightTrigger;
+	    SHORT sThumbLX;
+	    SHORT sThumbLY;
+	    SHORT sThumbRX;
+	    SHORT sThumbRY;
+	} XINPUT_GAMEPAD_SECRET;
+	*/
+	VarSetCapacity(xiSecretState, 18)
+
+	;Returns 0 on success, 1167 on not connected. Might be others.
+	global _XInput_GetSecretState
+	if (DllCall(_XInput_GetSecretState, "uint",UserIndex, "uint",&xiSecretState)) {
+		Throw "Error getting Guide button state"
+	}
+
+	wButtons := NumGet(xiSecretState, 4, "UShort")
+	return wButtons & guide_button_value
 }
 
 /*
