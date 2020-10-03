@@ -197,6 +197,9 @@ Send(Keys) {
 SetTimer(Label := "", PeriodOnOff := "", Priority := "") { ; Known limitation: passing -0 as 'Period' do not honor minus, so you need to pass -1 or "-0" (as string, in double quotes)
 	SetTimer, %Label%, %PeriodOnOff%, %Priority%
 }
+Sleep(DelayInMilliseconds) {
+	Sleep DelayInMilliseconds
+}
 SoundBeep(Frequency:=523, Duration:=150) {
 	SoundBeep Frequency, Duration
 }
