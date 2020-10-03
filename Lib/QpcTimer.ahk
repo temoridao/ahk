@@ -6,8 +6,8 @@
  * Measure time periods with high resolution OS timer (QueryPerformanceCounter)
  *
  * @code{.ahk}
- * #include <QpcTimer>
- *
+   #include <QpcTimer>
+
    t := qpc()
    Sleep 500
    MsgBox % "Elapsed milliseconds: " t.elapsedMs()
