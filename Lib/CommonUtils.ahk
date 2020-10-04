@@ -972,6 +972,7 @@ class CommonUtils extends ImmutableClass {
    fun := "fun"
    combinedFuncs := cf("fun1", Func(fun "2"), Func("fun3").Bind("Hello"))
    Hotkey F12, % combinedFuncs
+   MsgBox Press F12 to trigger hotkey.`n It will call all combined functions in order
 
    fun1() {
    	MsgBox %A_ThisFunc%
