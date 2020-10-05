@@ -332,3 +332,7 @@ WinClose(WinTitle = "", WinText = "", SecondsToWait = "", ExcludeTitle = "", Exc
 WinMinimizeAll() {
 	WinMinimizeAll
 }
+
+KeyWait(KeyName, Options:="") {
+	KeyWait, %KeyName%, %Option%
+}

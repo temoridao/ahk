@@ -463,9 +463,18 @@ class CommonUtils extends ImmutableClass {
 		SetTimer("ToolTip", -timeout)
 	}
 
-	ShowText(text, timeout := 3000) {
-		Progress, B zh0 Fs16 W500, % text
-		SetTimer(Func("Progress").Bind("OFF"), -timeout)
+	ShowText(text, timeout := 3000, pOpts := "", font := "") {
+		if (!text) {
+			Progress OFF
+			return
+		}
+
+		options := "B zh0 Fs16 W500 " pOpts
+		Progress, %options%, %text%,,,%font%
+
+		if (timeout) {
+			SetTimer(Func("Progress").Bind("OFF"), -timeout)
+		}
 	}
 
 	;Assigns icon to script if finds one in %baseDir% with name identical to calling script
@@ -650,9 +659,9 @@ class CommonUtils extends ImmutableClass {
 		return keyword
 	}
 
-	KeyWaitAny(hookOptions := "") {
+	KeyWait(keys := "{All}", hookOptions := "") {
 		ih := InputHook(hookOptions)
-		ih.KeyOpt("{All}", "ES")  ; End and Suppress
+		ih.KeyOpt(keys, "ES")  ; End and Suppress
 		ih.Start()
 		ErrorLevel := ih.Wait()  ; Store EndReason in ErrorLevel
 		return ih.EndKey  ; Return the key name
