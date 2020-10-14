@@ -52,6 +52,23 @@ HasVal(ByRef obj, ByRef needle) {
 }
 
 /**
+ * Removes a value from linear array
+ *
+ * @param   linearArrayObj  The linear array object from which a value will be removed
+ * @param   val             The value to be removed from array (if found)
+ *
+ * @return  @c true if the first occurrence of @p val was removed, @c false otherwise
+ */
+RemoveVal(ByRef linearArrayObj, ByRef val) {
+	if (pos := HasVal(linearArrayObj, val)) {
+		linearArrayObj.RemoveAt(pos)
+		return true
+	}
+
+	return false
+}
+
+/**
  * Resolve absolute path from relative
  *
  * @param   path  The path, possibly relative or with ".."
