@@ -187,9 +187,9 @@ Run(Target, WorkingDir = "", Mode = "") {
 	Run, %Target%, %WorkingDir%, %Mode%, v
 	Return, v
 }
-RunWait(Target, WorkingDir = "", Mode = "") {
-	RunWait, %Target%, %WorkingDir%, %Mode%, v
-	Return, v
+RunWait(Target, WorkingDir = "", Mode = "", ByRef OutputVarPID := "") {
+	RunWait, %Target%, %WorkingDir%, %Mode%, OutputVarPID
+	Return, ErrorLevel ;ErrorLevel contains process exit code
 }
 Send(Keys) {
 	Send % Keys
