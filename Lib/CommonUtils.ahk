@@ -549,25 +549,14 @@ class CommonUtils extends ImmutableClass {
 		return r
 	}
 
-	;Activates window under mouse cursor, sends `inputToSend` and activates previously active window
-	SendInputToWindowUnderCursor(inputToSend) {
-		MouseGetPos,,,winId
-		currentWinId := WinExist("A")
-		if (winId = currentWinId) {
-			Send %inputToSend%
-			Return
+	sendInputToWindowUnderCursor(keys) {
+		if (CommonUtils.MouseIsOver() = WinGet("ID", "A")) {
+			Send %keys%
+			return
 		}
 
-		SetWinDelay 0
-
-		WinGet, outExtStyle, ExStyle, ahk_id %currentWinId%
-		wasOnTop := !!(outExtStyle & 0x8) ; 0x8 is WS_EX_TOPMOST
-
-		WinSet, AlwaysOnTop, On, ahk_id %currentWinId%
-		WinActivate ahk_id %winId%
-		Send %inputToSend%
-		WinActivate ahk_id %currentWinId%
-		Winset, AlwaysOnTop, % wasOnTop, ahk_id %currentWinId%
+		;ahk_parent used for sending input directly to the target window (Last Found Window in this case)
+		ControlSend, ahk_parent, %keys%
 	}
 
 	;\p extractionOpts is combination of letters (in any order, case-insensitive):
