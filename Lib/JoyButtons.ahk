@@ -32,91 +32,163 @@
  * @copyright Dedicated to Public Domain. See UNLICENSE.txt for details
 */
 
-JoyA(mode:="xinput") {
+/**
+ * Contains global joy mode for gamepads' hotkeys. If no explicit @c mode parameter passed
+ * to functions below, the value from this global static variable is taken into account.
+ * This avoids passing @c mode parameter on each function call.
+ * Example:
+ * @code{.ahk}
+   #include <JoyButtons>
+   #include <XinputUtil>
+
+   XInput_Init() ;Initialize XInput.ahk library
+   JoyButtons.JoyMode := XinputUtil.isConnected(0) ? "xinput" : "dinput" ;Initialize global mode
+
+   Hotkey % "Joy" JoyA(), % "hello" ;Press <A> on joy to open message box
+   ;altenatively: Hotkey % "Joy" JoyA(XinputUtil.isConnected(0) ? "xinput" : "dinput"), % "hello"
+
+   hello() {
+   	MsgBox % "Hello! Current mode is '" JoyButtons.JoyMode "'"
+   }
+ * @endcode
+ */
+class JoyButtons {
+	static JoyMode := "xinput"
+}
+
+JoyA(mode:="") {
+	if (!mode)
+		mode := JoyButtons.JoyMode
+
 	return (mode = "xinput") ? 1 : 3
 }
 Joy1() {
 	return JoyA()
 }
 
-JoyB(mode:="xinput") {
+JoyB(mode:="") {
+	if (!mode)
+		mode := JoyButtons.JoyMode
+
 	return 2
 }
 Joy2() {
 	return JoyB()
 }
 
-JoyX(mode:="xinput") {
+JoyX(mode:="") {
+	if (!mode)
+		mode := JoyButtons.JoyMode
+
 	return (mode = "xinput") ? 3 : 4
 }
 Joy3() {
 	return JoyX()
 }
 
-JoyY(mode:="xinput") {
+JoyY(mode:="") {
+	if (!mode)
+		mode := JoyButtons.JoyMode
+
 	return (mode = "xinput") ? 4 : 1
 }
 Joy4() {
 	return JoyY()
 }
 
-JoyLB(mode:="xinput") {
+JoyLB(mode:="") {
+	if (!mode)
+		mode := JoyButtons.JoyMode
+
 	return 5
 }
 Joy5() {
 	return JoyLB()
 }
 
-JoyRB(mode:="xinput") {
+JoyRB(mode:="") {
+	if (!mode)
+		mode := JoyButtons.JoyMode
+
 	return 6
 }
 Joy6() {
 	return JoyRB()
 }
 
-JoyBack(mode:="xinput") {
+JoyBack(mode:="") {
+	if (!mode)
+		mode := JoyButtons.JoyMode
+
 	return (mode = "xinput") ? 7 : 9
 }
 Joy7() {
 	return JoyBack()
 }
 
-JoyStart(mode:="xinput") {
+JoyStart(mode:="") {
+	if (!mode)
+		mode := JoyButtons.JoyMode
+
 	return (mode = "xinput") ? 8 : 10
 }
 Joy8() {
 	return JoyStart()
 }
 
-JoyLS(mode:="xinput") {
+JoyLS(mode:="") {
+	if (!mode)
+		mode := JoyButtons.JoyMode
+
 	return (mode = "xinput") ? 9 : 11
 }
 Joy9() {
 	return JoyLS()
 }
-JoyLSxAxis(mode:="xinput") {
+JoyLSxAxis(mode:="") {
+	if (!mode)
+		mode := JoyButtons.JoyMode
+
 	return "X"
 }
-JoyLSyAxis(mode:="xinput") {
+JoyLSyAxis(mode:="") {
+	if (!mode)
+		mode := JoyButtons.JoyMode
+
 	return "Y"
 }
 
-JoyRS(mode:="xinput") {
+JoyRS(mode:="") {
+	if (!mode)
+		mode := JoyButtons.JoyMode
+
 	return (mode = "xinput") ? 9 : 12
 }
 Joy10() {
 	return JoyRS()
 }
-JoyRSxAxis(mode:="xinput") {
+JoyRSxAxis(mode:="") {
+	if (!mode)
+		mode := JoyButtons.JoyMode
+
 	return (mode = "xinput") ? "U" : "Z"
 }
-JoyRSyAxis(mode:="xinput") {
+JoyRSyAxis(mode:="") {
+	if (!mode)
+		mode := JoyButtons.JoyMode
+
 	return "R"
 }
 
-JoyLt(mode:="xinput") {
+JoyLT(mode:="") {
+	if (!mode)
+		mode := JoyButtons.JoyMode
+
 	return (mode = "xinput") ? "Z" : 7
 }
-JoyRt(mode:="xinput") {
+JoyRT(mode:="") {
+	if (!mode)
+		mode := JoyButtons.JoyMode
+
 	return (mode = "xinput") ? "Z" : 8
 }

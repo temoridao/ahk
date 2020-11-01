@@ -45,12 +45,16 @@ class JoyUtil extends ImmutableClass
 		return result
 	}
 
-	ltPressed(joyIndex := "", mode:="xinput") {
-		return (mode = "xinput") ? Round(GetKeyState(joyIndex "Joy" JoyLt(mode))) > 50 ;If left analog trigger is pressed (50 in non-pressed state)
-		                         : GetKeyState(joyIndex "Joy" JoyLt(mode), "P")
+	ltPressed(joyIndex := "", mode:="") {
+		if (!mode)
+			mode := JoyButtons.JoyMode
+		return (mode = "xinput") ? Round(GetKeyState(joyIndex "Joy" JoyLT(mode))) > 50 ;If left analog trigger is pressed (50 in non-pressed state)
+		                         : GetKeyState(joyIndex "Joy" JoyLT(mode), "P")
 	}
-	rtPressed(joyIndex := "", mode:="xinput") {
-		return (mode = "xinput") ? Round(GetKeyState(joyIndex "Joy" JoyRt(mode))) < 50 ;If right analog trigger is pressed (50 in non-pressed state)
-		                         : GetKeyState(joyIndex "Joy" JoyRt(mode), "P")
+	rtPressed(joyIndex := "", mode:="") {
+		if (!mode)
+			mode := JoyButtons.JoyMode
+		return (mode = "xinput") ? Round(GetKeyState(joyIndex "Joy" JoyRT(mode))) < 50 ;If right analog trigger is pressed (50 in non-pressed state)
+		                         : GetKeyState(joyIndex "Joy" JoyRT(mode), "P")
 	}
 }

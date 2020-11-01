@@ -152,7 +152,7 @@ XInput_GetStateGuideButton(UserIndex) {
 	;Returns 0 on success, 1167 on not connected. Might be others.
 	global _XInput_GetSecretState
 	if (status := DllCall(_XInput_GetSecretState, "uint",UserIndex, "uint",&xiSecretState)) {
-		Throw "Error getting Guide button state: " ErrMsg(status)
+		Throw "Error getting Guide button state: " status
 	}
 
 	wButtons := NumGet(xiSecretState, 4, "UShort")
