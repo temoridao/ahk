@@ -74,6 +74,7 @@ DetectHiddenWindows ON
 SetBatchLines -1
 
 global g_scriptResourceAliasPrefix := "StarterExeResourcePrefix_"
+     , g_reloadMark := "Reloading..."
 
 ;@Ahk2Exe-IgnoreBegin
 if (Config.CompileMe) {
@@ -129,7 +130,20 @@ setupTray()
 ;===================================================================================================
 
 ;Win+Shift+Escape — reload this script with all of its managed scripts at once
-#+Escape::Reload
+#+Escape::
+	reloadAll() {
+		stopChildScripts()
+
+		;Preserve original command line parameters passed to Starter
+		newTitle := WinGetTitle("ahk_id" A_ScriptHwnd) g_reloadMark
+		WinSetTitle ahk_id %A_ScriptHwnd%,, %newTitle%
+		cmdline := ""
+		for i, arg in A_Args {
+			cmdline .= arg " "
+		}
+		Run(A_ScriptFullPath " " cmdline)
+		ExitApp
+	}
 
 /* Win+Shift+` - Smart Reload Script matching %winTitle% (active window "A" by default)
  *
@@ -223,10 +237,19 @@ setSuspend(willSuspend, childScriptsOnly := true) {
 }
 
 checkForExistingInstance() {
-	if (WinGet("List", A_ScriptName " ahk_class AutoHotkey").Length() > 1) {
-		MsgBox % "Already running"
-		ExitApp
+	myPid := DllCall("GetCurrentProcessId")
+	for i, hWnd in WinGet("List", A_ScriptName " ahk_class AutoHotkey") {
+		if (WinGet("PID", "ahk_id" hWnd) = myPid) {
+			continue
+		}
+
+		title := WinGetTitle("ahk_id" hWnd)
+		if (title && !InStr(title, g_reloadMark)) {
+			MsgBox % "Already running"
+			ExitApp
+		}
 	}
+
 }
 
 scriptBaseName() {
@@ -369,8 +392,22 @@ cleanupScriptResourceAlias(resourceAlias) {
 }
 
 exitFunc(exitReason, exitCode) {
-	;Exit scripts in reverse order of launching
+	stopChildScripts()
 
+/*@Ahk2Exe-Keep
+		if (ConfigCompiled.AhkRuntimeInAds) {
+			return ; No need to delete ADS file - it will be deleted automatically together with Starter.exe
+		}
+
+		FileDelete % g_ahkRuntimeFile
+		if (ErrorLevel) {
+			MsgBox % "Error while deleting " g_ahkRuntimeFile ": " ErrMsg()
+		}
+*/
+}
+
+stopChildScripts() {
+	;Exit scripts in reverse order of launching
 	len := g_scriptsPids.Length()
 	Loop % len {
 		AhkScriptController.sendCommand("ahk_pid" g_scriptsPids[len - A_Index + 1], AhkScriptController.ID_FILE_EXIT)
@@ -384,16 +421,6 @@ exitFunc(exitReason, exitCode) {
 		}
 	}
 
-/*@Ahk2Exe-Keep
-	if (ConfigCompiled.AhkRuntimeInAds) {
-		return ; No need to delete ADS file - it will be deleted automatically together with Starter.exe
-	}
-
-	FileDelete % g_ahkRuntimeFile
-	if (ErrorLevel) {
-		MsgBox % "Error while deleting " g_ahkRuntimeFile ": " ErrMsg()
-	}
-*/
 }
 
 ;--------------------------Starter.ahk-only Functions--------------------------
