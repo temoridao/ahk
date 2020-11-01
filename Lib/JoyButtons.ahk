@@ -8,14 +8,20 @@
    #incldue <JoyButtons>
 
    global g_JoyNumber := 1
-   , g_JoystickPrefix := "Joy" g_JoyNumber
+        , g_JoystickPrefix := "Joy" g_JoyNumber
 
    jh(JoyLS(), "onLeftStickPress")
-   jh(JoyBack(), FSend("{Escape}"))
+   jh(JoyBack(), Func("showMessage").Bind("You pressed <Back> button!"))
 
    ;jh -> JoyHotkey
    jh(KeyName, Label := "", Options := "") {
    	Hotkey % g_JoystickPrefix . KeyName, %Label%, %Options%
+   }
+   onLeftStickPress() {
+   	MsgBox You pressed Left Stick!
+   }
+   showMessage(message) {
+   	MsgBox % message
    }
  * @endcode
  * @copyright Dedicated to Public Domain. See UNLICENSE.txt for details
