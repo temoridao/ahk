@@ -20,10 +20,9 @@ class XinputUtil extends ImmutableClass
 	 *
 	 * @param   gamepadIndex  The gamepad index (start from 0)
 	 *
-	 * @return  @c true if the specified gamepad is functional and can be used for hotkeys binding, @c
-	 *          false otherwise.
+	 * @return  @c true if the specified gamepad is functional XInput gamepad and @c false otherwise
 	 */
-	isFunctional(gamepadIndex) {
+	isConnected(gamepadIndex) {
 		static XINPUT_FLAG_GAMEPAD := 0x00000001
 		return XInput_GetCapabilities(gamepadIndex, XINPUT_FLAG_GAMEPAD)
 	}

@@ -4,13 +4,27 @@
  */
 
 #include %A_LineFile%\..\ImmutableClass.ahk
+#include %A_LineFile%\..\JoyButtons.ahk
 
 /**
- * Contains utility functions for joysticks
+ * Contains utility functions for joysticks (Dinput/Xinput independent)
  */
 class JoyUtil extends ImmutableClass
 {
 ;public:
+
+	/**
+	 * Check whether the specified gamepad is physically connected and/or can be accessed by
+	 * AutoHotkey
+	 *
+	 * @param   joyIndex  Gamepad's index
+	 *
+	 * @return  @c true if the specified gamepad is connected, @c fsalse otherwise
+	 */
+	isFunctional(joyIndex := "1") {
+		return GetKeyState(joyIndex "JoyInfo")
+	}
+
 	povDirection(joyIndex := "") {
 		POV := GetKeyState(joyIndex "JoyPOV")  ; Get position of the POV control.
 		; Some joysticks might have a smooth/continuous POV rather than one in fixed increments.
@@ -31,10 +45,12 @@ class JoyUtil extends ImmutableClass
 		return result
 	}
 
-	ltPressed(joyIndex := "") {
-		return Round(GetKeyState(joyIndex "JoyZ")) > 50 ;If left analog trigger is pressed (50 in non-pressed state)
+	ltPressed(joyIndex := "", mode:="xinput") {
+		return (mode = "xinput") ? Round(GetKeyState(joyIndex "Joy" JoyLt(mode))) > 50 ;If left analog trigger is pressed (50 in non-pressed state)
+		                         : GetKeyState(joyIndex "Joy" JoyLt(mode), "P")
 	}
-	rtPressed(joyIndex := "") {
-		return Round(GetKeyState(joyIndex "JoyZ")) < 50 ;If right analog trigger is pressed (50 in non-pressed state)
+	rtPressed(joyIndex := "", mode:="xinput") {
+		return (mode = "xinput") ? Round(GetKeyState(joyIndex "Joy" JoyRt(mode))) < 50 ;If right analog trigger is pressed (50 in non-pressed state)
+		                         : GetKeyState(joyIndex "Joy" JoyRt(mode), "P")
 	}
 }
