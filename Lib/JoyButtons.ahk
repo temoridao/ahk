@@ -162,7 +162,7 @@ JoyRS(mode:="") {
 	if (!mode)
 		mode := JoyButtons.JoyMode
 
-	return (mode = "xinput") ? 9 : 12
+	return (mode = "xinput") ? 10 : 12
 }
 Joy10() {
 	return JoyRS()
