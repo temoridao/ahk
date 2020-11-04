@@ -25,6 +25,21 @@ class JoyUtil extends ImmutableClass
 		return GetKeyState(joyIndex "JoyInfo")
 	}
 
+	/**
+	 * Detect valid joystick available on the system
+	 *
+	 * @return  Index (1-based) of the first valid joystick found on the system, 0 if none
+	 */
+	validJoyIndex() {
+		Loop 16 {
+			if (name := GetKeyState(A_Index "JoyName")) {
+				return A_Index
+			}
+		}
+
+		return 0
+	}
+
 	povDirection(joyIndex := "") {
 		POV := GetKeyState(joyIndex "JoyPOV")  ; Get position of the POV control.
 		; Some joysticks might have a smooth/continuous POV rather than one in fixed increments.
