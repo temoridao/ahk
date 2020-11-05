@@ -21,7 +21,7 @@ class JoyUtil extends ImmutableClass
 	 *
 	 * @return  @c true if the specified gamepad is connected, @c fsalse otherwise
 	 */
-	isFunctional(joyIndex := "1") {
+	isConnected(joyIndex := "1") {
 		return GetKeyState(joyIndex "JoyInfo")
 	}
 

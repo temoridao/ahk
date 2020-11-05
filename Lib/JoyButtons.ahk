@@ -5,7 +5,7 @@
  * Each function is able to return joy number depending on the gamepad mode (XInput or Dinput)
  * passed as parameter @c mode. To determine current gamepad mode see @ref XinputUtil.isConnected().
  * To determine if gamepad is functional (in either mode) and can be accessed by AutoHotkey see
- * @ref JoyUtil.isFunctional()
+ * @ref JoyUtil.isConnected()
  *
  * Using these wrappers make code more clear and self-documented, f.e.:
  *
