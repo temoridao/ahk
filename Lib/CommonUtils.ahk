@@ -549,6 +549,14 @@ class CommonUtils extends ImmutableClass {
 		return r
 	}
 
+	showOnscreenKeyboard() {
+		hWnd := WinGet("ID", "A")
+		WinActivate("ahk_class Progman")
+		Run tabtip
+		Sleep 300
+		WinActivate("ahk_id" hWnd)
+	}
+
 	sendInputToWindowUnderCursor(keys) {
 		if (CommonUtils.MouseIsOver() = WinGet("ID", "A")) {
 			Send %keys%
