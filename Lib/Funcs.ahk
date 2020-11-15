@@ -137,4 +137,25 @@ FSend(keys) {
 _F(funcName, params*) {
 	return Func(funcName).Bind(params*)
 }
+HandleMultiplePresses(pressHandlers*) {
+	strippedHotkey := RegExReplace(A_ThisHotkey, "i)(?:[~#!<>\*\+\^\$]*([^ ]+)(?: UP)?)$", "$1")
+	; hotkeyType := InStr(A_ThisHotkey, " UP") ? "UP" : "DOWN"
+	keyPresses := 0
+	keyPressedBeforeTimeout := false
+	Loop {
+		++keyPresses
+		KeyWait, %strippedHotkey%         ; Wait for KeyUp.
+		KeyWait, %strippedHotkey%, D T.12 ; Wait for same KeyDown or .12 seconds to elapse.
+		keyPressedBeforeTimeout := (ErrorLevel = 0)
+	} Until !keyPressedBeforeTimeout
+
+	if (keyPresses > pressHandlers.Length()) {
+		return ""
+	}
+
+	f := pressHandlers[keyPresses]
+	if (!IsObject(f)) { ;If not Func or BoundFunc object (i.e. just a string containing function name)
+		f := Func(f)
+	}
+	return f ? f.Call() : ""
 }
