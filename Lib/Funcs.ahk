@@ -159,7 +159,7 @@ _F(funcName, params*) {
  * @code{.ahk}
    ;Try press Ctrl+T from 1 to 6 times.
    ^t::MsgBox % "Handler's return value: "
-              . HandleMultiplePresses({1: FSend("^t") ;Single-press: retain original hotkey action (Ctrl+T)
+              . HandleMultiPressHotkey({1: FSend("^t") ;Single-press: retain original hotkey action (Ctrl+T)
        , 2: "MyMsgBox"               ;2-press. result: ""
        , 3: _F("MyMsgBox", 3)        ;3-press. result: 8
        , 4: _F("Run", "notepad.exe") ;4-press: launch Notepad. result: process ID (PID) of newly launched notepad instance
@@ -195,7 +195,7 @@ _F(funcName, params*) {
  * @see     https://www.autohotkey.com/boards/viewtopic.php?t=40161
  *          https://autohotkey.com/board/topic/32973-func-waitthishotkey/
  */
-HandleMultiplePresses(pressHandlers, keyWaitDelay := 150) {
+HandleMultiPressHotkey(pressHandlers, keyWaitDelay := 150) {
 	strippedHotkey := RegExReplace(A_ThisHotkey, "i)(?:[~#!<>\*\+\^\$]*([^ ]+)(?: UP)?)$", "$1")
 	; hotkeyType := InStr(A_ThisHotkey, " UP") ? "UP" : "DOWN"
 	keyPresses := 0
