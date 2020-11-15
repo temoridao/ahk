@@ -130,3 +130,11 @@ GetCmdParameterValue(parameterName, defaultValue := "") {
 	}
 	return value
 }
+
+FSend(keys) {
+	return Func("Send").Bind(keys)
+}
+_F(funcName, params*) {
+	return Func(funcName).Bind(params*)
+}
+}
