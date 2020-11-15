@@ -139,29 +139,40 @@ _F(funcName, params*) {
 }
 
 /**
- * Bind functions to be executed on single-/double-/tripple-/N-press of hotkey (A_ThisHotkey)
+ * Bind functions to be executed on single-/double-/triple-/N-press of hotkey
  *
- * Function accepts an array of function names, Func/BoundFunc objects in its @p pressHandlers
- * parameter. The index @c I inside this array determines the count of hotkey presses required to
+ * Function accepts Func/BoundFunc objects and literal names in its @p pressHandlers
+ * parameter. This parameter can be key-value object or linear array. Key-value object is
+ * recommended way because it is more illustrative and compact (doesn't require to specify empty
+ * parameter for each sequential number of key presses). The next 2 examples are equivalent:
+ *
+ * Key-value object example:
+ *    { 2: "function_double_press"
+ *    , 3: "function_triple_press" }
+ *
+ * Linear array example:
+ *    ["", "function_double_press", "function_triple_press"]
+ * The index @c I inside this array determines the count of hotkey presses required to
  * execute @c I-th handler. Specify empty value in parameter number @c X to skip handling of @c X-th
  * press of the hotkey.
  *
  * @code{.ahk}
-   ;Try press Ctrl+T from 1 to 6 times
-   ^t::result := HandleMultiplePresses([FSend("^t") ;1-press: retain original hotkey action. result: ""
-       , _F("MyMsgBox", 2)          ;2-press. result: 7
-       , _F("MyMsgBox", 3)          ;3-press. result: 8
-       , _F("Run", "notepad.exe")   ;4-press: launch Notepad. result: process ID (PID) of
-                                    ;         newly launched notepad instance
-       , ""                         ;5-press: skip, do nothing. result: ""
-       , _F("ExitApp", 43)])        ;6-press: exit script with code 43
+   ;Try press Ctrl+T from 1 to 6 times.
+   ^t::MsgBox % "Handler's return value: "
+              . HandleMultiplePresses({1: FSend("^t") ;Single-press: retain original hotkey action (Ctrl+T)
+       , 2: "MyMsgBox"               ;2-press. result: ""
+       , 3: _F("MyMsgBox", 3)        ;3-press. result: 8
+       , 4: _F("Run", "notepad.exe") ;4-press: launch Notepad. result: process ID (PID) of newly launched notepad instance
+                                     ;5-press: skip  intentionally, do nothing. result: ""
+       , 6: _F("ExitApp", 43)})      ;6-press: exit script with code 43
+       ;, 150: _F("MyMsgBox", "Can you do this?!")}) ;150-press: Can you complete this? :)
 
    _F(funcName, params*) {
    	return Func(funcName).Bind(params*)
    }
-   MyMsgBox(param) {
-   	MsgBox % A_ThisHotkey " hotkey pressed " param " times!"
-   	return param + 5
+   MyMsgBox(pressCount := "some") {
+   	MsgBox % A_ThisHotkey " hotkey pressed " pressCount " times!"
+   	return pressCount + 5
    }
    ExitApp(exitCode := 0) {
    	ExitApp exitCode
@@ -175,8 +186,9 @@ _F(funcName, params*) {
    }
  * @endcode
  *
- * @param   pressHandlers  The array of functions to be executed when @c A_ThisHotkey fired
- * @param   keyWaitDelay   Time in milliseconds to wait between hotkey presses. 150 by default.
+ * @param   pressHandlers  The functions to be executed when @c A_ThisHotkey fired. Can be Array or
+ *                         key-value object
+ * @param   keyWaitDelay   Time in milliseconds to wait between hotkey presses. 150 by default
  *
  * @return  The result of @c I-th handler for @c I presses of @c A_ThisHotkey
  *
@@ -196,7 +208,7 @@ HandleMultiplePresses(pressHandlers, keyWaitDelay := 150) {
 		keyPressedBeforeTimeout := (ErrorLevel = 0)
 	} Until !keyPressedBeforeTimeout
 
-	if (keyPresses > pressHandlers.Length()) {
+	if (!pressHandlers.HasKey(keyPresses)) {
 		return ""
 	}
 
