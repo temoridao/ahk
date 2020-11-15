@@ -141,17 +141,19 @@ _F(funcName, params*) {
 /**
  * Bind functions to be executed on single-/double-/triple-/N-press of hotkey
  *
- * Function accepts Func/BoundFunc objects and literal names in its @p pressHandlers
- * parameter. This parameter can be key-value object or linear array. Key-value object is
+ * Function accepts Func/BoundFunc objects or literal names in @p pressHandlers
+ * parameter. It can be {key: value} object or [linear array]. Object is
  * recommended way because it is more illustrative and compact (doesn't require to specify empty
- * parameter for each sequential number of key presses). The next 2 examples are equivalent:
+ * parameter for each number of key presses you want to omit from handling).
+ * The next 2 examples are equivalent:
  *
- * Key-value object example:
+ * Object example:
  *    { 2: "function_double_press"
- *    , 3: "function_triple_press" }
+ *    , 3: "function_triple_press"
+ *    , 6: "function_6_presses" }
  *
  * Linear array example:
- *    ["", "function_double_press", "function_triple_press"]
+ *    ["", "function_double_press", "function_triple_press", "", "", "function_6_presses"]
  * The index @c I inside this array determines the count of hotkey presses required to
  * execute @c I-th handler. Specify empty value in parameter number @c X to skip handling of @c X-th
  * press of the hotkey.
@@ -181,6 +183,9 @@ _F(funcName, params*) {
    	Run %Target%, %WorkingDir%, %Mode%, v
    	Return v
    }
+   Send(keys) {
+   	Send % keys
+   }
    FSend(keys) {
    	return Func("Send").Bind(keys)
    }
@@ -188,23 +193,23 @@ _F(funcName, params*) {
  *
  * @param   pressHandlers  The functions to be executed when @c A_ThisHotkey fired. Can be Array or
  *                         key-value object
- * @param   keyWaitDelay   Time in milliseconds to wait between hotkey presses. 150 by default
+ * @param   keyWaitDelay   Maximum time in milliseconds to wait for next triggering of hotkey
  *
- * @return  The result of @c I-th handler for @c I presses of @c A_ThisHotkey
+ * @return  The return value of Nth handler from @p pressHandlers, which corresponds to @c N presses
+ *          of @c A_ThisHotkey
  *
  * @see     https://www.autohotkey.com/boards/viewtopic.php?t=40161
  *          https://autohotkey.com/board/topic/32973-func-waitthishotkey/
  */
 HandleMultiPressHotkey(pressHandlers, keyWaitDelay := 150) {
 	strippedHotkey := RegExReplace(A_ThisHotkey, "i)(?:[~#!<>\*\+\^\$]*([^ ]+)(?: UP)?)$", "$1")
-	; hotkeyType := InStr(A_ThisHotkey, " UP") ? "UP" : "DOWN"
 	keyPresses := 0
 	keyPressedBeforeTimeout := false
 	options := "DT" keyWaitDelay / 1000
 	Loop {
 		++keyPresses
 		KeyWait, %strippedHotkey%            ; Wait for KeyUp.
-		KeyWait, %strippedHotkey%, %options% ; Wait for same KeyDown or .12 seconds to elapse.
+		KeyWait, %strippedHotkey%, %options% ; Wait for same KeyDown or `keyWaitDelay` to elapse.
 		keyPressedBeforeTimeout := (ErrorLevel = 0)
 	} Until !keyPressedBeforeTimeout
 
@@ -216,5 +221,5 @@ HandleMultiPressHotkey(pressHandlers, keyWaitDelay := 150) {
 	if (!IsObject(f)) { ;If not Func or BoundFunc object (i.e. just a string containing function name)
 		f := Func(f)
 	}
-	return f ? f.Call() : ""
+	return f ? f.Call() : "" ;Test Func object for validity/existence before calling
 }
