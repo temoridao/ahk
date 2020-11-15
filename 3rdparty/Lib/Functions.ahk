@@ -7,6 +7,10 @@
 		- Dedicated to the public domain (CC0 1.0) <http://creativecommons.org/publicdomain/zero/1.0/>
 */
 
+Functions() {
+	Return, true
+}
+
 ExitApp(exitCode := 0) {
 	ExitApp exitCode
 }
@@ -335,4 +339,4 @@ WinMinimizeAll() {
 
 KeyWait(KeyName, Options:="") {
 	KeyWait, %KeyName%, %Option%
-}
+}
