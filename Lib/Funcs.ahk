@@ -1,6 +1,6 @@
 /**
  * @file
- * Contains basic utitlity functions primarily enhancing standard AutoHotkey functions/commands
+ * Contains basic utility functions primarily enhancing standard AutoHotkey functions/commands
  *
  * @copyright Dedicated to Public Domain. See UNLICENSE.txt for details
 */
@@ -137,15 +137,62 @@ FSend(keys) {
 _F(funcName, params*) {
 	return Func(funcName).Bind(params*)
 }
-HandleMultiplePresses(pressHandlers*) {
+
+/**
+ * Bind functions to be executed on single-/double-/tripple-/N-press of hotkey (A_ThisHotkey)
+ *
+ * Function accepts an array of function names, Func/BoundFunc objects in its @p pressHandlers
+ * parameter. The index @c I inside this array determines the count of hotkey presses required to
+ * execute @c I-th handler. Specify empty value in parameter number @c X to skip handling of @c X-th
+ * press of the hotkey.
+ *
+ * @code{.ahk}
+   ;Try press Ctrl+T from 1 to 6 times
+   ^t::result := HandleMultiplePresses([FSend("^t") ;1-press: retain original hotkey action. result: ""
+       , _F("MyMsgBox", 2)          ;2-press. result: 7
+       , _F("MyMsgBox", 3)          ;3-press. result: 8
+       , _F("Run", "notepad.exe")   ;4-press: launch Notepad. result: process ID (PID) of
+                                    ;         newly launched notepad instance
+       , ""                         ;5-press: skip, do nothing. result: ""
+       , _F("ExitApp", 43)])        ;6-press: exit script with code 43
+
+   _F(funcName, params*) {
+   	return Func(funcName).Bind(params*)
+   }
+   MyMsgBox(param) {
+   	MsgBox % A_ThisHotkey " hotkey pressed " param " times!"
+   	return param + 5
+   }
+   ExitApp(exitCode := 0) {
+   	ExitApp exitCode
+   }
+   Run(Target, WorkingDir := "", Mode := "") {
+   	Run %Target%, %WorkingDir%, %Mode%, v
+   	Return v
+   }
+   FSend(keys) {
+   	return Func("Send").Bind(keys)
+   }
+ * @endcode
+ *
+ * @param   pressHandlers  The array of functions to be executed when @c A_ThisHotkey fired
+ * @param   keyWaitDelay   Time in milliseconds to wait between hotkey presses. 150 by default.
+ *
+ * @return  The result of @c I-th handler for @c I presses of @c A_ThisHotkey
+ *
+ * @see     https://www.autohotkey.com/boards/viewtopic.php?t=40161
+ *          https://autohotkey.com/board/topic/32973-func-waitthishotkey/
+ */
+HandleMultiplePresses(pressHandlers, keyWaitDelay := 150) {
 	strippedHotkey := RegExReplace(A_ThisHotkey, "i)(?:[~#!<>\*\+\^\$]*([^ ]+)(?: UP)?)$", "$1")
 	; hotkeyType := InStr(A_ThisHotkey, " UP") ? "UP" : "DOWN"
 	keyPresses := 0
 	keyPressedBeforeTimeout := false
+	options := "DT" keyWaitDelay / 1000
 	Loop {
 		++keyPresses
-		KeyWait, %strippedHotkey%         ; Wait for KeyUp.
-		KeyWait, %strippedHotkey%, D T.12 ; Wait for same KeyDown or .12 seconds to elapse.
+		KeyWait, %strippedHotkey%            ; Wait for KeyUp.
+		KeyWait, %strippedHotkey%, %options% ; Wait for same KeyDown or .12 seconds to elapse.
 		keyPressedBeforeTimeout := (ErrorLevel = 0)
 	} Until !keyPressedBeforeTimeout
 
