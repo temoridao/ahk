@@ -342,6 +342,24 @@ class CommonUtils extends ImmutableClass {
 		return !InStr(WinGetTitle(), this.Constants.PinnedWindowMark)
 	}
 
+	/**
+	 * Send lightweight request (SC_CLOSE) to close a window
+	 *
+	 * Similar in effect to pressing Alt+F4 or clicking the window's close button in its title bar.
+	 * Useful for applications which do not handle WM_CLOSE gracefully and cannot save their state or
+	 * even crashed.
+	 *
+	 * @param   winTitle  The window title
+	 * @param   method    Possible values: "PostMessage", "SendMessage"
+	 *
+	 * @return  Empty value if @p method is "PostMessage" (the default) and a reply value if @p method
+	 *          is "SendMessage"
+	 */
+	SendCloseMessage(winTitle := "", method := "PostMessage") {
+		return method = "PostMessage" ? PostMessage(WM_SYSCOMMAND:=0x112, SC_CLOSE:=0xF060,,, winTitle)
+		                              : SendMessage(WM_SYSCOMMAND:=0x112, SC_CLOSE:=0xF060,,, winTitle)
+	}
+
 	; Returns unique filesystem path to save new file to. The save directory is extracted from active explorer.exe's window title.
 	; Empty string returned if \p promptForName is \c true and prompt-dialog canceled by user
 	; Exception thrown if active window is not explorer.exe's process

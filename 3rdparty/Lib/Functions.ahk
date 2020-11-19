@@ -173,6 +173,9 @@ PixelGetColor(X, Y, RGB = "") {
 PixelSearch(ByRef OutputVarX, ByRef OutputVarY, X1, Y1, X2, Y2, ColorID, Variation = "", Mode = "") {
 	PixelSearch, OutputVarX, OutputVarY, %X1%, %Y1%, %X2%, %Y2%, %ColorID%, %Variation%, %Mode%
 }
+PostMessage(Msg, wParam:="", lParam:="", Control:="", WinTitle:="", WinText:="", ExcludeTitle:="", ExcludeText:="") {
+	PostMessage, %Msg%, %wParam%, %lParam%, %Control%, %WinTitle%, %WinText%, %ExcludeTitle%, %ExcludeText%
+}
 Progress(ProgressParam1 , SubText:="", MainText:="", WinTitle:="", FontName:="") {
 	Progress, %ProgressParam1% , %SubText%, %MainText%, %WinTitle%, %FontName%
 }
@@ -197,6 +200,10 @@ RunWait(Target, WorkingDir = "", Mode = "", ByRef OutputVarPID := "") {
 }
 Send(Keys) {
 	Send % Keys
+}
+SendMessage(Msg, wParam:="", lParam:="", Control:="", WinTitle:="", WinText:="", ExcludeTitle:="", ExcludeText:="", Timeout:="") {
+	SendMessage, %Msg%, %wParam%, %lParam%, %Control%, %WinTitle%, %WinText%, %ExcludeTitle%, %ExcludeText%, %Timeout%
+	return ErrorLevel
 }
 SetTimer(Label := "", PeriodOnOff := "", Priority := "") { ; Known limitation: passing -0 as 'Period' do not honor minus, so you need to pass -1 or "-0" (as string, in double quotes)
 	SetTimer, %Label%, %PeriodOnOff%, %Priority%
