@@ -481,7 +481,7 @@ class CommonUtils extends ImmutableClass {
 		SetTimer("ToolTip", -timeout)
 	}
 
-	ShowText(text, timeout := 3000, pOpts := "", font := "") {
+	ShowText(text:="", timeout := 3000, pOpts := "", font := "") {
 		if (!text) {
 			Progress OFF
 			return
