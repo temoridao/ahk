@@ -11,7 +11,7 @@
 
 #include %A_LineFile%\..\..\3rdparty\
 	#include CodeQuickTester\lib\WinEvents.ahk
-	#include Lib\Anchor.ahk
+	#include Lib\AutoXYWH.ahk
 
 /**
  * Collects titles of closing explorer.exe's windows and provides UI to access this data
@@ -261,7 +261,7 @@ class ClosedWindowsCollector extends Serializable {
 		}
 
 		GuiSize() {
-			Anchor(this.m_hWndListView, "wh")
+			AutoXYWH("wh", this.m_hWndListView)
 		}
 
 		static cExistentWindowTitlePrefix := "[🔆] "
