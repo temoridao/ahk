@@ -265,15 +265,20 @@ class CommonUtils extends ImmutableClass {
 		PostMessage 0x111, %menuId%,,, %winTitle%
 	}
 
-	GetSelectedTextThroughClipboard(clipboardWaitSec := 1) {
-		savedClipboard := ClipboardAll
-		Clipboard := ""
+	GetSelectedTextThroughClipboard(clipboardWaitSec := 1, restoreClipboard := true) {
+		savedClipboard := ""
+		if (restoreClipboard) {
+			savedClipboard := ClipboardAll
+		}
 
+		Clipboard := ""
 		Send ^c
 		ClipWait %clipboardWaitSec%, 0
-
 		clipText := Clipboard
-		Clipboard := savedClipboard ;Restore clipboard
+
+		if (restoreClipboard) {
+			Clipboard := savedClipboard
+		}
 
 		Return clipText
 	}
