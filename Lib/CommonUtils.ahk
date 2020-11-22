@@ -262,7 +262,7 @@ class CommonUtils extends ImmutableClass {
 	}
 
 	triggerMenu(menuId, winTitle := "") {
-		PostMessage 0x111, %menuId%,,, %winTitle%
+		PostMessage WM_COMMAND := 0x111, %menuId%,,, %winTitle%
 	}
 
 	GetSelectedTextThroughClipboard(clipboardWaitSec := 1, restoreClipboard := true) {
@@ -351,8 +351,8 @@ class CommonUtils extends ImmutableClass {
 	 * Send lightweight request (SC_CLOSE) to close a window
 	 *
 	 * Similar in effect to pressing Alt+F4 or clicking the window's close button in its title bar.
-	 * Useful for applications which do not handle WM_CLOSE gracefully and cannot save their state or
-	 * even crashed.
+	 * Useful for applications which do not handle WM_CLOSE (sent by built-in WinClose command)
+	 * gracefully and unable to save their state properly or even crashed.
 	 *
 	 * @param   winTitle  The window title
 	 * @param   method    Possible values: "PostMessage", "SendMessage"
