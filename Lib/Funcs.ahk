@@ -223,3 +223,7 @@ HandleMultiPressHotkey(pressHandlers, keyWaitDelay := 150) {
 	}
 	return f ? f.Call() : "" ;Test Func object for validity/existence before calling
 }
+
+quote(ByRef text) {
+	return """" text """"
+}
