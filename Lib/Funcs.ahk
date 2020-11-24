@@ -227,3 +227,17 @@ HandleMultiPressHotkey(pressHandlers, keyWaitDelay := 150) {
 quote(ByRef text) {
 	return """" text """"
 }
+
+;Convenience wrappers for Sleep command. Return specified duration in milliseconds.
+seconds(count := 1) {
+	return count * 1000
+}
+minutes(count := 1) {
+	return count * seconds(60)
+}
+hours(count := 1) {
+	return count * minutes(60)
+}
+days(count := 1) {
+	return count * hours(24)
+}
