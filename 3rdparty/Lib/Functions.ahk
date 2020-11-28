@@ -77,6 +77,9 @@ FileAppend(Text := "", Filename := "", Encoding := "") {
 FileCopy(SourcePattern, DestPattern, Overwrite := false) {
 	FileCopy, %SourcePattern%, %DestPattern%, %Overwrite%
 }
+FileMove(SourcePattern, DestPattern, Overwrite := false) {
+	FileMove, %SourcePattern%, %DestPattern%, %Overwrite%
+}
 FileCreateDir(DirName) {
 	FileCreateDir %DirName%
 }
