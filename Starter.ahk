@@ -210,20 +210,25 @@ setupTray()
 	}
 
 /*
- * Win+Shift+S — Toggle Suspend state of all managed scripts until next activation of this hotkey
+ * Win+Shift+S — Toggle Suspend state of all managed scripts until next activation of this hotkey. Press twice to launch windows os builit-in screen snip tool
  * Win+Shift+Alt+S — same as previous but for ALL running scripts found on the system
 */
- #+s::
-!#+s::
-	toggleSuspendScripts() {
-		Suspend Permit
-		suspendAllScriptsOnTheSystem := InStr(A_ThisHotkey, "!")
-		setSuspend(g_forceSuspend := !g_forceSuspend, !suspendAllScriptsOnTheSystem)
+#+s::
+	Suspend Permit
+	HandleMultiPressHotkey({1: "toggleSuspendScripts"
+	                      , 2: FSend(A_ThisHotkey)}
+	                      , 100)
+	return
+!#+s::toggleSuspendScripts(true)
 
-		suspendEnabledText := suspendAllScriptsOnTheSystem ? " Ⓢ  ALL " : " Ⓢ "
-		suspendDisabledText := suspendAllScriptsOnTheSystem ? " 🔆  ALL " : " 🔆 "
-		CommonUtils.ShowSplashPictureWithText(,,, g_forceSuspend ? suspendEnabledText : suspendDisabledText,,,100)
-	}
+toggleSuspendScripts(suspendAllScriptsOnTheSystem := false) {
+	Suspend Permit
+	setSuspend(g_forceSuspend := !g_forceSuspend, !suspendAllScriptsOnTheSystem)
+
+	suspendEnabledText := suspendAllScriptsOnTheSystem ? " Ⓢ  ALL " : " Ⓢ "
+	suspendDisabledText := suspendAllScriptsOnTheSystem ? " 🔆  ALL " : " 🔆 "
+	CommonUtils.ShowSplashPictureWithText(,,, g_forceSuspend ? suspendEnabledText : suspendDisabledText,,,100)
+}
 
 setSuspend(willSuspend, childScriptsOnly := true) {
 	if (childScriptsOnly) {
