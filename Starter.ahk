@@ -73,8 +73,8 @@ SetTitleMatchMode 2 ;Match anywhere
 DetectHiddenWindows ON
 SetBatchLines -1
 
-global g_scriptResourceAliasPrefix := "StarterExeResourcePrefix_"
-     , g_reloadMark := "Reloading..."
+global cScriptResourceAliasPrefix := "StarterExeResourcePrefix_"
+     , cReloadMark := "Reloading..."
 
 ;@Ahk2Exe-IgnoreBegin
 if (Config.CompileMe) {
@@ -135,7 +135,7 @@ setupTray()
 		stopChildScripts()
 
 		;Preserve original command line parameters passed to Starter
-		newTitle := WinGetTitle("ahk_id" A_ScriptHwnd) g_reloadMark
+		newTitle := WinGetTitle("ahk_id" A_ScriptHwnd) cReloadMark
 		WinSetTitle ahk_id %A_ScriptHwnd%,, %newTitle%
 		cmdline := ""
 		for i, arg in A_Args {
@@ -249,7 +249,7 @@ checkForExistingInstance() {
 		}
 
 		title := WinGetTitle("ahk_id" hWnd)
-		if (title && !InStr(title, g_reloadMark)) {
+		if (title && !InStr(title, cReloadMark)) {
 			MsgBox % "Already running"
 			ExitApp
 		}
@@ -393,7 +393,7 @@ setupTrayTip() {
 }
 
 cleanupScriptResourceAlias(resourceAlias) {
-	return RegExReplace(resourceAlias, "i)" g_scriptResourceAliasPrefix "\d+_") ; Case-insensitive, because Ahk2Exe makes resource aliases uppercase
+	return RegExReplace(resourceAlias, "i)" cScriptResourceAliasPrefix "\d+_") ; Case-insensitive, because Ahk2Exe makes resource aliases uppercase
 }
 
 exitFunc(exitReason, exitCode) {
@@ -617,7 +617,7 @@ preprocessScripts() {
 			RunWait % Format("{:s} /in ""{:s}"" /out NUL", Config.CompilerPath, scriptCopy)
 
 			;Add prefix to resource alias to allow further sorting and maintain correct launch order. See ResourceAliasSortFunctor()
-			addResourceDirectives .= "`n;@Ahk2Exe-AddResource *RT_RCDATA " scriptCopy ", " g_scriptResourceAliasPrefix . scriptIndex "_" A_LoopFilePath
+			addResourceDirectives .= "`n;@Ahk2Exe-AddResource *RT_RCDATA " scriptCopy ", " cScriptResourceAliasPrefix . scriptIndex "_" A_LoopFilePath
 		}
 	}
 	addResourceDirectives .= "`n"
@@ -777,8 +777,8 @@ fetchScriptsList() {
 }
 ResourceAliasSortFunctor(a1, a2) {
 	; Sorts in ascending numeric order. This method works only if the difference is never so large as to overflow a signed 64-bit integer.
-	return (RegExReplace(a1, "i)^" g_scriptResourceAliasPrefix "(\d+)_.+$", "$1"))
-	     - (RegExReplace(a2, "i)^" g_scriptResourceAliasPrefix "(\d+)_.+$", "$1"))
+	return (RegExReplace(a1, "i)^" cScriptResourceAliasPrefix "(\d+)_.+$", "$1"))
+	     - (RegExReplace(a2, "i)^" cScriptResourceAliasPrefix "(\d+)_.+$", "$1"))
 }
 
 ExecScript(ahkPath, scriptText, scriptCommandLineParams := "", workingDir := "") {
