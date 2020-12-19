@@ -10,7 +10,7 @@
  * Helper utility functions for XInput.ahk library
  *
  * Note that all functions in this class assume that XInput library is already initialized
- * with call to @c XInput_Init()
+ * with call to @ref XInput_Init()
  */
 class XinputUtil extends ImmutableClass
 {
@@ -20,7 +20,8 @@ class XinputUtil extends ImmutableClass
 	 *
 	 * @param   gamepadIndex  The gamepad index (start from 0)
 	 *
-	 * @return  @c true if the specified gamepad is functional XInput gamepad and @c false otherwise
+	 * @return  Value convertible to @c true if the specified gamepad is functional XInput gamepad
+	 *          and value convertivle to @c false otherwise
 	 */
 	isConnected(gamepadIndex) {
 		static XINPUT_FLAG_GAMEPAD := 0x00000001
