@@ -17,7 +17,7 @@ Optional: If you compile this script (with `Compile Script` entry from context m
 * Custom tray icon will be automatically picked up if it located near script and has name of the script plus extension, f.e. Starter.ahk.ico (png, jpg supported). Or you can pass your own path, see CommonUtils.setupTrayIcon() method
 * Custom _Starter.exe_ icon can be specified in Config Section with _@Ahk2Exe-SetMainIcon_ directive (remove space between semicolon and `@` to enable it). By default, an icon named _Starter.exe.ico_ expected
 * If you need compression for your executable, place upx.exe near the Ahk2Exe.exe. Also note that compressed executable will have `c` (from **c**ompressed) letter appended to its name by default, f.e. _Starterc.exe_
-* Your custom code can be added at the bottom of auto-execute section or to any optional injection file(s) (need to manually create them) for compiled, non-compiled or both forms of _Starter_ (see comments in the script). This is a convenient method of applying common logic for all your scripts at once. For example, add the following code at the bottom of auto-execute section:
+* Your custom code can be added at the bottom of auto-execute section or to any optional injection file(s) (need to manually create them) for compiled, non-compiled or both forms of _Starter_ (see comments in the script). This is a convenient method of applying common logic for all your scripts at once. For example, add the following code at the bottom of auto-execute section (or paste into one of injection files):
 
 ```AutoHotkey
 #include <ShellEventsWatcher>
@@ -35,12 +35,12 @@ shouldSuspend() {
 	return HasVal(cHotkeysSuspendApps, WinGet("ProcessName", "A")) ;NOTE: WinGet() here is a function wrapper around `WinGet` command. See 3rdparty\Lib\Functions.ahk
 }
 ```
-This will suspend all controlled scripts whenever Microsoft Remote Desktop or TeamViewer window becomes active and un-suspend them when those windows become inactive (useful if your remote machine also uses AutoHotkey which may interfere with your local machine's hotkeys). Or add this code into some of injection files.
+This will suspend all controlled scripts whenever Microsoft Remote Desktop or TeamViewer window becomes active and un-suspend them when those windows become inactive (useful if your remote machine also uses AutoHotkey which may interfere with your local machine's hotkeys).
 
 #### Builit-in Hotkeys
 * **Win+Shift+\`** (my favorite!) — restart **any AutoHotkey script** (controlled by Starter or not) if its window currently active. If previous check failed, then active window's title analyzed if it contains name of **any** script currently running on the system and, if match found, reloads it — extremely useful for debugging purposes (if your text editor contains name of currently edited script in the title, which is true for any sane editor)
 * **Win+Shift+Esc** — restart all controlled scripts
-* **Win+Shift+S** / **Win+Shift+Alt+S** — suspend controlled / all currently running on the system scripts (double press `S` while holding Win and Shift to perform original action, i.e. launch Windows Snip & Sketch tool. See HandleMultiPressHotkey() in Funcs.ahk for details)
+* **Win+Shift+S** / **Win+Shift+Alt+S** — toggle suspend state of managed/all currently running AutoHotkey scripts on the system  (double press `S` while holding Win and Shift send original keystroke Win+Shift+S to be able to launch Windows built-in Snip & Sketch tool. See `HandleMultiPressHotkey()` in `Funcs.ahk` for details)
 
 # TrayIconsSummary.ahk
 Show simple Gui with a brief summary of taskbar's tray icons
