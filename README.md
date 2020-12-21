@@ -38,7 +38,7 @@ shouldSuspend() {
 This will suspend all controlled scripts whenever Microsoft Remote Desktop or TeamViewer window becomes active and un-suspend them when those windows become inactive (useful if your remote machine also uses AutoHotkey which may interfere with your local machine's hotkeys). Or add this code into some of injection files.
 
 #### Builit-in Hotkeys
-* **Win+Shift+\\** (my favorite!) — restart **any AutoHotkey script** (controlled by Starter or not) if its window currently active. If previous check failed, then active window's title analyzed if it contains name of **any** script currently running on the system and, if match found, reloads it — extremely useful for debugging purposes (if your text editor contains name of currently edited script in the title, which is true for any sane editor)
+* **Win+Shift+\`** (my favorite!) — restart **any AutoHotkey script** (controlled by Starter or not) if its window currently active. If previous check failed, then active window's title analyzed if it contains name of **any** script currently running on the system and, if match found, reloads it — extremely useful for debugging purposes (if your text editor contains name of currently edited script in the title, which is true for any sane editor)
 * **Win+Shift+Esc** — restart all controlled scripts
 * **Win+Shift+S** / **Win+Shift+Alt+S** — suspend controlled / all currently running on the system scripts
 * **Win+Alt+Esc** — temporary suspend all currently running on the system scripts, and automatically restore previous state after specified interval (3 seconds by default)
