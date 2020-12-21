@@ -41,7 +41,7 @@ ListLines Off
 	;@Ahk2Exe-Obey SelfCompilationCommand, RunWait %A_AhkPath% "%A_ScriptFullPath%" --compile-package`, "%A_ScriptFullPath%\.."
 	;-------------------------------------------------------------------------------------------------
 
-	global Config := { Version : "2.0"
+	global Config := { Version : "2.1"
 		;@Ahk2Exe-SetVersion %A_PriorLine~U)^(.+"){1}(.+)".*$~$2%
 
 		, Elevate         : HasVal(A_Args, "--elevate")
@@ -308,7 +308,7 @@ runScript(path) {
 		absolutePath := CommonUtils.makeAbsolutePath(path)
 		scriptDir := ""
 		SplitPath(absolutePath,, scriptDir)
-		return Run(A_AhkPath " /restart """ absolutePath """", scriptDir)
+		return Run(A_AhkPath " /restart " quote(absolutePath), scriptDir)
 	}
 
 	return 0
@@ -354,7 +354,7 @@ showHelpDialog() {
 	if (!FileExist(txtFile := scriptBaseName() ".txt")) {
 		FileAppend(exampleTxtFile, txtFile)
 	}
-	Run % """" txtFile """"
+	Run % quote(txtFile)
 
 	WinWait % txtFile,,3
 	WinActivate % txtFile
@@ -541,7 +541,7 @@ compilePackage() {
 	outFile := A_ScriptDir "\" Config.ProductName (compress ? "c" : "") ".exe"
 
 	;CMD cheat-sheet: Ahk2Exe.exe /in infile.ahk [/out outfile.exe] [/icon iconfile.ico] [/bin AutoHotkeySC.bin] [/mpress 1 (true) or 0 (false)] [/cp codepage]
-	RunWait % Config.CompilerPath " /in """ inFile """ /out """ outFile """" . (compress ? " /compress 2" : ""),,UseErrorLevel
+	RunWait % Config.CompilerPath " /in " quote(inFile) " /out " quote(outFile) . (compress ? " /compress 2" : ""),,UseErrorLevel
 	cleanTemporaryScripts()
 
 	; Terminates Ahk2Exe process and its child which waits on 'Ahk2Exe-Obey SelfCompilationCommand' directive
