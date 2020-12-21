@@ -187,28 +187,6 @@ setupTray()
 		return 0
 	}
 
-/* Win+Alt+Escape — Temporary Suspend
- *
- *  Suspends all hotkeys in managed scripts unconditionally for %interval% ms.
- *  It may be convenient in some situations to completely suspend all hotkeys in all managed scripts.
-*/
-#!Escape::
-	temporarySuspend(interval := 3000) {
-		setSuspend(true)
-		; Disable all "Suspend Permit" hotkeys
-		HotKey("#+s", "Off")
-		HotKey("!#+s", "Off")
-		CommonUtils.ShowSplashPictureWithText(,,, " ⏸️ ",,,100, 500)
-
-		Sleep interval
-
-		; Reenable all "Suspend Permit" hotkeys
-		HotKey("#+s", "On")
-		HotKey("!#+s", "On")
-		setSuspend(false)
-		CommonUtils.ShowSplashPictureWithText(,,, " ▶️ ",,,100, 500)
-	}
-
 /*
  * Win+Shift+S — Toggle Suspend state of all managed scripts until next activation of this hotkey. Press twice to launch windows os builit-in screen snip tool
  * Win+Shift+Alt+S — same as previous but for ALL running scripts found on the system
