@@ -68,6 +68,11 @@ RemoveVal(ByRef linearArrayObj, ByRef val) {
 	return false
 }
 
+RunAsAdmin(Target, WorkingDir := "", Mode := "") {
+	Run *RunAs %Target%, %WorkingDir%, %Mode%, v
+	return v
+}
+
 /**
  * Resolve absolute path from relative
  *
