@@ -41,7 +41,7 @@ ListLines Off
 	;@Ahk2Exe-Obey SelfCompilationCommand, RunWait %A_AhkPath% "%A_ScriptFullPath%" --compile-package`, "%A_ScriptFullPath%\.."
 	;-------------------------------------------------------------------------------------------------
 
-	global Config := { Version : "2.1"
+	global Config := { Version : "2.2"
 		;@Ahk2Exe-SetVersion %A_PriorLine~U)^(.+"){1}(.+)".*$~$2%
 
 		, Elevate         : HasVal(A_Args, "--elevate")
@@ -592,7 +592,12 @@ preprocessScripts() {
 
 			;Replace copy of original script with its preprocessed variant after compilation
 			;/out to NUL because we interested only in preprocessed output for now
-			RunWait % Format("{:s} /in ""{:s}"" /out NUL", Config.CompilerPath, scriptCopy)
+			exitCode := RunWait(Format("{:s} /in ""{:s}"" /out NUL", Config.CompilerPath, scriptCopy))
+			if (exitCode != 0) {
+				MsgBox % "Cannot preprocess script " quote(A_LoopFileLongPath) ".`n"
+				       . "Error code: " exitCode
+				ExitApp exitCode
+			}
 
 			;Add prefix to resource alias to allow further sorting and maintain correct launch order. See ResourceAliasSortFunctor()
 			addResourceDirectives .= "`n;@Ahk2Exe-AddResource *RT_RCDATA " scriptCopy ", " cScriptResourceAliasPrefix . scriptIndex "_" A_LoopFilePath
