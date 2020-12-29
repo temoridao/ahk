@@ -229,8 +229,8 @@ HandleMultiPressHotkey(pressHandlers, keyWaitDelay := 150) {
 	return f ? f.Call() : "" ;Test Func object for validity/existence before calling
 }
 
-quote(ByRef text) {
-	return """" text """"
+quote(ByRef text, _q_ := """") {
+	return _q_ text _q_
 }
 
 ;Convenience wrappers for Sleep command. Return specified duration in milliseconds.
