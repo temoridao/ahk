@@ -41,18 +41,19 @@ ListLines Off
 	;@Ahk2Exe-Obey SelfCompilationCommand, RunWait %A_AhkPath% "%A_ScriptFullPath%" --compile-package`, "%A_ScriptFullPath%\.."
 	;-------------------------------------------------------------------------------------------------
 
-	global Config := { Version : "2.2"
+	global Config := { Version : "2.3"
 		;@Ahk2Exe-SetVersion %A_PriorLine~U)^(.+"){1}(.+)".*$~$2%
 
 		, Elevate         : HasVal(A_Args, "--elevate")
 		, ShowTrayTip     : HasVal(A_Args, "--enable-tray-tip") || !A_IsCompiled
+		, ExposeComApi    : HasVal(A_Args, "--expose-com-api")
 
 		;========================Options for compilation process========================================
 		, CompileMe       : HasVal(A_Args, "--compile-package")
 		, UseCompression  : HasVal(A_Args, "--compress-package")
 		, ProductName     : GetCmdParameterValue("--product-name", scriptBaseName())
-		, CompilerPath    : FileExist("Ahk2Exe.exe") ? "Ahk2Exe.exe" : A_AhkPath "\..\Compiler\Ahk2Exe.exe"
 		;===============================================================================================
+		, CompilerPath    : FileExist("Ahk2Exe.exe") ? "Ahk2Exe.exe" : A_AhkPath "\..\Compiler\Ahk2Exe.exe"
 		, EmbedAhkAds     : true }
 ;}
 
@@ -68,6 +69,8 @@ ListLines Off
 #include <AhkScriptController>
 #include <TrayIconUtils>
 #include <ErrMsg>
+
+#include %A_LineFile%\..\3rdparty\Lib\ObjRegisterActive.ahk
 
 SetTitleMatchMode 2 ;Match anywhere
 DetectHiddenWindows ON
@@ -98,6 +101,12 @@ if (Config.Elevate) {
 OnExit("exitFunc")
 global g_scriptsPids := runScripts(), g_forceSuspend := false
 setupTray()
+
+if (Config.ExposeComApi) {
+	cGuid := "{665dca48-2d24-47fd-af8a-c868ce906785}"
+	ObjRegisterActive(StarterActiveObject, cGuid)
+	logDebug("Exposed COM active object with GUID " cGuid ": " CommonUtils.ObjToString(StarterActiveObject))
+}
 
 ;Place your custom code here if needed
 ;You can utilize g_scriptsPids variable which contain all controlled scripts' PIDs
@@ -376,6 +385,9 @@ cleanupScriptResourceAlias(resourceAlias) {
 
 exitFunc(exitReason, exitCode) {
 	stopChildScripts()
+	if (Config.ExposeComApi) {
+		ObjRegisterActive(StarterActiveObject, "")
+	}
 
 /*@Ahk2Exe-Keep
 		if (ConfigCompiled.AhkRuntimeInAds) {
@@ -649,6 +661,23 @@ useCompression() {
 	}
 
 	return compress
+}
+
+class StarterActiveObject {
+	Suspended[]
+	{
+		get {
+			return g_forceSuspend
+		}
+		set {
+			if (g_forceSuspend != value) {
+				g_forceSuspend := value
+				setSuspend(value)
+			}
+
+			return g_forceSuspend
+		}
+	}
 }
 
 ;--------------------------End of Starter.ahk-only Functions--------------------------
