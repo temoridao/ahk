@@ -229,6 +229,21 @@ HandleMultiPressHotkey(pressHandlers, keyWaitDelay := 150) {
 	return f ? f.Call() : "" ;Test Func object for validity/existence before calling
 }
 
+callFuncFromScriptArgs() {
+	if (A_Args.Length() < 0) {
+		MsgBox % "[" A_ThisFunc "] No cmd arguments, so no function to call"
+		return 0
+	}
+
+	if (!IsFunc(A_Args[1])) {
+		MsgBox 0x10,, % "Requested function " quote(A_Args[1]) " doesn't exist"
+		ExitApp 1
+	}
+	funcArguments := A_Args.Clone(), funcArguments.RemoveAt(1)
+	OutputDebug % "[" A_ThisFunc "] Calling function " quote(A_Args[1])
+	return A_Args[1](funcArguments*)
+}
+
 quote(ByRef text, _q_ := """") {
 	return _q_ text _q_
 }
