@@ -41,7 +41,7 @@ ListLines Off
 	;@Ahk2Exe-Obey SelfCompilationCommandResult, RunWait %A_AhkPath% "%A_ScriptFullPath%" --compile-package`, "%A_ScriptFullPath%\.."
 	;-------------------------------------------------------------------------------------------------
 
-	global Config := { Version : "2.3.1"
+	global Config := { Version : "2.4"
 		;@Ahk2Exe-SetVersion %A_PriorLine~U)^(.+"){1}(.+)".*$~$2%
 
 		, Elevate         : HasVal(A_Args, "--elevate")
@@ -52,9 +52,10 @@ ListLines Off
 		, CompileMe       : HasVal(A_Args, "--compile-package")
 		, UseCompression  : HasVal(A_Args, "--compress-package")
 		, ProductName     : GetCmdParameterValue("--product-name", scriptBaseName())
-		;===============================================================================================
 		, CompilerPath    : FileExist("Ahk2Exe.exe") ? "Ahk2Exe.exe" : A_AhkPath "\..\Compiler\Ahk2Exe.exe"
-		, EmbedAhkAds     : true }
+		, EmbedAhkAds     : true
+		, AdsName         : GetCmdParameterValue("--ads-name", "AutoHotkey.exe") }
+		;===============================================================================================
 ;}
 
 #NoEnv
@@ -631,7 +632,7 @@ preprocessScripts() {
 	               . "`n{"
 
 	if (Config.EmbedAhkAds) {
-		compiledConfigText .= "`n AhkRuntimeInAds : true,"
+		compiledConfigText .= "`n AhkRuntimeInAds: true`n, AhkRuntimeAdsName: " quote(Config.AdsName) ","
 	}
 	;Remove last comma if any
 	if (SubStr(compiledConfigText, 0) = ",") {
@@ -724,7 +725,7 @@ extractExecutable() {
 	if (ConfigCompiled.AhkRuntimeInAds) {
 		fs := DriveGet("FileSystem", SubStr(A_ScriptFullPath, 1, 3))
 		if (fs = "NTFS") {
-			g_ahkRuntimeFile := A_ScriptFullPath ":AutoHotkey.exe"
+			g_ahkRuntimeFile := A_ScriptFullPath ":" ConfigCompiled.AhkRuntimeAdsName
 		} else {
 			OutputDebug % "Only NTFS file system supports ADS. Current fs: " fs
 			            . ". Will fallback to temporary file: " g_ahkRuntimeFile
