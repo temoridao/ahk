@@ -41,7 +41,7 @@ ListLines Off
 	;@Ahk2Exe-Obey SelfCompilationCommand, RunWait %A_AhkPath% "%A_ScriptFullPath%" --compile-package`, "%A_ScriptFullPath%\.."
 	;-------------------------------------------------------------------------------------------------
 
-	global Config := { Version : "2.3"
+	global Config := { Version : "2.3.1"
 		;@Ahk2Exe-SetVersion %A_PriorLine~U)^(.+"){1}(.+)".*$~$2%
 
 		, Elevate         : HasVal(A_Args, "--elevate")
@@ -138,7 +138,7 @@ if (Config.ExposeComApi) {
 ;@Ahk2Exe-IgnoreEnd
 ;===================================================================================================
 
-;Win+Shift+Escape — reload this script with all of its managed scripts at once
+;Win+Shift+Escape — reload this script (preserving command line) and all of its managed scripts
 #+Escape::
 	reloadAll() {
 		stopChildScripts()
@@ -415,7 +415,7 @@ stopChildScripts() {
 			MsgBox % "Wait for process exiting timed out (PID: " pid ")"
 		}
 	}
-
+	g_scriptsPids := []
 }
 
 ;--------------------------Starter.ahk-only Functions--------------------------
@@ -451,6 +451,8 @@ setupTray() {
 
 	showSummaryText := "Show Scripts Summary"
 	Menu Tray, Add, %showSummaryText%, showScriptsSummary
+
+	Menu Tray, Add, Reload (preserve command line), reloadAll
 
 	editTxt := "Edit " runPlanFileName()
 	Menu Tray, Add, %editTxt%, editRunPlanFile
