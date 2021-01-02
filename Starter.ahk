@@ -38,7 +38,7 @@ ListLines Off
 	;@Ahk2Exe-Bin Unicode 64*
 	;@Ahk2Exe-AddResource *RT_RCDATA %A_AhkPath%, RC_AHKRUNTIME
 	; @Ahk2Exe-SetMainIcon %A_ScriptName~\..+$~.exe%.ico
-	;@Ahk2Exe-Obey SelfCompilationCommand, RunWait %A_AhkPath% "%A_ScriptFullPath%" --compile-package`, "%A_ScriptFullPath%\.."
+	;@Ahk2Exe-Obey SelfCompilationCommandResult, RunWait %A_AhkPath% "%A_ScriptFullPath%" --compile-package`, "%A_ScriptFullPath%\.."
 	;-------------------------------------------------------------------------------------------------
 
 	global Config := { Version : "2.3.1"
@@ -119,7 +119,7 @@ if (Config.ExposeComApi) {
 
 ;You can optionally create files with path and names listed below and place there any code you want
 ;or add custom hotkeys.
-;=====================================Optional Injections===========================================
+;=============================Shared set of optional injections=====================================
 #include *i %A_LineFile%\..\Shared\Starter_injection_common.ahk     ;<==For both Starter.{ahk,exe}
 /*@Ahk2Exe-Keep
 #include *i %A_LineFile%\..\Shared\Starter_injection_compiled.ahk   ;<==For Starter.exe only
@@ -128,10 +128,10 @@ if (Config.ExposeComApi) {
 #include *i %A_LineFile%\..\Shared\Starter_injection_uncompiled.ahk ;<==For Starter.ahk only
 ;@Ahk2Exe-IgnoreEnd
 
-;=====================================Optional Injections===========================================
+;=============================Internal set of optional injections===================================
 #include *i %A_LineFile%\..\Internal\Starter_injection_common.ahk
 /*@Ahk2Exe-Keep
-#include *i %A_LineFile%\..\Starter_injection_compiled.ahk
+#include *i %A_LineFile%\..\Internal\Starter_injection_compiled.ahk
 */
 ;@Ahk2Exe-IgnoreBegin
 #include *i %A_LineFile%\..\Internal\Starter_injection_uncompiled.ahk
@@ -241,11 +241,16 @@ checkForExistingInstance() {
 			ExitApp
 		}
 	}
-
 }
 
+/**
+ * Get base filename of this script
+ *
+ * @return  Base script name without extension, f.e. returns string `Starter` for script
+ *          with (A_ScriptName == "Starter.ahk")
+ */
 scriptBaseName() {
-	return SubStr(A_ScriptName, 1, InStr(A_ScriptName, ".ahk") -1)
+	return SubStr(A_ScriptName, 1, InStr(A_ScriptName, ".ahk") - 1)
 }
 
 runPlanFileName() {
@@ -452,7 +457,7 @@ setupTray() {
 	showSummaryText := "Show Scripts Summary"
 	Menu Tray, Add, %showSummaryText%, showScriptsSummary
 
-	Menu Tray, Add, Reload (preserve command line), reloadAll
+	Menu Tray, Add, Reload (preserve command line) [#+Escape], reloadAll
 
 	editTxt := "Edit " runPlanFileName()
 	Menu Tray, Add, %editTxt%, editRunPlanFile
@@ -558,7 +563,7 @@ compilePackage() {
 	RunWait % Config.CompilerPath " /in " quote(inFile) " /out " quote(outFile) . (compress ? " /compress 2" : ""),,UseErrorLevel
 	cleanTemporaryScripts()
 
-	; Terminates Ahk2Exe process and its child which waits on 'Ahk2Exe-Obey SelfCompilationCommand' directive
+	; Terminates Ahk2Exe process and its child which waits on 'Ahk2Exe-Obey SelfCompilationCommandResult' directive
 	; And delete orphaned temporary file(s)
 	orphanedFile := ""
 	for i, hWnd in WinGet("List", "ahk_exe Ahk2Exe.exe") {
@@ -643,7 +648,7 @@ preprocessScripts() {
 
 	thisScriptText := FileRead(A_ScriptFullPath)
 	; Delete @Ahk2Exe-Obey directive from preprocessed script to prevent eternal spawning of Ahk2Exe processes
-	thisScriptText := RegExReplace(thisScriptText, "m)^\s*;@Ahk2Exe-Obey SelfCompilationCommand.+$")
+	thisScriptText := RegExReplace(thisScriptText, "m)^\s*;@Ahk2Exe-Obey SelfCompilationCommandResult.+$")
 
 	FileAppend(compiledConfigText . addResourceDirectives . thisScriptText, outFileName, "UTF-8")
 
