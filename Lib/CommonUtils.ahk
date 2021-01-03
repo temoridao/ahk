@@ -7,6 +7,7 @@
 #include %A_LineFile%\..\ImmutableClass.ahk
 #include %A_LineFile%\..\Funcs.ahk
 #include %A_LineFile%\..\LogUtils.ahk
+#include %A_LineFile%\..\ErrMsg.ahk
 
 /**
  * Utility class containing various useful functions, constants, etc not belonging to

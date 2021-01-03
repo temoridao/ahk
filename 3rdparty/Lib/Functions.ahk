@@ -186,9 +186,12 @@ Random(Min = "", Max = "") {
 	Random, v, %Min%, %Max%
 	Return, v
 }
-RegRead(RootKey, SubKey, ValueName = "") {
-	RegRead, v, %RootKey%, %SubKey%, %ValueName%
+RegRead(KeyName, ValueName:="") {
+	RegRead, v, %KeyName%, %ValueName%
 	Return, v
+}
+RegWrite(ValueType, KeyName, ValueName:="", Value:="") {
+	RegWrite, %ValueType%, %KeyName%, %ValueName%, %Value%
 }
 Reload() {
 	Reload
