@@ -132,7 +132,7 @@ if (Config.ExposeComApi) {
 ;=============================Internal set of optional injections===================================
 #include *i %A_LineFile%\..\Internal\Starter_injection_common.ahk
 /*@Ahk2Exe-Keep
-#include *i %A_LineFile%\..\Internal\Starter_injection_compiled.ahk
+#include *i %A_LineFile%\..\Starter_injection_compiled.ahk
 */
 ;@Ahk2Exe-IgnoreBegin
 #include *i %A_LineFile%\..\Internal\Starter_injection_uncompiled.ahk
