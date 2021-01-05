@@ -4,6 +4,8 @@
  */
 
 #include %A_LineFile%\..\ImmutableClass.ahk
+#include %A_LineFile%\..\AhkScriptController.ahk
+#include %A_LineFile%\..\LogUtils.ahk
 
 /**
  * Contains utility functions which return various info about script
@@ -20,4 +22,41 @@ class ScriptInfoUtils extends ImmutableClass {
 		                                . "Running through pipe: " !!ScriptInfoUtils.isPipedExecution()
 	}
 
+
+	/**
+	 * If this script already has running instances - stop them
+	 *
+	 * Requires `#SingleInstance OFF` for script which uses this function
+	 *
+	 * @return  { description_of_the_return_value }
+	 */
+	stopScriptOtherIstances() {
+		logDebug("Stop running instance of this script (if any)")
+		if (A_IsCompiled) {
+			wmi := ComObjGet("winmgmts:")
+			queryEnum := wmi.ExecQuery("SELECT * FROM Win32_Process WHERE Name=""" A_ScriptName """")._NewEnum()
+			proc := ""
+			while (queryEnum[proc]) {
+				logDebug("Terminating process (" proc.ProcessId ")")
+				Process Close, % proc.ProcessId
+				; Run %A_ComSpec% /c taskkill /f /fi "IMAGENAME eq %A_ScriptName%"
+			}
+			return
+		}
+
+		raii := new AVarValuesRollback("A_DetectHiddenWindows=ON")
+		thisScriptInstances := WinGet("List", A_ScriptName " ahk_class AutoHotkey")
+
+		myPid := DllCall("GetCurrentProcessId")
+		for i, hWnd in thisScriptInstances {
+			winTitle := "ahk_id" hWnd
+			if (WinGet("PID", winTitle) = myPid) {
+				continue
+			}
+
+			logDebug("Exiting process (" proc.ProcessId ")")
+			AhkScriptController.sendCommand(winTitle, AhkScriptController.ID_FILE_EXIT)
+			WinWaitClose % winTitle,,2
+		}
+	}
 }
