@@ -27,8 +27,6 @@ class ScriptInfoUtils extends ImmutableClass {
 	 * If this script already has running instances - stop them
 	 *
 	 * Requires `#SingleInstance OFF` for script which uses this function
-	 *
-	 * @return  { description_of_the_return_value }
 	 */
 	stopScriptOtherIstances() {
 		logDebug("Stop running instance of this script (if any)")
