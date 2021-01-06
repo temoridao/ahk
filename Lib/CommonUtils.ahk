@@ -974,11 +974,15 @@ class CommonUtils extends ImmutableClass {
 	; Calling this function is equivalent to "Run as Administrator" standard windows context menu element
 	elevateThisScript() {
 		if !(A_IsAdmin || InStr(DllCall("GetCommandLine", "str"), "/restart")) {
+			cmdline := ""
+			for i, arg in A_Args {
+				cmdline .= arg " "
+			}
 			try {
 				if (A_IsCompiled) {
-					Run *RunAs "%A_ScriptFullPath%" /restart
+					Run *RunAs "%A_ScriptFullPath%" /restart %cmdline%
 				} else {
-					Run *RunAs "%A_AhkPath%" /restart "%A_ScriptFullPath%"
+					Run *RunAs "%A_AhkPath%" /restart "%A_ScriptFullPath%" %cmdline%
 				}
 			}
 			ExitApp
