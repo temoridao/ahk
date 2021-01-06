@@ -50,11 +50,12 @@ class ScriptInfoUtils extends ImmutableClass {
 		myPid := DllCall("GetCurrentProcessId")
 		for i, hWnd in thisScriptInstances {
 			winTitle := "ahk_id" hWnd
-			if (WinGet("PID", winTitle) = myPid) {
+			pid := WinGet("PID", winTitle)
+			if (pid = myPid) {
 				continue
 			}
 
-			logDebug("Exiting process (" proc.ProcessId ")")
+			logDebug("Exiting process (" pid ")")
 			AhkScriptController.sendCommand(winTitle, AhkScriptController.ID_FILE_EXIT)
 			WinWaitClose % winTitle,,2
 		}
