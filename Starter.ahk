@@ -207,7 +207,10 @@ if (Config.ExposeComApi) {
 	                      , 2: FSend(A_ThisHotkey)}
 	                      , 100)
 	return
-!#+s::toggleSuspendScripts(true)
+!#+s::
+	Suspend Permit
+	toggleSuspendScripts(true)
+	return
 
 toggleSuspendScripts(suspendAllScriptsOnTheSystem := false) {
 	Suspend Permit
