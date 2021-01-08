@@ -107,6 +107,16 @@ if (Config.ExposeComApi) {
 	cGuid := "{665dca48-2d24-47fd-af8a-c868ce906785}"
 	ObjRegisterActive(StarterActiveObject, cGuid)
 	logDebug("Exposed COM active object with GUID " cGuid ": " CommonUtils.ObjToString(StarterActiveObject))
+	;Exposed COM object can be used from another application/script. Working AutoHotkey script example:
+	/*
+	global scriptsManagerActiveObj := ComObjActive("{665dca48-2d24-47fd-af8a-c868ce906785}") ;Starter.ahk API
+	if (!scriptsManagerActiveObj) {
+		MsgBox % "Starter.ahk not running or without --expose-com-api switch or " A_ScriptName " has insufficient access rights"
+		ExitApp 1
+	}
+	F1::scriptsManagerActiveObj.Suspended := true ;press F1 to suspend all managed scripts
+	F2::scriptsManagerActiveObj.Suspended := false ;press F2 to unsuspend all managed scripts
+	*/
 }
 
 ;Place your custom code here if needed
