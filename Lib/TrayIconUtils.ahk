@@ -13,8 +13,18 @@
 #Include %A_LineFile%\..\..\3rdparty\Lib\TrayIcon.ahk
 
 ;IMPORTANT: if this doesn't work reliably, try to use #WinActivateForce directive in your script
+
+/**
+ * Remove tray icons for processes ids passed in @p iconProcessIds
+ *
+ * @param   iconProcessIds       The array of process identifiers (PID) which must have their tray
+ *                               icons hidden. Can be a function object which returns an array
+ *                               of the PIDs.
+ * @param   removeAttemptsCount  The remove attempts count. Increase if the icons are not hidden in
+ *                               some cases.
+ */
 TrayIconUtils_removeTrayIcons(iconProcessIds, removeAttemptsCount := 3) {
-	SetTimer(Func("removeTrayIcons_impl").Bind(iconProcessIds, removeAttemptsCount), "-1", "-100")
+	SetTimer(Func("removeTrayIcons_impl").Bind(IsFunc(iconProcessIds) ? iconProcessIds.Call() : iconProcessIds, removeAttemptsCount), "-1", "-100")
 } removeTrayIcons_impl(iconProcessIds, attemptsCount) {
 	hWnd := WinGet("ID", "A") ;Remember currently active window
 	;Force OS to update hidden tray icons by show/hide hidden icons list.
@@ -60,19 +70,30 @@ TrayIconUtils_removeOrphans() {
 }
 
 /**
- * Hide tray icons which belong to processes with @p pids and start tracking of explorer.exe
- * termination/startup to hide tray icons again when this happens (becuase hidden tray icons become
- * visible again on explorer.exe restart)
+ * Hide tray icons which belong to processes with identifiers passed in @p pids,
+ * start tracking of explorer.exe termination/startup to hide tray icons again when this happens
+ * (becuase hidden tray icons become visible again on explorer.exe restart)
+ * Also monitors WM_DISPLAYCHANGE and hides tray icons when this event fired (on display resolution
+ * change and various related cases).
  *
- * @param   pids  List of process identifiers (PID) for scripts to hide tray icons of
- *
+ * @param   pids  The array of process identifiers (PID) which must have their tray icons hidden.
+ *                Can be a function object which returns an array of PIDs.
  * @return  @c true if explorer.exe successfully started watching or @c false otherwise
  */
 TrayIconUtils_ensureTrayIconsHidden(pids) {
 	static ptw := new ProcessTerminationWatcher()
+	static funcObjDisplayChange := ""
+
 	TrayIconUtils_removeTrayIcons(pids, 10)
+
+	WM_DISPLAYCHANGE := 0x7e
+	if (funcObjDisplayChange) {
+		OnMessage(WM_DISPLAYCHANGE, funcObjDisplayChange, 0) ;Unregister msg monitor if it was registered previously
+	}
+	OnMessage(WM_DISPLAYCHANGE, funcObjDisplayChange := Func("TrayIconUtils_removeTrayIcons").Bind(pids, 5))
+
 	; Watch explorer.exe's termination and execute A_ThisFunc when this happens to hide tray icons again.
-	; And restart watcher with new PID
+	; And restart watcher with new PIDs
 	Process Wait, explorer.exe
 	return ptw.watch(ErrorLevel, Func(A_ThisFunc).Bind(pids))
 }

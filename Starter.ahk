@@ -41,7 +41,7 @@ ListLines Off
 	;@Ahk2Exe-Obey SelfCompilationCommandResult, RunWait %A_AhkPath% "%A_ScriptFullPath%" --compile-package`, "%A_ScriptFullPath%\.."
 	;-------------------------------------------------------------------------------------------------
 
-	global Config := { Version : "2.4"
+	global Config := { Version : "2.5"
 		;@Ahk2Exe-SetVersion %A_PriorLine~U)^(.+"){1}(.+)".*$~$2%
 
 		, Elevate         : HasVal(A_Args, "--elevate")
@@ -261,6 +261,10 @@ runPlanFileName() {
 	return scriptBaseName() ".txt"
 }
 
+currentlyManagedScripts() {
+	return g_scriptsPids
+}
+
 ;Returns all scripts from Config Section, then all scripts from Starter.txt in that order
 getScriptsForBundle() {
 	RegExMatch(FileRead(A_ScriptFullPath), "isO);\{ Config Section.+?;\}", matchObj)
@@ -476,7 +480,7 @@ setupTray() {
 		setupTrayTip()
 	}
 	CommonUtils.SetupTrayIcon()
-	TrayIconUtils_ensureTrayIconsHidden(g_scriptsPids)
+	TrayIconUtils_ensureTrayIconsHidden(Func("currentlyManagedScripts"))
 }
 
 OnScriptTrayCommandClicked() {
@@ -769,7 +773,7 @@ setupTray() {
 
 	;NOTE: do not call CommonUtils.SetupTrayIcon() here, because for the icon compiled script was set at compile time with @SetMainIcon directive
 
-	TrayIconUtils_ensureTrayIconsHidden(g_scriptsPids)
+	TrayIconUtils_ensureTrayIconsHidden(Func("currentlyManagedScripts"))
 }
 
 onExitTrayItemClicked() {
