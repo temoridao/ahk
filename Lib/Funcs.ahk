@@ -246,6 +246,32 @@ callFuncFromScriptArgs() {
 	return A_Args[1](funcArguments*)
 }
 
+/**
+ * Put computer to specified suspend state
+ *
+ * Allows to put computer to sleep or hibernate which is not possible with built-in \c Shutdown
+ * command
+ *
+ * @param   mode  Possible values: "sleep", "hibernate"
+ *
+ * @return  @c true on success, @c false otherwise
+ */
+setComputerSuspendState(mode := "Sleep") {
+	doHibernate := false
+	if (mode = "Sleep") {
+		doHibernate := false
+	} else if (mode = "hibernate") {
+		doHibernate := true
+	} else {
+		return false
+	}
+
+	return DllCall("PowrProf\SetSuspendState"
+		           , "int", doHibernate
+		           , "int", 0
+		           , "int", 0)
+}
+
 quote(ByRef text, _q_ := """") {
 	return _q_ text _q_
 }
