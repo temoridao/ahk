@@ -41,12 +41,13 @@ ListLines Off
 	;@Ahk2Exe-Obey SelfCompilationCommandResult, RunWait %A_AhkPath% "%A_ScriptFullPath%" --compile-package`, "%A_ScriptFullPath%\.."
 	;-------------------------------------------------------------------------------------------------
 
-	global Config := { Version : "2.5"
+	global Config := { Version : "2.6"
 		;@Ahk2Exe-SetVersion %A_PriorLine~U)^(.+"){1}(.+)".*$~$2%
 
-		, Elevate         : HasVal(A_Args, "--elevate")
-		, ShowTrayTip     : HasVal(A_Args, "--enable-tray-tip") || !A_IsCompiled
-		, ExposeComApi    : HasVal(A_Args, "--expose-com-api")
+		, Elevate          : HasVal(A_Args, "--elevate")
+		, ShowTrayTip      : HasVal(A_Args, "--enable-tray-tip") || !A_IsCompiled
+		, ExposeComApi     : HasVal(A_Args, "--expose-com-api")
+		, ChildScriptsMatchMode : GetCmdParameterValue("--child-scripts-match-mode", "name") ; Possible values: "name", "pid"
 
 		;========================Options for compilation process========================================
 		, CompileMe       : HasVal(A_Args, "--compile-package")
@@ -87,6 +88,7 @@ if (Config.CompileMe) {
 }
 
 global g_scriptNames := getScriptsForBundle()
+     , g_initialScriptNames := g_scriptNames.Clone() ;Immutable collection of script names
 ;@Ahk2Exe-IgnoreEnd
 
 checkForExistingInstance()
@@ -100,7 +102,8 @@ if (Config.Elevate) {
 */
 
 OnExit("exitFunc")
-global g_scriptsPids := runScripts(), g_forceSuspend := false
+global g_scriptsPids := runScripts()
+     , g_forceSuspend := false ;true if the scripts suspended by user manually. Must take precedence over automatic suspension methods if any
 setupTray()
 
 if (Config.ExposeComApi) {
@@ -233,13 +236,20 @@ toggleSuspendScripts(suspendAllScriptsOnTheSystem := false) {
 
 setSuspend(willSuspend, childScriptsOnly := true) {
 	if (childScriptsOnly) {
-		for each, pid in g_scriptsPids {
-			AhkScriptController.setSuspend("ahk_pid" pid, willSuspend)
+		if (Config.ChildScriptsMatchMode = "name") {
+			for i, name in g_initialScriptNames {
+				AhkScriptController.setSuspend(name " ahk_class AutoHotkey", willSuspend)
+			}
+		} else if (Config.ChildScriptsMatchMode = "pid") {
+			for each, pid in g_scriptsPids {
+				AhkScriptController.setSuspend("ahk_pid" pid, willSuspend)
+			}
 		}
-		Suspend % willSuspend ? 1 : 0 ;Suspend Starter itself except hotkeys marked with "Suspend Permit" (currently only single hotkey permitted - the one which toggles suspension)
 	} else {
-			AhkScriptController.setSuspend("ahk_class AutoHotkey", willSuspend)
+		AhkScriptController.setSuspend("ahk_class AutoHotkey", willSuspend)
 	}
+
+	Suspend % willSuspend ? 1 : 0 ;Suspend Starter itself except hotkeys marked with "Suspend Permit" (currently only single hotkey permitted - the one which toggles suspension)
 }
 
 checkForExistingInstance() {
