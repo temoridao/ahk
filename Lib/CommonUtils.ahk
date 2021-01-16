@@ -248,7 +248,7 @@ class CommonUtils extends ImmutableClass {
 			spacing .= A_Space
 		}
 
-		output := "Object`r`n" SubStr(spacing, 5) "("
+		output := SubStr(spacing, 5) "{"
 
 		for key, value in Array {
 			if (IsObject(value)) {
@@ -257,7 +257,7 @@ class CommonUtils extends ImmutableClass {
 
 			output .= "`r`n" spacing "[" key "] -> " value
 		}
-		output .= "`r`n" SubStr(spacing, 5) ")"
+		output .= "`r`n" SubStr(spacing, 5) "}"
 
 		return output
 	}
