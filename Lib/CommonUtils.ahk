@@ -597,7 +597,7 @@ class CommonUtils extends ImmutableClass {
 	;  D - include decimal digits as part of word in addition to letters and underscore. Has no effect unless "P" option is specified
 	;  x - remove word under cursor
 	getWordUnderCursor(extractionOpts := "") {
-		savedClipboard = Clipboard
+		savedClipboard := Clipboard
 		Clipboard := ""
 		keyword := ""
 
