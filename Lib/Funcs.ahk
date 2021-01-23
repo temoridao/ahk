@@ -289,3 +289,22 @@ hours(count := 1) {
 days(count := 1) {
 	return count * hours(24)
 }
+
+/**
+ * Convert the specified number of seconds to hh:mm:ss format
+ *
+ * @param   NumberOfSeconds  The number of seconds
+ *
+ * @return  @p NumberOfSeconds converted to string in format hh:mm:ss
+ */
+FormatSeconds(NumberOfSeconds) {
+	time := 19990101  ; *Midnight* of an arbitrary date.
+	time += NumberOfSeconds, seconds
+	FormatTime, mmss, %time%, mm:ss
+	return NumberOfSeconds // 3600 ":" mmss
+	/*
+	; Unlike the method used above, this would not support more than 24 hours worth of seconds:
+	FormatTime, hmmss, %time%, h:mm:ss
+	return hmmss
+	*/
+}
