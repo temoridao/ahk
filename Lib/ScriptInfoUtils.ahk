@@ -58,4 +58,15 @@ class ScriptInfoUtils extends ImmutableClass {
 			WinWaitClose % winTitle,,2
 		}
 	}
+
+	/**
+	 * Get base filename of this script
+	 *
+	 * @return  @c A_ScriptName without extension. For example returns "Starter" if A_ScriptName
+	 *          equals to "Starter.ahk"
+	 */
+	scriptBaseName() {
+		SplitPath A_ScriptName,,,,OutNameNoExt
+		return OutNameNoExt
+	}
 }

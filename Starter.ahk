@@ -41,7 +41,7 @@ ListLines Off
 	;@Ahk2Exe-Obey SelfCompilationCommandResult, RunWait %A_AhkPath% "%A_ScriptFullPath%" --compile-package`, "%A_ScriptFullPath%\.."
 	;-------------------------------------------------------------------------------------------------
 
-	global Config := { Version : "2.6"
+	global Config := { Version : "2.7"
 		;@Ahk2Exe-SetVersion %A_PriorLine~U)^(.+"){1}(.+)".*$~$2%
 
 		, Elevate          : HasVal(A_Args, "--elevate")
@@ -52,7 +52,7 @@ ListLines Off
 		;========================Options for compilation process========================================
 		, CompileMe       : HasVal(A_Args, "--compile-package")
 		, UseCompression  : HasVal(A_Args, "--compress-package")
-		, ProductName     : GetCmdParameterValue("--product-name", scriptBaseName())
+		, ProductName     : GetCmdParameterValue("--product-name", ScriptInfoUtils.scriptBaseName())
 		, CompilerPath    : FileExist("Ahk2Exe.exe") ? "Ahk2Exe.exe" : A_AhkPath "\..\Compiler\Ahk2Exe.exe"
 		, EmbedAhkAds     : true
 		, AdsName         : GetCmdParameterValue("--ads-name", "AutoHotkey.exe") }
@@ -71,6 +71,7 @@ ListLines Off
 #include <AhkScriptController>
 #include <TrayIconUtils>
 #include <ErrMsg>
+#include <ScriptInfoUtils>
 
 #include %A_LineFile%\..\3rdparty\Lib\ObjRegisterActive.ahk
 
@@ -267,18 +268,8 @@ checkForExistingInstance() {
 	}
 }
 
-/**
- * Get base filename of this script
- *
- * @return  Base script name without extension, f.e. returns string `Starter` for script
- *          with (A_ScriptName == "Starter.ahk")
- */
-scriptBaseName() {
-	return SubStr(A_ScriptName, 1, InStr(A_ScriptName, ".ahk") - 1)
-}
-
 runPlanFileName() {
-	return scriptBaseName() ".txt"
+	return ScriptInfoUtils.scriptBaseName() ".txt"
 }
 
 currentlyManagedScripts() {
@@ -367,7 +358,7 @@ reloadScript(oldPidIndex, scriptPath) {
 }
 
 showHelpDialog() {
-	baseName := scriptBaseName()
+	baseName := ScriptInfoUtils.scriptBaseName()
 	helpTxt := A_ScriptName " cannot find any scripts to " (Config.CompileMe ? "compile" : "launch") ".`r`n"
 	         . "The scripts to launch/compile should be specified in " baseName ".txt.`r`n`r`n"
 	exampleTxtFile =
@@ -393,7 +384,7 @@ showHelpDialog() {
 
 	)
 	MsgBox % helpTxt "(Press OK to start editing scripts list)"
-	if (!FileExist(txtFile := scriptBaseName() ".txt")) {
+	if (!FileExist(txtFile := ScriptInfoUtils.scriptBaseName() ".txt")) {
 		FileAppend(exampleTxtFile, txtFile)
 	}
 	Run % quote(txtFile)
@@ -479,7 +470,7 @@ setupTray() {
 	Menu Tray, NoStandard
 	Menu Tray, Add
 
-	compileItemText := "&Compile " scriptBaseName() ".exe"
+	compileItemText := "&Compile " ScriptInfoUtils.scriptBaseName() ".exe"
 	Menu Tray, Add, %compileItemText%, OnScriptTrayCommandClicked
 
 	showSummaryText := "Show Scripts Summary"
