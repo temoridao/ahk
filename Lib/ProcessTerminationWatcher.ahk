@@ -10,7 +10,6 @@
  * this occur.
  *
  * @code{.ahk}
-   #Persistent
    #NoEnv
 
    #incldue <ProcessTerminationWatcher>
