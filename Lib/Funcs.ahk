@@ -276,7 +276,7 @@ quote(ByRef text, _q_ := """") {
 	return _q_ text _q_
 }
 
-;Convenience wrappers for Sleep command. Return specified duration in milliseconds.
+;Convenience wrappers for Sleep command's duration parameter. Return specified duration in milliseconds.
 seconds(count := 1) {
 	return count * 1000
 }
