@@ -62,6 +62,50 @@ class AhkScriptController extends ImmutableClass
 		}
 	}
 
+	/**
+	 * Send exit command to other script processes and optionally wait for their closing
+	 *
+	 * @param   externalScriptsPids      List of PIDs (or single value) for scripts that must exit
+	 * @param   reverseOrder             If @c true then scripts in @p externalScriptsPids will be
+	 *                                   processed in reverse order
+	 * @param   waitCloseTimeoutSeconds  The timeout to wait for scripts exiting. If zero, then no
+	 *                                   waiting at all performed
+	 *
+	 * @return  @c false if some errors occurred during processing of scripts
+	 *          in @p externalScriptsPids. @c ErrorLevel will contain number of errors happened.
+	 *          @c true in case of success
+	 */
+	exitExternalScripts(externalScriptsPids, reverseOrder := false, waitCloseTimeoutSeconds := 2) {
+		raii := avarguard("A_DetectHiddenWindows=ON")
+
+		if (!IsObject(externalScriptsPids)) { ;If only single digit was passed as parameter, create array from it
+			externalScriptsPids := [externalScriptsPids]
+		}
+
+		len := externalScriptsPids.Length()
+		Loop % len {
+			i := reverseOrder ? (len - A_Index + 1) : A_Index
+			AhkScriptController.sendCommand("ahk_pid" externalScriptsPids[i], AhkScriptController.ID_FILE_EXIT)
+		}
+
+		if (waitCloseTimeoutSeconds = 0) {
+			ErrorLevel := 0
+			return true
+		}
+
+		errorsCount := 0
+		Loop % len {
+			i := reverseOrder ? (len - A_Index + 1) : A_Index
+			WinWaitClose % "ahk_pid" externalScriptsPids[i],, %waitCloseTimeoutSeconds%
+			if (ErrorLevel) {
+				errorsCount++
+			}
+		}
+
+		ErrorLevel := errorsCount
+		return !ErrorLevel
+	}
+
 ;private:
 	/**
 	 * This simple proxy class transparently wraps AhkScriptController and sets A_DetectHiddenWindows

@@ -41,7 +41,7 @@ ListLines Off
 	;@Ahk2Exe-Obey SelfCompilationCommandResult, RunWait %A_AhkPath% "%A_ScriptFullPath%" --compile-package`, "%A_ScriptFullPath%\.."
 	;-------------------------------------------------------------------------------------------------
 
-	global Config := { Version : "2.7"
+	global Config := { Version : "2.7.1"
 		;@Ahk2Exe-SetVersion %A_PriorLine~U)^(.+"){1}(.+)".*$~$2%
 
 		, Elevate          : HasVal(A_Args, "--elevate")
@@ -426,18 +426,8 @@ exitFunc(exitReason, exitCode) {
 }
 
 stopChildScripts() {
-	;Exit scripts in reverse order of launching
-	len := g_scriptsPids.Length()
-	Loop % len {
-		AhkScriptController.sendCommand("ahk_pid" g_scriptsPids[len - A_Index + 1], AhkScriptController.ID_FILE_EXIT)
-	}
-	Loop % len {
-		pid := g_scriptsPids[len - A_Index + 1]
-		winTitle := "ahk_pid" pid " ahk_class AutoHotkey"
-		WinWaitClose % winTitle,,2
-		if (ErrorLevel) {
-			MsgBox % "Wait for process exiting timed out (PID: " pid ")"
-		}
+	if (!AhkScriptController.exitExternalScripts(g_scriptsPids, true)) {
+		MsgBox % ErrorLevel " error(s) occurred while exiting managed scripts"
 	}
 	g_scriptsPids := []
 }
