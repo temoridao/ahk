@@ -41,7 +41,7 @@ ListLines Off
 	;@Ahk2Exe-Obey SelfCompilationCommandResult, RunWait %A_AhkPath% "%A_ScriptFullPath%" --compile-package`, "%A_ScriptFullPath%\.."
 	;-------------------------------------------------------------------------------------------------
 
-	global Config := { Version : "2.7.1"
+	global Config := { Version : "2.8.0"
 		;@Ahk2Exe-SetVersion %A_PriorLine~U)^(.+"){1}(.+)".*$~$2%
 
 		, Elevate          : HasVal(A_Args, "--elevate")
@@ -88,7 +88,9 @@ if (Config.CompileMe) {
 	ExitApp
 }
 
-global g_scriptNames := getScriptsForBundle()
+data := getScriptsForBundle()
+global g_scriptNames := data.scripts
+     , g_scriptsCmdLines := data.cmdLines
      , g_initialScriptNames := g_scriptNames.Clone() ;Immutable collection of script names
 ;@Ahk2Exe-IgnoreEnd
 
@@ -153,7 +155,7 @@ if (Config.ExposeComApi) {
 ;===================================================================================================
 
 ;Win+Shift+Escape — reload this script (preserving command line) and all of its managed scripts
-#+Escape::CommonUtils.reloadThisScriptPreserveCmdLine()
+#+Escape::CommonUtils.reloadScriptPreserveCmdLine()
 
 /* Win+Shift+` - Smart Reload Script matching %winTitle% (active window "A" by default)
  *
@@ -177,10 +179,11 @@ if (Config.ExposeComApi) {
 				return 0
 		}
 
-		;If this is some other 3rdparty AHK script (NOT managed by Starter), or managed by Starter.ahk,
-		;reload it by passing /restart command line parameter to AutoHotkey.exe
 		if (scriptPath := CommonUtils.getAhkScriptFilePath(WinGet("ID", winTitle))) {
-			return reloadScript(HasVal(g_scriptsPids, pid), scriptPath)
+			if (pidIndex := HasVal(g_scriptsPids, pid)) { ;this script managed by Starter.ahk
+				return reloadScript(pidIndex, scriptPath)
+			}
+			return CommonUtils.reloadScriptPreserveCmdLine(winTitle) ;this script is external, NOT managed by Starter.ahk
 		}
 
 		;If title of currently active window contains a (possibly part) file name of one of the
@@ -190,7 +193,12 @@ if (Config.ExposeComApi) {
 			fullPath := CommonUtils.getAhkScriptFilePath(hWnd)
 			SplitPath(fullPath, scriptName)
 			if (scriptName && InStr(activeWinTitle, scriptName)) {
-				return reloadScript(HasVal(g_scriptsPids, WinGet("PID", "ahk_id" hWnd)), fullPath)
+				pid := WinGet("PID", "ahk_id" hWnd)
+				if (pidIndex := HasVal(g_scriptsPids, pid)) {
+					return reloadScript(pidIndex, fullPath)
+				} else {
+					return CommonUtils.reloadScriptPreserveCmdLine("ahk_pid" pid)
+				}
 			}
 		}
 
@@ -267,6 +275,7 @@ getScriptsForBundle() {
 	RegExMatch(FileRead(A_ScriptFullPath), "isO);\{ Config Section.+?;\}", matchObj)
 	configSection := matchObj[0]
 	result := []
+	cmdLines := []
 	pos := 1
 	while pos := RegExMatch(configSection
 	                      , "imO);" (Config.CompileMe ? "" : "\s*") "@Ahk2Exe-AddResource \*RT_RCDATA (.+\.ahk)$"
@@ -276,6 +285,7 @@ getScriptsForBundle() {
 		pos += StrLen(match)
 		if (!HasVal(result, match)) {
 			result.Push(match)
+			cmdLines.Push("")
 		}
 	}
 
@@ -291,15 +301,23 @@ getScriptsForBundle() {
 
 			path := fileWantCompile ? SubStr(A_LoopReadLine, 2) : A_LoopReadLine
 
+			cmdLine := ""
+			if (delimPos := InStr(path, "|")) {
+				cmdLine := SubStr(path, delimPos + 1)
+				path := SubStr(path, 1, delimPos - 1)
+			}
+
 			if (!(attr := FileExist(path)))
 				continue
 
 			if (isDirectory := InStr(attr, "D")) {
 				Loop Files, %path%\*.ahk
 				{
+					cmdLines.Push("")
 					Gosub RememberScriptPath
 				}
 			} else {
+				cmdLines.Push(cmdLine)
 				Gosub RememberScriptPath
 			}
 		}
@@ -310,7 +328,7 @@ getScriptsForBundle() {
 		showHelpDialog()
 	}
 
-	return result
+	return {scripts: result, cmdLines: cmdLines}
 
 	RememberScriptPath:
 		scriptPath := isDirectory ? A_LoopFileLongPath : path
@@ -322,12 +340,12 @@ getScriptsForBundle() {
 		return
 }
 
-runScript(path) {
+runScript(path, cmdLine := "") {
 	if (path) {
 		absolutePath := CommonUtils.makeAbsolutePath(path)
 		scriptDir := ""
 		SplitPath(absolutePath,, scriptDir)
-		return Run(A_AhkPath " /restart " quote(absolutePath), scriptDir)
+		return Run(A_AhkPath " /restart " quote(absolutePath) . (cmdLine ? (" " cmdLine) : ""), scriptDir)
 	}
 
 	return 0
@@ -335,7 +353,7 @@ runScript(path) {
 
 ;Restart script \scriptPath and optionally update g_scriptsPids. Returns new PID of reloaded script
 reloadScript(oldPidIndex, scriptPath) {
-	newPid := runScript(scriptPath)
+	newPid := runScript(scriptPath, g_scriptsCmdLines[oldPidIndex])
 	if (oldPidIndex) {
 		g_scriptsPids[oldPidIndex] := newPid
 		TrayIconUtils_removeTrayIcons([newPid])
@@ -352,12 +370,14 @@ showHelpDialog() {
 		;Lines started with semicolon are comments and ignored, as well as empty lines
 		;Each line in this file is a script path (or folder with scripts) to launch (can be absolute or relative to this file)
 		;Put tilde (~) at the beginning of path to mark the script or folder for inclusion into compiled %baseName%.exe
+		;Command line parameters for each script (but not a directory) can be specified after pipe character (|)
 
 		;--------------------------------------Some Examples--------------------------------------------
 		;                                      -------------
 		;3rdparty\MyGoodScriptToLaunch.ahk
 		;~ThisScriptWillBeCompiled.ahk
 		;~C:\path\to\AnotherScriptWhichWillBeCompiled.ahk
+		;script\with\CommandLineParameters.ahk|--first-cmd-parameter --second --config myconfig.ini
 		;
 		;Specify path to directory so all .ahk files in that directory will be launched
 		;or compiled (if preceded with ~) into Starter.exe
@@ -423,7 +443,7 @@ stopChildScripts() {
 runScripts() {
 	pids := []
 	for i, filePath in g_scriptNames {
-			pids.Push(runScript(filePath))
+			pids.Push(runScript(filePath, g_scriptsCmdLines[i]))
 	}
 
 	return pids
@@ -452,7 +472,7 @@ setupTray() {
 	showSummaryText := "Show Scripts Summary"
 	Menu Tray, Add, %showSummaryText%, showScriptsSummary
 
-	reloadAll := CommonUtils.getFuncObj("reloadThisScriptPreserveCmdLine")
+	reloadAll := CommonUtils.getFuncObj("reloadScriptPreserveCmdLine")
 	Menu Tray, Add, Reload (preserve command line) [#+Escape], %reloadAll%
 
 	editTxt := "Edit " runPlanFileName()
@@ -500,6 +520,8 @@ OnScriptTrayCommandClicked() {
 		for i, scriptPath in g_scriptNames {
 			if InStr(fullPath, scriptPath) {
 				g_scriptNames.Remove(i)
+				g_scriptsPids.Remove(i)
+				g_scriptsCmdLines.Remove(i)
 				Menu Tray, Delete, %i%&
 				break
 			}
@@ -515,12 +537,12 @@ OnScriptTrayCommandClicked() {
 
 showScriptsSummary() {
 	rows := g_scriptNames.MaxIndex() + 5
-	Gui Add, ListView, Grid +Resize r%rows% w500 Sort, Script|PID|Path
+	Gui Add, ListView, Grid +Resize r%rows% w600 Sort, Script|PID|Path|Command Line
 	Loop, % g_scriptNames.MaxIndex() {
 		SplitPath(g_scriptNames[A_Index], scriptName)
 		pid := g_scriptsPids[A_Index]
 		path := CommonUtils.getAhkScriptFilePath(WinGet("ID", "ahk_pid" pid))
-		LV_Add(, scriptName, pid, path)
+		LV_Add(, scriptName, pid, path, g_scriptsCmdLines[A_Index])
 	}
 	LV_ModifyCol()
 	LV_ModifyCol(3, "AutoHdr")
@@ -530,6 +552,7 @@ showScriptsSummary() {
 	return
 
 	GuiEscape:
+	GuiClose:
 		Gui Destroy
 		return
 }
@@ -539,7 +562,7 @@ editRunPlanFile() {
 }
 
 cleanTemporaryScripts() {
-	for i, file in getScriptsForBundle() {
+	for i, file in getScriptsForBundle().scripts {
 			FileDelete % file . ".preprocessed"
 	}
 
@@ -596,7 +619,7 @@ compilePackage() {
 preprocessScripts() {
 	;-------------------------------------------------------------------------------------------------
 	addResourceDirectives := ""
-	for i, file in getScriptsForBundle() {
+	for i, file in getScriptsForBundle().scripts {
 		scriptIndex := A_Index
 		Loop %file%, 1
 		{

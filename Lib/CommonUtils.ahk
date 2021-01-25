@@ -988,7 +988,29 @@ class CommonUtils extends ImmutableClass {
 			ExitApp
 		}
 	}
-	reloadThisScriptPreserveCmdLine() {
+	reloadScriptPreserveCmdLine(scriptWinTitle := "") {
+		raii := new AVarValuesRollback("A_DetectHiddenWindows=ON")
+
+		if (scriptWinTitle) {
+			if (!(WinGetClass(scriptWinTitle) ~= "AutoHotkey|AutoHotkeyGUI")) {
+				return 0
+			}
+
+			queryEnum := ComObjGet("winmgmts:").ExecQuery("SELECT * FROM Win32_Process WHERE ProcessId=" WinGet("PID", scriptWinTitle))._NewEnum()
+			proc := {}
+			if (queryEnum[proc]) {
+				static cNeedle := "AutoHotkey.exe"""
+				if (pos := InStr(proc.CommandLine, cNeedle)) {
+					cmdLine := SubStr(proc.CommandLine, 1, pos + StrLen(cNeedle)) " /restart "
+					         . SubStr(proc.CommandLine,    pos + StrLen(cNeedle))
+					; logDebug(cmdLine)
+					return Run(cmdLine)
+				}
+			}
+			return 0
+		}
+
+		;Reload this script itself
 		cmdline := ""
 		for i, arg in A_Args {
 			cmdline .= arg " "
