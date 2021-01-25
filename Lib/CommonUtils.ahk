@@ -988,6 +988,17 @@ class CommonUtils extends ImmutableClass {
 			ExitApp
 		}
 	}
+	reloadThisScriptPreserveCmdLine() {
+		cmdline := ""
+		for i, arg in A_Args {
+			cmdline .= arg " "
+		}
+
+		;Place /restart switch immediately after the path of interpreter, because it is AutoHotkey's
+		;builit-in cmd switch and will be removed from new process's A_Args in this case.
+		Run(A_AhkPath " /restart " quote(A_ScriptFullPath) " " cmdline)
+		ExitApp
+	}
 
 	makeAbsolutePath(path) {
 		Loop Files, %path%

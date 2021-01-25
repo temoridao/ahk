@@ -154,20 +154,7 @@ if (Config.ExposeComApi) {
 ;===================================================================================================
 
 ;Win+Shift+Escape — reload this script (preserving command line) and all of its managed scripts
-#+Escape::
-	reloadAll() {
-		stopChildScripts()
-
-		;Preserve original command line parameters passed to Starter
-		newTitle := WinGetTitle("ahk_id" A_ScriptHwnd) cReloadMark
-		WinSetTitle ahk_id %A_ScriptHwnd%,, %newTitle%
-		cmdline := ""
-		for i, arg in A_Args {
-			cmdline .= arg " "
-		}
-		Run(A_ScriptFullPath " " cmdline)
-		ExitApp
-	}
+#+Escape::CommonUtils.reloadThisScriptPreserveCmdLine()
 
 /* Win+Shift+` - Smart Reload Script matching %winTitle% (active window "A" by default)
  *
@@ -466,7 +453,8 @@ setupTray() {
 	showSummaryText := "Show Scripts Summary"
 	Menu Tray, Add, %showSummaryText%, showScriptsSummary
 
-	Menu Tray, Add, Reload (preserve command line) [#+Escape], reloadAll
+	reloadAll := CommonUtils.getFuncObj("reloadThisScriptPreserveCmdLine")
+	Menu Tray, Add, Reload (preserve command line) [#+Escape], %reloadAll%
 
 	editTxt := "Edit " runPlanFileName()
 	Menu Tray, Add, %editTxt%, editRunPlanFile
