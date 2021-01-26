@@ -988,6 +988,16 @@ class CommonUtils extends ImmutableClass {
 			ExitApp
 		}
 	}
+
+	/**
+	 * Reload the script (similar in effect to built-in @c Reload command) while preserving command
+	 * line parameters
+	 *
+	 * @param   scriptWinTitle  The target script's window title. Omit this parameter to reload
+	 *                          current script
+	 *
+	 * @return  Process id of the new script instance or zero if error happens
+	 */
 	reloadScriptPreserveCmdLine(scriptWinTitle := "") {
 		raii := new AVarValuesRollback("A_DetectHiddenWindows=ON")
 
