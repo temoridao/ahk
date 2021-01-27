@@ -1020,6 +1020,11 @@ class CommonUtils extends ImmutableClass {
 			return 0
 		}
 
+		if (A_IsCompiled) {
+			Reload
+			return
+		}
+
 		;Reload this script itself
 		cmdline := ""
 		for i, arg in A_Args {
