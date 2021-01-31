@@ -301,7 +301,7 @@ FormatSeconds(NumberOfSeconds) {
 	time := 19990101  ; *Midnight* of an arbitrary date.
 	time += NumberOfSeconds, seconds
 	FormatTime, mmss, %time%, mm:ss
-	return Format("{:02}", NumberOfSeconds // 3600) ":" mmss
+	return Format("{:02d}", NumberOfSeconds // 3600) ":" mmss
 	/*
 	; Unlike the method used above, this would not support more than 24 hours worth of seconds:
 	FormatTime, hmmss, %time%, h:mm:ss
