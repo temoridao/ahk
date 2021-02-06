@@ -363,8 +363,8 @@ reloadScript(oldPidIndex, scriptPath) {
 
 showHelpDialog() {
 	baseName := ScriptInfoUtils.scriptBaseName()
-	helpTxt := A_ScriptName " cannot find any scripts to " (Config.CompileMe ? "compile" : "launch") ".`r`n"
-	         . "The scripts to launch/compile should be specified in " baseName ".txt.`r`n`r`n"
+	helpTxt := A_ScriptName " cannot find any scripts to " (Config.CompileMe ? "compile" : "launch")
+		       . " in " runPlanFileName() " or auto-execute section.`r`n`r`n"
 	exampleTxtFile =
 	(LTrim
 		;Lines started with semicolon are comments and ignored, as well as empty lines
