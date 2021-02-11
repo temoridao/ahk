@@ -20,4 +20,12 @@ class UrlUtil extends ImmutableClass
 		WebRequest.Send()
 		Return WebRequest.ResponseText
 	}
+
+	UriEncode(Uri, RE="[0-9A-Za-z]") {
+		VarSetCapacity(Var, StrPut(Uri, "UTF-8"), 0), StrPut(Uri, &Var, "UTF-8")
+		Res := ""
+		While Code := NumGet(Var, A_Index - 1, "UChar")
+			Res .= (Chr:=Chr(Code)) ~= RE ? Chr : Format("%{:02X}", Code)
+		Return, Res
+	}
 }
