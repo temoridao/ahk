@@ -862,6 +862,27 @@ class CommonUtils extends ImmutableClass {
 		return result
 	}
 
+	getFilesFromExplorer(winTitle := "") {
+		hWnd := WinExist(winTitle)
+		procName := WinGet("ProcessName")
+		if (procName != "explorer.exe") {
+			return []
+		}
+
+		result := []
+		for window in ComObjCreate("Shell.Application").Windows {
+			if (window.hWnd != hWnd) {
+				continue
+			}
+			for item in window.Document.Folder.Items {
+				result.Push(item.path)
+			}
+			break
+		}
+
+		return result
+	}
+
 	comObjectInfo(comObj) {
 		VarType := ComObjType(comObj)
 		IName   := ComObjType(comObj, "Name")
