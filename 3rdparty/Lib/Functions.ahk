@@ -251,6 +251,7 @@ StringLen(ByRef InputVar) {
 	Return, v
 }
 StringLower(ByRef InputVar, T = "") {
+	v := ""
 	StringLower, v, InputVar, %T%
 	Return, v
 }
