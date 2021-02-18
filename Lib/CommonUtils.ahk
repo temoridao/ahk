@@ -417,7 +417,21 @@ class CommonUtils extends ImmutableClass {
 		return Trim(scriptPath)
 	}
 
-	;pPicturePath can be path to .exe, .dll, etc (in addition to regular image file)
+	/**
+	 * Shows the splash text with optional picture
+	 *
+	 * @param   pPicturePath    The picture path. Can also be a path to .exe, .dll
+	 * @param   pPictureX       The picture x position
+	 * @param   pPictureY       The picture y position
+	 * @param   pTextToDisplay  The text to display
+	 * @param   pTextX          The text x position
+	 * @param   pTextY          The text y position
+	 * @param   pFontSize       The font size
+	 * @param   pDuration       The duration of visibility. Pass 0 to not hide the splash until the
+	 *                          next call to this function with @p pDuration > 0
+	 * @param   pTransparent    The color to be interpreted as transparent. See `WinSet, TransColor`
+	 *
+	 */
 	ShowSplashPictureWithText(pPicturePath := "", pPictureX := "Center", pPictureY := "Center"
 		                    , pTextToDisplay := "", pTextX := "Center", pTextY := "Center", pFontSize := 20
 		                    , pDuration := 1000, pTransparent := true, textColor := "66D9EF") {
@@ -440,7 +454,6 @@ class CommonUtils extends ImmutableClass {
 		Gui Font, % fontOptions ;update font options
 		GuiControl Font, % sHwndVolumeText ;set updated options for control's handle
 		this.SetTextAndResize(sHwndVolumeText, pTextToDisplay, fontOptions)
-		Gui Show, Center x%pTextX% y%pTextY% AutoSize NoActivate
 
 		;---
 		if (pPicturePath) {
@@ -460,8 +473,16 @@ class CommonUtils extends ImmutableClass {
 			}
 			Gui Show, x%pPictureX% y%pPictureY% NoActivate ; TODO: place a picture under text. Do not use absolute positioning here by default
 		}
+		Gui Show, Center x%pTextX% y%pTextY% AutoSize NoActivate
 
-		SetTimer Sub_HideGui, -%pDuration%
+		timerInterval := pDuration
+		if (timerInterval = 0) {
+			return
+		} else if (timerInterval < 0) {
+			timerInterval := Abs(pDuration)
+		}
+
+		SetTimer Sub_HideGui, -%timerInterval%
 		Return
 
 		Sub_HideGui:
