@@ -198,6 +198,20 @@ class CommonUtils extends ImmutableClass {
 		return new this.WinGeometry(winX, winY, winW, winH)
 	}
 
+	windowInfo(hWnd := "") {
+		winTitle := ""
+		if (hWnd) {
+			winTitle := "ahk_id" hWnd
+		}
+		return { title: WinGetTitle(winTitle)
+		       , procName: WinGet("ProcessName", winTitle)
+		       , pid: WinGet("PID", winTitle)
+		       , class: WinGetClass(winTitle)
+		       , count: WinGet("Count", winTitle)
+		       , IsWindowVisible: !DllCall("IsWindowVisible", "Ptr", WinGet("ID", winTitle))
+		       , DetectHiddenWindows: A_DetectHiddenWindows }
+	}
+
 	; This function uses current A_TitleMatchMode
 	IsDesktop(winTitle := "") {
 		WinGetTitle, title, %winTitle%
