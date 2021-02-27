@@ -8,6 +8,7 @@
 Internal/*
 Shared/*
 Starter.txt
+Starter_injection.ahk
 
 # LaunchQ files
 3rdparty/Q-settings/*

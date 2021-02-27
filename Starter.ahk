@@ -41,7 +41,7 @@ ListLines Off
 	;@Ahk2Exe-Obey SelfCompilationCommandResult, RunWait %A_AhkPath% "%A_ScriptFullPath%" --compile-package`, "%A_ScriptFullPath%\.."
 	;-------------------------------------------------------------------------------------------------
 
-	global Config := { Version : "2.8.0"
+	global Config := { Version : "2.8.1"
 		;@Ahk2Exe-SetVersion %A_PriorLine~U)^(.+"){1}(.+)".*$~$2%
 
 		, Elevate          : HasVal(A_Args, "--elevate")
@@ -126,33 +126,14 @@ if (Config.ExposeComApi) {
 
 ;Place your custom code here if needed
 ;You can utilize g_scriptsPids variable which contain all controlled scripts' PIDs
-;for use with "ahk_pid", for example. Alternatively, place your code inside injection file as explained below
-
+;for use with "ahk_pid", for example. Alternatively, place your code inside optional injection file
+;(Starter_injection.ahk) below
 
 ;
 ;-----------------------------------End of auto-execute section-------------------------------------
 ;
 
-;You can optionally create files with path and names listed below and place there any code you want
-;or add custom hotkeys.
-;=============================Shared set of optional injections=====================================
-#include *i %A_LineFile%\..\Shared\Starter_injection_common.ahk     ;<==For both Starter.{ahk,exe}
-/*@Ahk2Exe-Keep
-#include *i %A_LineFile%\..\Shared\Starter_injection_compiled.ahk   ;<==For Starter.exe only
-*/
-;@Ahk2Exe-IgnoreBegin
-#include *i %A_LineFile%\..\Shared\Starter_injection_uncompiled.ahk ;<==For Starter.ahk only
-;@Ahk2Exe-IgnoreEnd
-
-;=============================Internal set of optional injections===================================
-#include *i %A_LineFile%\..\Internal\Starter_injection_common.ahk
-/*@Ahk2Exe-Keep
-#include *i %A_LineFile%\..\Starter_injection_compiled.ahk
-*/
-;@Ahk2Exe-IgnoreBegin
-#include *i %A_LineFile%\..\Internal\Starter_injection_uncompiled.ahk
-;@Ahk2Exe-IgnoreEnd
-;===================================================================================================
+#include *i %A_LineFile%\..\Starter_injection.ahk
 
 ;Win+Shift+Escape — reload this script (preserving command line) and all of its managed scripts
 #+Escape::CommonUtils.reloadScriptPreserveCmdLine()
