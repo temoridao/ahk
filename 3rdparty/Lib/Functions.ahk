@@ -324,6 +324,11 @@ WinActivate(WinTitle = "", WinText = "", ExcludeTitle = "", ExcludeText = "") {
 	WinActivate, %WinTitle%, %WinText%, %ExcludeTitle%, %ExcludeText%
 }
 
+WinMenuSelectItem(WinTitle, WinText, Menu, SubMenu1:="", SubMenu2:="", SubMenu3:="", SubMenu4:="", SubMenu5:="", SubMenu6:="", ExcludeTitle:="", ExcludeText:="") {
+	WinMenuSelectItem, %WinTitle%, %WinText%, %Menu%, %SubMenu1%, %SubMenu2%, %SubMenu3%, %SubMenu4%, %SubMenu5%, %SubMenu6%, %ExcludeTitle%, %ExcludeText%
+	Return !ErrorLevel
+}
+
 WinRestore(WinTitle = "", WinText = "", ExcludeTitle = "", ExcludeText = "") {
 	WinRestore, %WinTitle%, %WinText%, %ExcludeTitle%, %ExcludeText%
 
