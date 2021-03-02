@@ -230,7 +230,7 @@ HandleMultiPressHotkey(pressHandlers, keyWaitDelay := 150) {
 }
 
 callFuncFromScriptArgs() {
-	if (A_Args.Length() <= 0) {
+	if (A_Args.Length() = 0) {
 		MsgBox % "[" A_ThisFunc "] No cmd arguments, so no function to call"
 		ErrorLevel := "No Args"
 		return 0
@@ -241,7 +241,7 @@ callFuncFromScriptArgs() {
 		ExitApp 1
 	}
 	funcArguments := A_Args.Clone(), funcArguments.RemoveAt(1)
-	OutputDebug % "[" A_ThisFunc "] Calling function " quote(A_Args[1])
+	; OutputDebug % "[" A_ThisFunc "] Calling function " quote(A_Args[1])
 	ErrorLevel := ""
 	return A_Args[1](funcArguments*)
 }
