@@ -38,8 +38,7 @@
 ; ...............: TBBUTTON structure     - http://goo.gl/EIE21Z
 ; ----------------------------------------------------------------------------------------------------------------------
 
-TrayIcon_GetInfo(sExeName := "")
-{
+TrayIcon_GetInfo(sExeName := "") {
     d := A_DetectHiddenWindows
     DetectHiddenWindows, On
 
@@ -114,8 +113,7 @@ TrayIcon_GetInfo(sExeName := "")
 ; ..............: bHide - True for hide, False for unhide.
 ; Info .........: TB_HIDEBUTTON message - http://goo.gl/oelsAa
 ; ----------------------------------------------------------------------------------------------------------------------
-TrayIcon_Hide(idCmd, sTray:="Shell_TrayWnd", bHide:=True)
-{
+TrayIcon_Hide(idCmd, sTray:="Shell_TrayWnd", bHide:=True) {
     d := A_DetectHiddenWindows
     DetectHiddenWindows, On
     idxTB := TrayIcon_GetTrayBar()
@@ -131,8 +129,7 @@ TrayIcon_Hide(idCmd, sTray:="Shell_TrayWnd", bHide:=True)
 ; ..............: sTray - Place where to find the icon ("Shell_TrayWnd" or "NotifyIconOverflowWindow").
 ; Info .........: TB_DELETEBUTTON message - http://goo.gl/L0pY4R
 ; ----------------------------------------------------------------------------------------------------------------------
-TrayIcon_Delete(idx, sTray:="Shell_TrayWnd")
-{
+TrayIcon_Delete(idx, sTray:="Shell_TrayWnd") {
     d := A_DetectHiddenWindows
     DetectHiddenWindows, On
     idxTB := TrayIcon_GetTrayBar()
@@ -149,8 +146,7 @@ TrayIcon_Delete(idx, sTray:="Shell_TrayWnd")
 ; Info .........: NOTIFYICONDATA structure  - https://goo.gl/1Xuw5r
 ; ..............: Shell_NotifyIcon function - https://goo.gl/tTSSBM
 ; ----------------------------------------------------------------------------------------------------------------------
-TrayIcon_Remove(hWnd, uId)
-{
+TrayIcon_Remove(hWnd, uId) {
         VarSetCapacity(NID, szNID := ((A_IsUnicode ? 2 : 1) * 384 + A_PtrSize*5 + 40),0)
         NumPut( szNID, NID, 0           )
         NumPut( hWnd,  NID, A_PtrSize   )
@@ -166,8 +162,7 @@ TrayIcon_Remove(hWnd, uId)
 ; ..............: sTray  - Place where to find the icon ("Shell_TrayWnd" or "NotifyIconOverflowWindow").
 ; Info .........: TB_MOVEBUTTON message - http://goo.gl/1F6wPw
 ; ----------------------------------------------------------------------------------------------------------------------
-TrayIcon_Move(idxOld, idxNew, sTray := "Shell_TrayWnd")
-{
+TrayIcon_Move(idxOld, idxNew, sTray := "Shell_TrayWnd") {
     d := A_DetectHiddenWindows
     DetectHiddenWindows, On
     idxTB := TrayIcon_GetTrayBar()
@@ -187,8 +182,7 @@ TrayIcon_Move(idxOld, idxNew, sTray := "Shell_TrayWnd")
 ; Info .........: NOTIFYICONDATA structure  - https://goo.gl/1Xuw5r
 ; ..............: Shell_NotifyIcon function - https://goo.gl/tTSSBM
 ; ----------------------------------------------------------------------------------------------------------------------
-TrayIcon_Set(hWnd, uId, hIcon, hIconSmall:=0, hIconBig:=0)
-{
+TrayIcon_Set(hWnd, uId, hIcon, hIconSmall:=0, hIconBig:=0) {
     d := A_DetectHiddenWindows
     DetectHiddenWindows, On
     ; WM_SETICON = 0x0080
@@ -215,8 +209,7 @@ TrayIcon_Set(hWnd, uId, hIcon, hIconSmall:=0, hIconBig:=0)
 ; Parameters ...: sTray - Traybar to retrieve.
 ; Return .......: Tray icon handle.
 ; ----------------------------------------------------------------------------------------------------------------------
-TrayIcon_GetTrayBar(sTray:="Shell_TrayWnd")
-{
+TrayIcon_GetTrayBar(sTray:="Shell_TrayWnd") {
     d := A_DetectHiddenWindows
     DetectHiddenWindows, On
     WinGet, ControlList, ControlList, ahk_class %sTray%
@@ -242,8 +235,7 @@ TrayIcon_GetTrayBar(sTray:="Shell_TrayWnd")
 ; Return .......: Index of tray's hot item.
 ; Info .........: TB_GETHOTITEM message - http://goo.gl/g70qO2
 ; ----------------------------------------------------------------------------------------------------------------------
-TrayIcon_GetHotItem()
-{
+TrayIcon_GetHotItem() {
     idxTB := TrayIcon_GetTrayBar()
     SendMessage, 0x0447, 0, 0, ToolbarWindow32%idxTB%, ahk_class Shell_TrayWnd ; TB_GETHOTITEM = 0x0447
     Return ErrorLevel << 32 >> 32
@@ -257,8 +249,7 @@ TrayIcon_GetHotItem()
 ; ..............: bDouble  - True to double click, false to single click.
 ; ..............: nIdx     - Index of tray icon to click if more than one match.
 ; ----------------------------------------------------------------------------------------------------------------------
-TrayIcon_Button(sExeName, sButton:="L", bDouble:=False, nIdx:=1)
-{
+TrayIcon_Button(sExeName, sButton:="L", bDouble:=False, nIdx:=1) {
     d := A_DetectHiddenWindows
     DetectHiddenWindows, On
     WM_MOUSEMOVE      = 0x0200
