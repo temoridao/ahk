@@ -1100,3 +1100,33 @@ class CommonUtils extends ImmutableClass {
 		}
 	}
 }
+
+/**
+ * Combine Functions - combines any number of Func/BoundFunc objects into single BoundFunc object
+ *
+ * @code{.ahk}
+   #include <CommonUtils>
+
+   fun := "fun"
+   combinedFuncs := cf("fun1", Func(fun "2"), Func("fun3").Bind("Hello"))
+   Hotkey F12, % combinedFuncs
+   MsgBox Press F12 to trigger hotkey.`n It will call all combined functions in order
+
+   fun1() {
+   	MsgBox %A_ThisFunc%
+   }
+   fun2() {
+   	MsgBox %A_ThisFunc%
+   }
+   fun3(param) {
+   	MsgBox %A_ThisFunc%: %param%
+   }
+ * @endcode
+ *
+ * @param   funcs  Variadic number of Func, BoundFunc objects or function names in any combination
+ *
+ * @return  BoundFunc object which combines all functions passed in @p funcs
+ */
+cf(funcs*) {
+	return CommonUtils.getFuncObj("runCallbackList", [funcs*])
+}
