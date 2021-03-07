@@ -468,6 +468,7 @@ class CommonUtils extends ImmutableClass {
 		Gui Font, % fontOptions ;update font options
 		GuiControl Font, % sHwndVolumeText ;set updated options for control's handle
 		this.SetTextAndResize(sHwndVolumeText, pTextToDisplay, fontOptions)
+		Gui Show, Center x%pTextX% y%pTextY% AutoSize NoActivate
 
 		;---
 		if (pPicturePath) {
@@ -487,7 +488,6 @@ class CommonUtils extends ImmutableClass {
 			}
 			Gui Show, x%pPictureX% y%pPictureY% NoActivate ; TODO: place a picture under text. Do not use absolute positioning here by default
 		}
-		Gui Show, Center x%pTextX% y%pTextY% AutoSize NoActivate
 
 		timerInterval := pDuration
 		if (timerInterval = 0) {
