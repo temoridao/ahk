@@ -157,25 +157,37 @@ class JoyStickValues {
 	}
 
 	/**
-	 * General direction of analog stick with respect to @property XSensitivity
-	 * and @property YSensitivity
+	 * General direction of analog stick
+	 *
+	 * Possible values: "xyCentered", "Left", "Right", "Up", "Down", ""
+	 * Axis @c value below is a value of @property DeltaX or @property DeltaY.
+	 * Rules of @property Direction calculation:
+	 * - If both axes values are zero, this is "xyCentered"
+	 * - Only one axis with largest absolute value will be considered as candidate
+	 * - If candidate's axis value > 0, this is "Right" for horizontal axis and "Down" for vertical
+	 * - If candidate's axis value < 0, this is "Left" for horizontal axis and "Up" for vertical
+	 * - Horizontal axis takes precedence in case of both axes are equal and non-zero
+	 * - If none of the axes values are greater or equal to its sensitivity (@property XSensitivity
+	 *   and @property YSensitivity), and they are not centered — this is "" (empty string)
 	 */
 	Direction[] {
 		get {
 			dx := this.DeltaX
 			dy := this.DeltaY
 
-			if (horizontalSensitivityPassed := Abs(dx) >= this.XSensitivity) {
-				return dx > 0 ? "Right"
-				     : dx < 0 ? "Left" : ""
+			if (dx = 0 && dx = dy) {
+				return "xyCentered"
+			}
+			absDx := Abs(dx)
+			absDy := Abs(dy)
+
+			if (absDx >= this.XSensitivity && (absDx > absDy || absDx = absDy)) {
+				return dx > 0 ? "Right" : "Left"
+			} else if (absDx < absDy && absDy >= this.YSensitivity) {
+				return dy > 0 ? "Down" : "Up"
 			}
 
-			if (verticalSensitivityPassed := Abs(dy) >= this.YSensitivity) {
-				return dy > 0 ? "Down"
-				     : dy < 0 ? "Up" : ""
-			}
-
-			return "xyCentered"
+			return "" ;No axis exceed its sensitivity and both are not centered
 		}
 
 		set {
