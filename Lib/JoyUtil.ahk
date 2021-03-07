@@ -5,6 +5,7 @@
 
 #include %A_LineFile%\..\ImmutableClass.ahk
 #include %A_LineFile%\..\JoyButtons.ahk
+#include %A_LineFile%\..\Funcs.ahk
 
 /**
  * Contains utility functions for joysticks (Dinput/Xinput independent)
@@ -72,4 +73,134 @@ class JoyUtil extends ImmutableClass
 		return (mode = "xinput") ? Round(GetKeyState(joyIndex "Joy" JoyRT(mode))) < 50 ;If right analog trigger is pressed (50 in non-pressed state)
 		                         : GetKeyState(joyIndex "Joy" JoyRT(mode), "P")
 	}
+}
+
+/**
+ * Helper class to calculate gamepad analog sticks values
+ *
+ * @code{.ahk}
+    #include <JoyUtil>
+
+    ;axis id for XInput compatible gamepad here
+    jvl := new JoyStickValues("X", "Y")
+    jvr := new JoyStickValues("U", "R")
+
+    ;or using convenience functions from JoyButtons.ahk:
+    ; jvl := new JoyStickValues(JoyLSxAxis(), JoyLSyAxis())
+    ; jvr := new JoyStickValues(JoyRSxAxis(), JoyRSyAxis())
+
+    Loop {
+    	ToolTip % jvl.JoyIndex " joy left stick: " jvl.Direction " [" jvl.DeltaX "; " jvl.DeltaY "]`n"
+    	        . jvr.JoyIndex " joy right stick: " jvr.Direction "[ " jvr.DeltaX "; " jvr.DeltaY "]"
+    	Sleep 100
+    }
+ * @endcode
+ */
+class JoyStickValues {
+	/**
+	 * Constructor
+	 *
+	 * @param   xAxis     The stick's X analog axis id as described for builtin GetKeyState() function
+	 * @param   yAxis     The stick's Y analog axis id as described for builtin GetKeyState() function
+	 * @param   joyIndex  The joy index to query values from as described in builtin GetKeyState()
+	 *                    function documentation
+	 */
+	__New(xAxis, yAxis, joyIndex := 1) {
+		this.m_xAxis := xAxis
+		this.m_yAxis := yAxis
+		this.JoyIndex := joyIndex
+	}
+
+	DeltaX[] {
+		get {
+			JoyX := Round(GetKeyState(this.m_joyHotkeyPrefix . this.m_xAxis))
+			dx := JoyX - this.m_stickAxisCenteredValue
+			; OutputDebug % "dx: " dx " JoyX: " JoyX
+			return dx
+		}
+
+		set {
+		}
+	}
+
+	DeltaY[] {
+		get {
+			JoyY := Round(GetKeyState(this.m_joyHotkeyPrefix . this.m_yAxis))
+			dy := JoyY - this.m_stickAxisCenteredValue
+			; OutputDebug % "dy: " dy " JoyY: " JoyY
+			return dy
+		}
+
+		set {
+		}
+	}
+
+	XSensitivity[] {
+		get {
+			return this.m_xSensitivity
+		}
+		set {
+			;Set correctly bounded value, but return original value to allow chaining of assignments
+			this.m_xSensitivity := Clamp(value, 1, 50)
+			return value
+		}
+	}
+
+	YSensitivity[] {
+		get {
+			return this.m_ySensitivity
+		}
+		set {
+			this.m_ySensitivity := Clamp(value, 1, 50)
+			return value
+		}
+	}
+
+	/**
+	 * General direction of analog stick with respect to @property XSensitivity
+	 * and @property YSensitivity
+	 */
+	Direction[] {
+		get {
+			dx := this.DeltaX
+			dy := this.DeltaY
+
+			if (horizontalSensitivityPassed := Abs(dx) >= this.XSensitivity) {
+				return dx > 0 ? "Right"
+				     : dx < 0 ? "Left" : ""
+			}
+
+			if (verticalSensitivityPassed := Abs(dy) >= this.YSensitivity) {
+				return dy > 0 ? "Down"
+				     : dy < 0 ? "Up" : ""
+			}
+
+			return "xyCentered"
+		}
+
+		set {
+		}
+	}
+
+	/**
+	 * 1-based gamepad index to query values from
+	 */
+	JoyIndex[] {
+		get {
+			return this.m_joyIndex
+		}
+		set {
+			this.m_joyIndex := value
+			this.m_joyHotkeyPrefix := this.m_joyIndex . "Joy"
+		}
+	}
+
+;private:
+	m_stickAxisCenteredValue := 50 ;This value reported by LS/RS in default centered position
+	m_joyIndex := 1
+	m_joyHotkeyPrefix := ""
+	m_xAxis := ""
+	m_yAxis := ""
+	m_xSensitivity := 1
+	m_ySensitivity := 1
 }
