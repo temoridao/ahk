@@ -169,6 +169,9 @@ InputBox(Title = "", Prompt = "", HIDE = "", Width = "", Height = "", X = "", Y 
 MouseGetPos(ByRef OutputVarX = "", ByRef OutputVarY = "", ByRef OutputVarWin = "", ByRef OutputVarControl = "", Mode = "") {
 	MouseGetPos, OutputVarX, OutputVarY, OutputVarWin, OutputVarControl, %Mode%
 }
+MsgBox(text:="") {
+	MsgBox, %text%
+}
 PixelGetColor(X, Y, RGB = "") {
 	PixelGetColor, v, %X%, %Y%, %RGB%
 	Return, v

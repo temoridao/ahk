@@ -308,3 +308,17 @@ FormatSeconds(NumberOfSeconds) {
 	return hmmss
 	*/
 }
+
+/**
+ * @param   hk  Hotkey with usual syntax expected by @c Hotkey builtin command
+ *
+ * @return @c false if @p hk does not exist or it has no variant for the current IfWin criteria;
+ * @c true otherwise
+ */
+HotkeyExist(hk) {
+	Hotkey, %hk%,, UseErrorLevel
+	if ErrorLevel in 5,6
+		return false
+
+	return true
+}
