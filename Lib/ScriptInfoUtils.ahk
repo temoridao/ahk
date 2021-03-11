@@ -29,7 +29,7 @@ class ScriptInfoUtils extends ImmutableClass {
 	 * Requires `#SingleInstance OFF` for script which uses this function
 	 */
 	stopScriptOtherIstances() {
-		logDebug("Stop running instance of this script (if any)")
+		logDebug("About to stop running instance(s) of this script")
 		if (A_IsCompiled) {
 			wmi := ComObjGet("winmgmts:")
 			queryEnum := wmi.ExecQuery("SELECT * FROM Win32_Process WHERE Name=""" A_ScriptName """")._NewEnum()
@@ -53,7 +53,7 @@ class ScriptInfoUtils extends ImmutableClass {
 				continue
 			}
 
-			logDebug("Exiting process (" pid ")")
+			logDebug("Stop instance (" pid ")")
 			AhkScriptController.sendCommand(winTitle, AhkScriptController.ID_FILE_EXIT)
 			WinWaitClose % winTitle,,2
 		}
