@@ -45,14 +45,16 @@ logClear() {
  *
  * @return  Array of objects representing a current stack trace entry
  */
-Traceback(actual:=false) {
-	r := [], i := 0, n := actual ? 0 : A_AhkVersion<"2" ? 1 : 2
-	Loop
-	{
+Traceback(actual := false) {
+	r := []
+	n := actual ? 0 : A_AhkVersion < "2" ? 1 : 2
+	Loop {
 		e := Exception(".", offset := -(A_Index + n))
-		if (e.What == offset)
-		break
-		r[++i] := { "file": e.file, "line": e.Line, "caller": e.What, "offset": offset + n }
+		if (e.What == offset) {
+			break
+		}
+		r[A_Index] := { "file": e.file, "line": e.Line, "caller": e.What, "offset": offset + n }
 	}
+
 	return r
 }
