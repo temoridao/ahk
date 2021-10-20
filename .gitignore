@@ -1,0 +1,13 @@
+*.sublime-project
+*.sublime-workspace
+*.bin
+*.exe
+*.state.json
+*.preprocessed.ahk
+
+Internal/*
+Shared/*
+Starter.txt
+*_injection.ahk
+
+3rdparty/Ahk2Exe/*
