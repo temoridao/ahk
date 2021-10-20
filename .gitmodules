@@ -1,0 +1,15 @@
+[submodule "3rdparty/CodeQuickTester"]
+	path = 3rdparty/CodeQuickTester
+	url = https://github.com/G33kDude/CodeQuickTester.git
+[submodule "3rdparty/Environment.ahk"]
+	path = 3rdparty/Environment.ahk
+	url = https://github.com/iseahound/Environment.ahk.git
+[submodule "3rdparty/AutoHotkey-Util"]
+	path = 3rdparty/AutoHotkey-Util
+	url = https://github.com/cocobelgica/AutoHotkey-Util.git
+[submodule "3rdparty/Ahk2Exe"]
+	path = 3rdparty/Ahk2Exe
+	url = https://github.com/AutoHotkey/Ahk2Exe.git
+[submodule "3rdparty/AutoHotkey-JSON"]
+	path = 3rdparty/AutoHotkey-JSON
+	url = https://github.com/cocobelgica/AutoHotkey-JSON.git
