@@ -169,11 +169,13 @@ scopedHotkeyIf(newFunctor := "") {
  * The hotkey will be deleted when the handle returned by this function go out of scope or there are
  * zero references to it.
  *
- * First 3 parameters are identical to `Hotkey` builtin command. The 4th parameter,
- * @p hotkeyIfFunctor, is the function name or function object for context sensitive hotkeys.
+ * First 3 parameters are identical to `Hotkey` builtin command, except @p KeyName, which can be also an array
+ * of hotkeys. The 4th parameter, @p hotkeyIfFunctor, is the function name or function object for context
+ * sensitive hotkeys.
  *
- * @param   KeyName              The key name
- * @param   Label                The label
+ * @param   KeyName              The key name. Can be an array of hotkeys which allows to bind @p Label for each
+ *                               hotkey in the array
+ * @param   Label                The label/function/functor
  * @param   Options              The options
  * @param   hotkeyIfFunctor      The HotkeIf functor/function
  *
@@ -184,8 +186,12 @@ scopedHotkey(KeyName, Label := "", Options := "", hotkeyIfFunctor := "") {
 	if (hotkeyIfFunctor) {
 		handles.Push(guardRestoreContextForHotkey := scopedHotkeyIf(hotkeyIfFunctor))
 	}
-	Hotkey(KeyName, Label, Options)
-	handles.Push(guardDisableHotkey := new ScopeGuard(Func("Hotkey").Bind(KeyName, "OFF")))
+
+	keys := IsObject(KeyName) ? KeyName : [KeyName]
+	for i, v in keys  {
+		Hotkey(v, Label, Options)
+		handles.Push(guardDisableHotkey := new ScopeGuard(Func("Hotkey").Bind(v, "OFF")))
+	}
 	return new OrderedDestructor(handles, true)
 }
 
