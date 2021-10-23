@@ -422,6 +422,25 @@ ObjToString(obj) {
 	return "<" obj.Count() ">" . StrReplace(JSON.Dump(obj,,2), "\\", "\")
 }
 
+ObjUniqueValues(ByRef obj) {
+	hashTable := {}
+	for i, v in obj
+		hashTable[v] := ""
+	return ObjKeys(hashTable)
+}
+ObjKeys(ByRef obj) {
+	result := []
+	for k in obj
+		result.Push(k)
+	return result
+}
+ObjValues(ByRef obj) {
+	result := []
+	for k, v in obj
+		result.Push(v)
+	return result
+}
+
 /**
  * Throw exception with a lot of useful information including stack trace and `A_LastError`
  * converted to human-readable string representation
