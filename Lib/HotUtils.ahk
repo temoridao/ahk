@@ -164,33 +164,36 @@ scopedHotkeyIf(newFunctor := "") {
 }
 
 /**
- * Create temporary hotkey for current function scope.
+ * Create temporary hotkey(s) in current function scope.
  *
  * The hotkey will be deleted when the handle returned by this function go out of scope or there are
  * zero references to it.
  *
- * First 3 parameters are identical to `Hotkey` builtin command, except @p KeyName, which can be also an array
- * of hotkeys. The 4th parameter, @p hotkeyIfFunctor, is the function name or function object for context
- * sensitive hotkeys.
+ * First 3 parameters are identical to `Hotkey` builtin command, except @p KeyName, which also can be an array of
+ * objects with keys `k`, `f`, `o` — `key`, `func, `options` respectively. By passing such an object, multiple temporary
+ * hotkeys can be registered; @p Label and @p Options are ignored in this case and @p hotkeyIfFunctor is shared for all
+ * hotkeys.
+ * of hotkeys. The 4th parameter, @p hotkeyIfFunctor, is the
  *
- * @param   KeyName              The key name. Can be an array of hotkeys which allows to bind @p Label for each
- *                               hotkey in the array
- * @param   Label                The label/function/functor
- * @param   Options              The options
- * @param   hotkeyIfFunctor      The HotkeIf functor/function
+ * @param   KeyName              Key name/hotkey trigger. Can also be an array of hotkeys, see function description
+ *                               for details
+ * @param   Label                Label/function/functor to bind to @p KeyName
+ * @param   Options              Hotkey options
+ * @param   hotkeyIfFunctor      The HotkeIf functor/function to enable context sensitivity for hotkeys in @p KeyName
  *
- * @return  RAII handle for newly created hotkey
+ * @return  RAII handle for newly created hotkey(s)
  */
 scopedHotkey(KeyName, Label := "", Options := "", hotkeyIfFunctor := "") {
+	triggers := IsObject(KeyName) ? KeyName : [{k: KeyName, f: Label, o: Options}]
+
 	handles := []
 	if (hotkeyIfFunctor) {
 		handles.Push(guardRestoreContextForHotkey := scopedHotkeyIf(hotkeyIfFunctor))
 	}
 
-	keys := IsObject(KeyName) ? KeyName : [KeyName]
-	for i, v in keys  {
-		Hotkey(v, Label, Options)
-		handles.Push(guardDisableHotkey := new ScopeGuard(Func("Hotkey").Bind(v, "OFF")))
+	for i, v in triggers  {
+		Hotkey(v.k, v.f, v.o)
+		handles.Push(guardDisableHotkey := new ScopeGuard(Func("Hotkey").Bind(v.k, v.f, "OFF", true)))
 	}
 	return new OrderedDestructor(handles, true)
 }
