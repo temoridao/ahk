@@ -711,6 +711,62 @@ class CommonUtils extends StaticClassBase {
 		return queryEnum[proc] ? proc.CommandLine : ""
 	}
 
+	getProcessCurrentDirectory(pid) {
+		PROCESS_QUERY_INFORMATION := 0x400, PROCESS_VM_READ := 0x10, STATUS_SUCCESS := 0
+
+		hProc := DllCall("OpenProcess", "UInt", PROCESS_QUERY_INFORMATION|PROCESS_VM_READ, "Int", 0, "UInt", pid, "UInt")
+		isWow64Proc := false
+		(A_Is64bitOS && DllCall("IsWow64Process", "Ptr", hProc, "UIntP", isWow64Proc))
+
+		PtrSize := 8, PtrType := "Int64", pPtr := "Int64P"
+		if (!A_Is64bitOS || isWow64Proc)
+			PtrSize := 4, PtrType := "UInt", pPtr := "UIntP"
+		offsetCURDIR := 4*4 + PtrSize*5
+
+		failed := false
+		hModule := DllCall("GetModuleHandle", "str", "Ntdll", "Ptr")
+		info := szPBI := offsetPEB := 0
+		if (A_PtrSize < PtrSize) {            ; <<—— script 32, target process 64
+			if (!QueryInformationProcess := DllCall("GetProcAddress", "Ptr", hModule, "AStr", "NtWow64QueryInformationProcess64", "Ptr"))
+				failed := "NtWow64QueryInformationProcess64"
+			if (!ReadProcessMemory := DllCall("GetProcAddress", "Ptr", hModule, "AStr", "NtWow64ReadVirtualMemory64", "Ptr"))
+				failed := "NtWow64ReadVirtualMemory64"
+			info := 0, szPBI := 48, offsetPEB := 8
+		} else {
+			if (!QueryInformationProcess := DllCall("GetProcAddress", "Ptr", hModule, "AStr", "NtQueryInformationProcess", "Ptr"))
+				failed := "NtQueryInformationProcess"
+			ReadProcessMemory := "ReadProcessMemory"
+			if (A_PtrSize > PtrSize)            ; <<—— script 64, target process 32
+				info := 26, szPBI := 8, offsetPEB := 0
+			else                                ; <<—— script and target process have the same bitness
+				info := 0, szPBI := PtrSize * 6, offsetPEB := PtrSize
+		}
+		if (failed) {
+			DllCall("CloseHandle", "Ptr", hProc)
+			MsgBox, Format("Failed to get pointer to {}: ", failed, ErrMsg())
+			Return
+		}
+
+		VarSetCapacity(PBI, 48, 0)
+		bytes := ""
+		if (DllCall(QueryInformationProcess, "Ptr", hProc, "UInt", info, "Ptr", &PBI, "UInt", szPBI, "UIntP", bytes) != STATUS_SUCCESS)  {
+			MsgBox % Format("Failed call to QueryInformationProcess ({:#x}): {}", QueryInformationProcess, ErrMsg())
+			DllCall("CloseHandle", "Ptr", hProc)
+			Return
+		}
+
+		pPEB := NumGet(&PBI + offsetPEB, PtrType)
+		pRUPP := szBuff := pCURDIR := ""
+		DllCall(ReadProcessMemory, "Ptr", hProc, PtrType, pPEB + PtrSize * 4, pPtr, pRUPP, PtrType, PtrSize, "UIntP", bytes)
+		DllCall(ReadProcessMemory, "Ptr", hProc, PtrType, pRUPP + offsetCURDIR, "UShortP", szBuff, PtrType, 2, "UIntP", bytes)
+		DllCall(ReadProcessMemory, "Ptr", hProc, PtrType, pRUPP + offsetCURDIR + PtrSize, pPtr, pCURDIR, PtrType, PtrSize, "UIntP", bytes)
+
+		VarSetCapacity(buff, szBuff, 0)
+		DllCall(ReadProcessMemory, "Ptr", hProc, PtrType, pCURDIR, "Ptr", &buff, PtrType, szBuff, "UIntP", bytes)
+		DllCall("CloseHandle", "Ptr", hProc)
+		Return currentDirPath := StrGet(&buff, "UTF-16")
+	}
+
 	getUniqueFilesystemPath(filePath) {
 		lastSlashPos := InStr(filePath, "`\", false, 0)
 		dotPos := InStr(filepath, ".", false, lastSlashPos ? (lastSlashPos + 1) : 0)
