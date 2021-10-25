@@ -463,10 +463,12 @@ throwException(msg) {
  * Generate string with random characters
  *
  * @param   length  The length of the resulting string
+ * @param   chars   Set of characters the resulting string will be consist of
+ *
+ * @return  String of @p length characters randomly selected from @p chars
  */
-randomString(length) {
-	Static chars := "0123456789abcdefghijklmnopqrstuvwxyz", charCount := StrLen(chars)
-
+randomString(length, chars := "0123456789abcdefghijklmnopqrstuvwxyz") {
+	charCount := StrLen(chars)
 	result := ""
 	Loop % length {
 		Random, R, 1, charCount
