@@ -113,6 +113,7 @@ FileRead(Filename) {
 	Return, v
 }
 FileReadLine(Filename, LineNum) {
+	v := ""
 	FileReadLine, v, %Filename%, %LineNum%
 	Return, v
 }
