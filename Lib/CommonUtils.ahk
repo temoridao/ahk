@@ -881,15 +881,18 @@ class CommonUtils extends StaticClassBase {
 		return ""
 	}
 
-	isDirectoryEmtpy(dirPath) {
-		empty := true
-		Loop Files, %dirPath%\*.*
-		{
-			empty := false
-			break
-		}
-
-		return empty
+	/**
+	 * Determines if directory empty
+	 *
+	 * @param   dirPath             The directory path
+	 * @param   treatFoldersAsFile  If @p dirPath contains only folders, the @p dirPath should be considered not empty?
+	 *
+	 * @return  `true` if directory empty, `false` otherwise
+	 */
+	isDirectoryEmpty(dirPath, treatFoldersAsFile := true) {
+		Loop Files, %dirPath%\*.*, % (treatFoldersAsFile ? "FD" : "F")
+			return false
+		return true
 	}
 
 	; Returns array with paths to selected files (if any) in the explorer.exe's window which
