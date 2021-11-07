@@ -81,7 +81,17 @@ FileCopyDir(Source, Dest, Overwrite:=false) {
 	FileCopyDir, %Source%, %Dest%, %Overwrite%
 }
 FileMove(SourcePattern, DestPattern, Overwrite := false) {
+	if (InStr(FileExist(SourcePattern), "D")) {
+		Throw "Use FileMoveDir to move/rename directory: """ SourcePattern """"
+	}
 	FileMove, %SourcePattern%, %DestPattern%, %Overwrite%
+}
+FileMoveDir(Source, Dest, Flag := 0) {
+	attrs := FileExist(Source)
+	if (attrs && !InStr(attrs, "D")) {
+		Throw "Use FileMove to move/rename file: """ Source """"
+	}
+	FileMoveDir %Source%, %Dest%, %Flag%
 }
 FileCreateDir(DirName) {
 	FileCreateDir %DirName%
