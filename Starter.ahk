@@ -56,7 +56,8 @@ FileEncoding UTF-8-RAW
 		, ProductName     : GetCmdParameterValue("--product-name", scriptBaseName())
 		, CompilerPath    : FileExist("Ahk2Exe.exe") ? "Ahk2Exe.exe" : A_AhkPath "\..\Compiler\Ahk2Exe.exe"
 		, EmbedAhkAds     : true
-		, AdsName         : GetCmdParameterValue("--ads-name", "AutoHotkey.exe") }
+		, AdsName         : GetCmdParameterValue("--ads-name", "AutoHotkey.exe")
+		, SkipDirPattern  : GetCmdParameterValue("--skip-dir-pattern") } ;Directory names in A_ScriptDir (non-recursive) to skip to. (regex)
 		;===============================================================================================
 ;}
 
@@ -581,6 +582,27 @@ compilePackage() {
 	Menu Tray, Tip, % A_ScriptName " (Compiling...)"
 	startTime := A_TickCount
 
+	try {
+	renamedDirectories := {} ;key -> original name; value -> new name
+	if (Config.SkipDirPattern) {
+		cRenameSuffix := "_"
+		for i, v in StrSplit(Config.SkipDirPattern, "|")
+			if (!FileExist(dirPath := A_ScriptDir "\" v))
+				return MsgBox("Aborting due to impossibility to skip non-existent directory: " quote(dirPath))
+		Loop Files, %A_ScriptDir%\*.*, D
+		{
+			if (!(A_LoopFileName ~= "i)" Config.SkipDirPattern))
+				continue
+			newDirName := A_LoopFileLongPath . cRenameSuffix
+			FileMoveDir(A_LoopFileLongPath, newDirName, "R")
+			;FileMove/FileMoveDir/FileDelete throw exception instead of setting ErrorLevel if finally{} block present.
+			;But inside finally{} block itself they set ErrorLevel again instead of throwing…
+			; if (ErrorLevel)
+			; 	return MsgBox("Error renaming " quote(A_LoopFileLongPath) ": " ErrMsg()) ;executes finally{} block
+			renamedDirectories[A_LoopFileLongPath] := newDirName
+		}
+	}
+
 	compress := useCompression()
 	OnExit("cleanTemporaryScripts") ;Ensure that intermediate scripts will be deleted even in case of exception in the code below
 	inFile := preprocessScripts()
@@ -624,13 +646,27 @@ compilePackage() {
 		                                              : Run("explorer.exe /select`, " outFile)
 	}
 	; logDebug("Deleting orphaned temporary: " quote(orphanedFile))
-	FileDelete % orphanedFile
-	if (ErrorLevel) {
-		logWarn("Error deleting file " quote(orphanedFile) ": " ErrMsg())
+	if (FileExist(orphanedFile)) {
+		FileDelete % orphanedFile
 	}
 	TrayIconUtils_removeOrphans()
 
 	return outFile
+	} catch e {
+		MsgBox % "Exception: " ObjToString(e) "`nTraceBack: " ObjToString(Traceback())
+	} finally {
+		failedRenames := {}
+		;Restore names for previously renamed directories
+		for originalName, newName in renamedDirectories {
+			FileMoveDir(newName, originalName, "R")
+			if (ErrorLevel)
+				failedRenames[originalName] := newName
+		}
+		if (failedRenames.Count()) {
+			MsgBox % "Failed to restore original names: " ObjToString(failedRenames)
+			ExitApp 1
+		}
+	}
 }
 
 preprocessScripts() {
