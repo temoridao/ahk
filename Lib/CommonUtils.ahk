@@ -554,7 +554,7 @@ class CommonUtils extends StaticClassBase {
 		Loop Files, % baseDir . (baseDir ? "\" : "") A_ScriptName ".*"
 		{
 			if (RegExMatch(A_LoopFileExt, "i)png|ico|jpg")) {
-				resultIcon := A_LoopFileFullPath
+				resultIcon := A_LoopFilePath
 				break
 			}
 		}
