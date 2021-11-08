@@ -334,7 +334,7 @@ getScriptsForBundle() {
 
 runScript(path, cmdLine := "") {
 	if (path) {
-		absolutePath := CommonUtils.makeAbsolutePath(path)
+		absolutePath := GetAbsolutePath(path)
 		scriptDir := ""
 		SplitPath(absolutePath,, scriptDir)
 		return Run(A_AhkPath " /CP65001 /restart " quote(absolutePath) . (cmdLine ? (" " cmdLine) : ""), scriptDir)
@@ -622,7 +622,7 @@ compilePackage() {
 			queryEnum := wmi.ExecQuery("SELECT * FROM Win32_Process WHERE ParentProcessId=" compilerPid)._NewEnum()
 			queryEnum[procCompilerChild] ;AutoHotkey.exe which waits in RunWait from Obey
 			if (RegExMatch(procCompilerChild.CommandLine, "~Ahk2Exe.+\.tmp")) {
-				orphanedFile := CommonUtils.makeAbsolutePath(RegExReplace(procCompilerChild.CommandLine, ".+?(\Q" A_Temp "\E\\~Ahk2Exe.+\.tmp)", "$1"))
+				orphanedFile := GetAbsolutePath(RegExReplace(procCompilerChild.CommandLine, ".+?(\Q" A_Temp "\E\\~Ahk2Exe.+\.tmp)", "$1"))
 				Process Close, % compilerPid
 				Process Close, % procCompilerChild.ProcessId
 			}

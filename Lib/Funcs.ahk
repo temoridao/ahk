@@ -101,15 +101,29 @@ RunWaitOne(command) {
 }
 
 /**
- * Resolve absolute path from relative according to A_WorkingDir
+ * Resolve absolute path from relative according to `A_WorkingDir`
  *
- * @param   path  The path, possibly relative or with ".."
+ * @param   path  The path, possibly relative or with "..", "."
  *
  * @return  The absolute path resolved from @p path
  */
-GetFullPathName(path) {
+GetAbsolutePath(path) {
 	Loop Files, % path, FD
 		return A_LoopFileLongPath
+}
+
+/**
+ * Determines if directory empty
+ *
+ * @param   dirPath             The directory path
+ * @param   treatFoldersAsFile  If @p dirPath contains only folders, the @p dirPath should be considered not empty?
+ *
+ * @return  `true` if directory empty, `false` otherwise
+ */
+isDirectoryEmpty(dirPath, treatFoldersAsFile := true) {
+	Loop Files, %dirPath%\*.*, % (treatFoldersAsFile ? "FD" : "F")
+		return false
+	return true
 }
 
 /**

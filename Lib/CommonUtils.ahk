@@ -881,20 +881,6 @@ class CommonUtils extends StaticClassBase {
 		return ""
 	}
 
-	/**
-	 * Determines if directory empty
-	 *
-	 * @param   dirPath             The directory path
-	 * @param   treatFoldersAsFile  If @p dirPath contains only folders, the @p dirPath should be considered not empty?
-	 *
-	 * @return  `true` if directory empty, `false` otherwise
-	 */
-	isDirectoryEmpty(dirPath, treatFoldersAsFile := true) {
-		Loop Files, %dirPath%\*.*, % (treatFoldersAsFile ? "FD" : "F")
-			return false
-		return true
-	}
-
 	; Returns array with paths to selected files (if any) in the explorer.exe's window which
 	; satisfy \p winTitle criteria (leave it empty to use Last Found Window)
 	getSelectionFromExplorer(winTitle := "") {
@@ -1174,13 +1160,6 @@ class CommonUtils extends StaticClassBase {
 		Run(A_AhkPath " /CP65001 /restart " quote(A_ScriptFullPath) " " cmdline)
 		ExitApp
 	}
-
-	makeAbsolutePath(path) {
-		Loop Files, %path%, FD
-		{
-			return A_LoopFileLongPath
-		}
-	}
 }
 
 class WinShell extends StaticClassBase {
@@ -1269,7 +1248,7 @@ class WinShell extends StaticClassBase {
 			;convert array of file names to string
 			str := ""
 			for k, path in pathSpec {
-				fullPath := ensureOnlyIsAbsolute ? (WinShell.isAbsolutePath(path) ? path : "") : CommonUtils.makeAbsolutePath(path)
+				fullPath := ensureOnlyIsAbsolute ? (WinShell.isAbsolutePath(path) ? path : "") : GetAbsolutePath(path)
 				if (fullPath) {
 					str .= fullPath . WinShell.cDelimiterChar
 					++filesCount
@@ -1282,7 +1261,7 @@ class WinShell extends StaticClassBase {
 			if (ensureOnlyIsAbsolute) {
 				pathSpec := WinShell.isAbsolutePath(pathSpec) ? (pathSpec . WinShell.cDelimiterChar) : ""
 			} else {
-				pathSpec := CommonUtils.makeAbsolutePath(pathSpec)
+				pathSpec := GetAbsolutePath(pathSpec)
 				if (pathSpec) {
 					pathSpec .= WinShell.cDelimiterChar
 				}
