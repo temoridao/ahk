@@ -191,6 +191,39 @@ GetCmdParameterValue(parameterName, defaultValue := "") {
 	return value
 }
 
+/**
+ * Helper to build command line for process
+ *
+ * @code{.ahk}
+   Run % "explorer.exe" cmdPar("C:\Program Files")
+   Run % "cmd" cmdPar(["/c", "explorer.exe", "C:\Program Files"])
+ * @endcode
+ *
+ * @param   cmdParam  The command line parameter, may be an array of parameters or even empty value
+ * @param   defVal    The default value in case of @p cmdParam is empty
+ * @param   quo       Is command line parameter should be quoted? Default value is "autodetect" which means the
+ *                    quotation will be applied if resulting command line parameter contains white space. All other non
+ *                    null values will apply quotation regardless off command line parameter content; on the other side.
+ *                    null value will not apply any quotation
+ *
+ *
+ * @return  Properly escaped @p cmdParam or @p defVal if former is empty with space prepended if needed
+ */
+cmdPar(cmdParam, defVal := "", quo := "autodetect") {
+	cmdParam := IsObject(cmdParam) ? cmdParam
+	                    : cmdParam ? [cmdParam]
+	                    : defVal   ? [defVal]
+	                    : ""
+	if (cmdParam) {
+		result := ""
+		for k, v in cmdParam {
+			needQuote := (quo = "autodetect") ? (v ~= "\s") : quo
+			result .= A_Space (needQuote ? quote(v) : v)
+		}
+		return result
+	}
+}
+
 FSend(keys) {
 	return Func("Send").Bind(keys)
 }
@@ -221,7 +254,7 @@ _F(funcName, params*) {
  *  - Text/Raw mode: `{Text mode}` or `{Raw mode}` where `mode` either On or Off. Allow to enable/disable `Send {Text}`
  *    or `Send {Raw}` mode in the middle of the string without need to issue separate `Send` command.
  *    Omitting `mode` enables standard behaviour: all characters (including SendEx's directives) up to end of string
- *    will be interpreted literally according to documentation of corresponding Text or Rwaw mode of `Send` command.
+ *    will be interpreted literally according to documentation of corresponding Text or Raw mode of `Send` command.
  *
  * @note {KD} and {KP} is not obeyed by SendInput; there is no delay between keystrokes in that mode.
  * @note All directives are case insensitive
