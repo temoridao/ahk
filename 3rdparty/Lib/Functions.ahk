@@ -72,7 +72,10 @@ EnvGet(EnvVarName) {
 	Return, v
 }
 FileAppend(Text := "", Filename := "", Encoding := "") {
-	FileAppend, %Text%, %Filename%, %Encoding%
+	if (Encoding)
+		FileAppend, %Text%, %Filename%, %Encoding%
+	else
+		FileAppend, %Text%, %Filename%
 }
 FileCopy(SourcePattern, DestPattern, Overwrite := false) {
 	FileCopy, %SourcePattern%, %DestPattern%, %Overwrite%
