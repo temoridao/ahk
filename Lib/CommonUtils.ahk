@@ -219,9 +219,13 @@ class CommonUtils extends StaticClassBase {
 	; Check if mouse cursor is over window matching \p winTitle and returns its hWnd or zero if no such window exist.
 	; If \p winTitle is empty, just returns hWnd of the window the mouse cursor is over now
 	; If return value is non-zero, the Last Found Window is also updated
-	MouseIsOver(winTitle := "") {
+	MouseIsOver(winTitle := "", updateLastFoundWindow := true) {
 		MouseGetPos,,, hWnd
-		return WinExist(winTitle " ahk_id " hWnd) ; ahk_id correctly handles one or more leading spaces (if winTitle is empty for example)
+		lastFoundHwnd := WinExist()
+		mouseOverHwnd := WinExist(winTitle " ahk_id " hWnd) ; ahk_id correctly handles one or more leading spaces (if winTitle is empty for example)
+		if (!updateLastFoundWindow)
+			WinExist("ahk_id" lastFoundHwnd)
+		return mouseOverHwnd
 	}
 
 	MouseIsOverTaskbar() {
