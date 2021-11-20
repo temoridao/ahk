@@ -575,3 +575,6 @@ strAlloc(charactersCount, initialValue := "") {
 
 	return str
 }
+chop(ByRef str, charCount := 1) {
+	return str := SubStr(str, 1, StrLen(str) - charCount)
+}
