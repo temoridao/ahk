@@ -576,5 +576,7 @@ strAlloc(charactersCount, initialValue := "") {
 	return str
 }
 chop(ByRef str, charCount := 1) {
-	return str := SubStr(str, 1, StrLen(str) - charCount)
+	return str := charCount > 0 ? SubStr(str, 1, StrLen(str) - charCount) ;chop from end
+	            : charCount < 0 ? SubStr(str, charCount)                  ;chop from begin
+	            : str                                                     ;return unmodified in case of 0 characters
 }
