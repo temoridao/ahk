@@ -882,7 +882,6 @@ class CommonUtils extends StaticClassBase {
 				return window.Document.Folder.Self.Path
 			}
 		}
-		return ""
 	}
 
 	; Returns array with paths to selected files (if any) in the explorer.exe's window which
