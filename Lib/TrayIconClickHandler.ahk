@@ -27,6 +27,11 @@ class TrayIconClickHandler
 
 ;public:
 	__New(callbacksMap, maxDelayBetweenClicks := 200) {
+		;Check if click count is explicitly specified for each mouse button
+		for key, value in callbacksMap
+			if (StrLen(key) = 1)
+				throw Exception("Number of clicks not found for mouse button """ key """" )
+
 		this.m_callbacksMap := callbacksMap
 		this.m_maxDelayBetweenClicks := maxDelayBetweenClicks
 
