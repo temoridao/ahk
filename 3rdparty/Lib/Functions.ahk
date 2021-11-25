@@ -277,6 +277,10 @@ SendMessage(Msg, wParam:="", lParam:="", Control:="", WinTitle:="", WinText:="",
 SetTimer(Label := "", PeriodOnOff := "", Priority := "") { ; Known limitation: passing -0 as 'Period' do not honor minus, so you need to pass -1 or "-0" (as string, in double quotes)
 	SetTimer, %Label%, %PeriodOnOff%, %Priority%
 }
+SetTitleMatchMode(MatchModeOrSpeed) {
+	static sModeMap := {"start": 1, "contain": 2, "exact": 3}
+	SetTitleMatchMode % sModeMap.HasKey(MatchModeOrSpeed) ? sModeMap[MatchModeOrSpeed] : MatchModeOrSpeed
+}
 Sleep(DelayInMilliseconds) {
 	Sleep DelayInMilliseconds
 }
