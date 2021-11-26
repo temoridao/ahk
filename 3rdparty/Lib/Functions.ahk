@@ -222,6 +222,9 @@ InputBox(Title = "", Prompt = "", HIDE = "", Width = "", Height = "", X = "", Y 
 	InputBox, v, %Title%, %Prompt%, %HIDE%, %Width%, %Height%, %X%, %Y%, , %Timeout%, %Default%
 	Return, v
 }
+KeyWait(KeyName, Options:="") {
+	KeyWait, %KeyName%, %Option%
+}
 MouseGetPos(ByRef OutputVarX = "", ByRef OutputVarY = "", ByRef OutputVarWin = "", ByRef OutputVarControl = "", Mode = "") {
 	MouseGetPos, OutputVarX, OutputVarY, OutputVarWin, OutputVarControl, %Mode%
 }
@@ -428,8 +431,4 @@ WinClose(WinTitle = "", WinText = "", SecondsToWait = "", ExcludeTitle = "", Exc
 
 WinMinimizeAll() {
 	WinMinimizeAll
-}
-
-KeyWait(KeyName, Options:="") {
-	KeyWait, %KeyName%, %Option%
 }
