@@ -5,6 +5,7 @@
 
 #include %A_LineFile%\..\AVarValuesRollback.ahk
 #include %A_LineFile%\..\StaticClassBase.ahk
+#include %A_LineFile%\..\..\3rdparty\Lib\Functions.ahk
 
 /**
  * Allows to send command to any running script
@@ -31,13 +32,9 @@ class AhkScriptController extends StaticClassBase
 			PostMessage AhkScriptController.WM_COMMAND, AhkScriptController.ID_FILE_SUSPEND,,, % title
 		}
 	}
-
-	togglePause(winTitle) {
-		for each, title in this.resolveWinTitle(winTitle) {
-			PostMessage AhkScriptController.WM_COMMAND, AhkScriptController.ID_FILE_PAUSE,,, % title
-		}
+	isSuspended(winTitle) {
+		return this.ahkWinIsSuspended(WinGet("ID", winTitle))
 	}
-
 	setSuspend(winTitle, newState) {
 		for each, title in this.resolveWinTitle(winTitle) {
 			currentState := this.ahkWinIsSuspended(WinGet("ID", title))
@@ -53,6 +50,11 @@ class AhkScriptController extends StaticClassBase
 			if (currentState != newState) {
 				this.togglePause(title)
 			}
+		}
+	}
+	togglePause(winTitle) {
+		for each, title in this.resolveWinTitle(winTitle) {
+			PostMessage AhkScriptController.WM_COMMAND, AhkScriptController.ID_FILE_PAUSE,,, % title
 		}
 	}
 
@@ -153,11 +155,11 @@ class AhkScriptController extends StaticClassBase
 	 */
 
 	ahkWinIsSuspended(hWnd) {
-		return this.ahkWinGetMenuState(AhkScriptController.ID_FILE_SUSPEND, hWnd)
+		return WinExist("ahk_class AutoHotkey ahk_id" hWnd) ? this.ahkWinGetMenuState(AhkScriptController.ID_FILE_SUSPEND, hWnd) : 0
 	}
 
 	ahkWinIsPaused(hWnd) {
-		return this.ahkWinGetMenuState(AhkScriptController.ID_FILE_PAUSE, hWnd)
+		return return WinExist("ahk_class AutoHotkey ahk_id" hWnd) ? this.ahkWinGetMenuState(AhkScriptController.ID_FILE_PAUSE, hWnd) : 0
 	}
 
 	ahkWinGetMenuState(ahkWindowMenuId, hWnd) {
