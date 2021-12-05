@@ -580,3 +580,18 @@ chop(ByRef str, charCount := 1) {
 	            : charCount < 0 ? SubStr(str, charCount)                  ;chop from begin
 	            : str                                                     ;return unmodified in case of 0 characters
 }
+
+/**
+ * Get timezone UTC offset
+ *
+ * If @p time is specified, it is used instead of current local time (`A_NOW`)
+ *
+ * @param   time  The timestamp in standard `YYYYMMDDHH24MISS` format
+ *
+ * @return  Timezone UTC offset as a negative or positive number
+ */
+utcOffset(time := "") {
+	t := time ? time : A_Now
+	t-=A_NowUTC, hours
+	return t
+}
