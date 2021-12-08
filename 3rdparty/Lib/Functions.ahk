@@ -98,6 +98,7 @@ FileMoveDir(Source, Dest, Flag := 0) {
 }
 FileCreateDir(DirName) {
 	FileCreateDir %DirName%
+	return DirName
 }
 FileCreateShortcut(Target, LinkFile, WorkingDir:="", Args:="", Description:="", IconFile:="", ShortcutKey:="", IconNumber:="", RunState:="") {
 	FileCreateShortcut %Target%, %LinkFile%, %WorkingDir%, %Args%, %Description%, %IconFile%, %ShortcutKey%, %IconNumber%, %RunState%
