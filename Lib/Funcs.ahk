@@ -202,9 +202,8 @@ GetCmdParameterValue(parameterName, defaultValue := "") {
  * @param   cmdParam  The command line parameter, may be an array of parameters or even empty value
  * @param   defVal    The default value in case of @p cmdParam is empty
  * @param   quo       Is command line parameter should be quoted? Default value is "autodetect" which means the
- *                    quotation will be applied if resulting command line parameter contains white space. All other non
- *                    null values will apply quotation regardless off command line parameter content; on the other side.
- *                    null value will not apply any quotation
+ *                    quotation will be applied if current command line parameter contains white space. All other non
+ *                    null values of @p quo will apply quotation regardless off command line parameter content.
  *
  *
  * @return  Properly escaped @p cmdParam or @p defVal if former is empty with space prepended if needed
