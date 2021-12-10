@@ -594,3 +594,16 @@ utcOffset(time := "") {
 	t-=A_NowUTC, hours
 	return t
 }
+/**
+ * Get Unix time
+ *
+ * @param   TimeUnits  Can be `seconds` (default), `minutes`, `hours`, `days` according to built-in EnvAdd/EnvSub
+ *                     commands
+ *
+ * @return  Unix time according to @p TimeUnits requested
+ */
+unixTimestamp(TimeUnits := "seconds") {
+	nowUTC := A_NowUTC
+	nowUTC -= 19700101000000, %TimeUnits%
+	return nowUTC
+}
