@@ -318,6 +318,27 @@ class CommonUtils extends StaticClassBase {
 		return result
 	}
 
+	/**
+	 * Sends text through clipboard instead of direct `Send` command
+	 *
+	 * This has an advantage over direct `Send` in that this action is atomic from text editors' point of view and can be
+	 * undo/redo by a single ^z or ^y or similar.
+	 *
+	 * NOTE: original clipboard content is restored after operation
+	 *
+	 * @param   content  The content to send
+	 */
+	sendThroughClipboard(content) {
+		if (!content) {
+			return
+		}
+		clipSaved := ClipboardAll
+		Clipboard := content
+		Send ^v
+		Sleep 50
+		Clipboard := clipSaved
+	}
+
 	getFirstExistingPath(pathList, throwIfNotFound := true) {
 		for i, v in pathList
 			if (FileExist(v))
