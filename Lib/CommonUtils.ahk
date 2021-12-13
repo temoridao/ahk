@@ -216,6 +216,15 @@ class CommonUtils extends StaticClassBase {
 		WinActivate ahk_class Progman|WorkerW
 	}
 
+	isWindowHidden(winTitle := "") {
+		raiiLastFoundWnd := avarguard("A_LastFoundWindow")
+		raii := avarguard("A_DetectHiddenWindows=OFF")
+		hiddenOffHwnd := WinExist(winTitle)
+		raii := avarguard("A_DetectHiddenWindows=ON")
+		hiddenOnHwnd := WinExist(winTitle)
+		return !hiddenOffHwnd && hiddenOnHwnd
+	}
+
 	; Check if mouse cursor is over window matching \p winTitle and returns its hWnd or zero if no such window exist.
 	; If \p winTitle is empty, just returns hWnd of the window the mouse cursor is over now
 	; If return value is non-zero, the Last Found Window is also updated
