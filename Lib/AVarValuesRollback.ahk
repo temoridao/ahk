@@ -9,21 +9,33 @@
  * object construction time and restore their previous values upon destruction. Very useful for
  * library code which generally should not change A_-variables as a side effect.
  *
- * The line:
+ * @note AVarValuesRollback recognizes additional variable `A_LastFoundWndow` which is used to save & restore
+ *       "last found window" which may be changed by WinExist()/WinWait/etc built-in commands. This is a way to ensure
+ *       that client code still has its "last found window" unchanged after calling your library function for example
+ *
+ * The function:
  * @code{.ahk}
-   raii := new AVarValuesRollback("A_TitleMatchMode=RegEx|A_BatchLines=44|A_WinDelay=96")
-   ;...
+ * fun() {
+   	raii := new AVarValuesRollback("A_TitleMatchMode=RegEx|A_BatchLines=44|A_LastFoundWindow|A_WinDelay=96")
+   	;…Your code…
+ * }
  * @endcode
  *
  * Is equivalent to:
  * @code{.ahk}
-   prevTitleMatchMode := A_TitileMatchMode
-   prevBatchLines := A_BatchLines
-   prevWinDelay := A_WinDelay
-   ;...
-   SetTitleMatchMode %prevTitleMatchMode%
-   SetBatchLines %prevBatchLines%
-   SetWinDelay %prevWinDelay%
+ * notSoFun() {
+   	prevTitleMatchMode := A_TitileMatchMode
+   	prevBatchLines := A_BatchLines
+   	prevLastFoundWindow := WinExist()
+   	prevWinDelay := A_WinDelay
+
+   	;…Your code…
+
+   	SetTitleMatchMode %prevTitleMatchMode%
+   	SetBatchLines %prevBatchLines%
+   	WinExist("ahk_id" prevLastFoundWindow)
+   	SetWinDelay %prevWinDelay%
+ * }
  * @endcode
  *
  * @warning Avoid using multiple AVarValuesRollback objects **for same A_-varibale** inside the same
@@ -64,9 +76,13 @@ class AVarValuesRollback {
 			pos := InStr(A_LoopField, "=")
 			hasNewValueToSet := pos != 0
 
-			varName := hasNewValueToSet ? SubStr(A_LoopField, 1, pos-1) : A_LoopField ; varName contains string like "A_BatchLines"
-			this.m_storage[varName] := %varName% ; Remember current value; statement '%varName%' retrieves actual value from f.e. A_BatchLines builitin variable
-
+			varName := hasNewValueToSet ? SubStr(A_LoopField, 1, pos-1) : A_LoopField ;varName contains string like "A_BatchLines"
+			;Remember current value; statement '%varName%' retrieves actual value from f.e. A_BatchLines builitin variable.
+			;A_LastFoundWindow is a special case and handled explicitly.
+			if (varName = "A_LastFoundWindow")
+				this.m_storage[varName] := WinExist()
+			else
+				this.m_storage[varName] := %varName%
 			if (hasNewValueToSet) {
 				newValue := SubStr(A_LoopField, pos+1) ; Assume that all after '=' is a new value for variable
 				this[SubStr(varName, 3)](newValue) ; Set new value for builtin variable by dynamically calling one of our wrapper methods below (more about dynamic method calling: https://www.autohotkey.com/docs/Objects.htm#Usage_Objects)
@@ -132,6 +148,10 @@ class AVarValuesRollback {
 
 	SendMode(val) {
 		SendMode % val
+	}
+
+	LastFoundWindow(val) {
+		WinExist("ahk_id" val)
 	}
 
 	m_storage := {}
