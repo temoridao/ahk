@@ -180,7 +180,7 @@ class CommonUtils extends StaticClassBase {
 
 	getWinGeometry(winTitle := "") {
 		WinGetPos winX, winY, winW, winH, % winTitle
-		return new this.WinGeometry(winX, winY, winW, winH)
+		return new CommonUtils.WinGeometry(winX, winY, winW, winH)
 	}
 
 	windowInfo(winTitle := "") {
@@ -239,7 +239,7 @@ class CommonUtils extends StaticClassBase {
 
 	MouseIsOverTaskbar() {
 		raii := new AVarValuesRollback("A_TitleMatchMode=RegEx")
-		return this.MouseIsOver("ahk_class Shell_TrayWnd|Shell_SecondaryTrayWnd")
+		return CommonUtils.MouseIsOver("ahk_class Shell_TrayWnd|Shell_SecondaryTrayWnd")
 	}
 
 	MouseIsOverControl(controlClass) {
@@ -492,7 +492,7 @@ class CommonUtils extends StaticClassBase {
 		}
 		Gui Font, % fontOptions ;update font options
 		GuiControl Font, % sHwndVolumeText ;set updated options for control's handle
-		this.SetTextAndResize(sHwndVolumeText, pTextToDisplay, fontOptions)
+		CommonUtils.SetTextAndResize(sHwndVolumeText, pTextToDisplay, fontOptions)
 		Gui Show, Center x%pTextX% y%pTextY% AutoSize NoActivate
 
 		;---
@@ -1008,7 +1008,7 @@ class CommonUtils extends StaticClassBase {
 	; To set new and restore original wallpaper on script exit, add the following to your script auto-execute section:
 	;     OnExit(ObjBindMethod(CommonUtils, "setDesktopWallpaper", CommonUtils.setDesktopWallpaper("c:\full\path\to\wallpaper.jpg")))
 	setDesktopWallpaper(wallpaperPath := "") {
-		originalWallpaper := this.desktopWallpaper()
+		originalWallpaper := CommonUtils.desktopWallpaper()
 
 		SPIF_UPDATEINIFILE   := 0x1 ; writes change to user profile (ensures change is persistent until next call to SystemParametersInfo())
 		SPIF_SENDCHANGE      := 0x2 ; broadcasts WM_SETTINGSCHANGE to all top level windows
