@@ -356,23 +356,20 @@ class CommonUtils extends StaticClassBase {
 			throwException("Cannot find any existing file in " ObjToString(pathList))
 	}
 
-	;Enables close button again
-	redrawSysMenu(hWnd := "") {
-		if (!hWnd) {
+	setWinCloseButtonEnabled(enabled, hWnd:="") {
+		if (!hWnd)
 			hWnd := WinExist()
-		}
 
-		DllCall("GetSystemMenu", "Int",hWnd, "Int",true)
-		DllCall("DrawMenuBar", "Int",hWnd)
+		winTitle := "ahk_id" hWnd
+		title := WinGetTitle(winTitle)
+		hasMarker := InStr(title, CommonUtils.Constants.PinnedWindowMark)
 
-		winTitle := WinGetTitle()
-		if (InStr(winTitle, this.Constants.PinnedWindowMark)) {
-			WinSetTitle % RegExReplace(winTitle, this.Constants.PinnedWindowMark,,1)
-		}
-	}
-	disableCloseButton(hWnd := "") {
-		if (!hWnd) {
-			hWnd := WinExist()
+		if (enabled) {
+			DllCall("GetSystemMenu", "Int",hWnd, "Int",true)
+			DllCall("DrawMenuBar", "Int",hWnd)
+			if (hasMarker)
+				WinSetTitle, %winTitle%,, % StrReplace(title, CommonUtils.Constants.PinnedWindowMark,,,1)
+			return
 		}
 
 		hSysMenu := DllCall("GetSystemMenu", "Int", hWnd, "Int", false)
@@ -380,22 +377,14 @@ class CommonUtils extends StaticClassBase {
 		DllCall("RemoveMenu", "Int", hSysMenu, "UInt", nCnt-1, "Uint", "0x400")
 		DllCall("RemoveMenu", "Int", hSysMenu, "UInt", nCnt-2, "Uint", "0x400")
 		DllCall("DrawMenuBar", "Int", hWnd)
-
-		winTitle := "ahk_id" hWnd
-		title := WinGetTitle(winTitle)
-		if (InStr(title, this.Constants.PinnedWindowMark)) {
-			return
-		}
-
-		WinSetTitle, %winTitle%,, % this.Constants.PinnedWindowMark . title
+		if (!hasMarker)
+			WinSetTitle, %winTitle%,, % CommonUtils.Constants.PinnedWindowMark . title
 	}
 
 	allowWindowClose(hWnd := "") {
-		if (!hWnd) {
+		if (!hWnd)
 			hWnd := WinExist()
-		}
-
-		return !InStr(WinGetTitle(), this.Constants.PinnedWindowMark)
+		return !InStr(WinGetTitle(), CommonUtils.Constants.PinnedWindowMark)
 	}
 
 	/**
