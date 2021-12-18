@@ -309,6 +309,12 @@ SendEx(ByRef keys) {
 	SetKeyDelay, %initialKeyDelay%, %initialKeyDuration%
 	return
 }
+SendWithLevel(ByRef keys, level := 1) {
+	prevLevel := A_SendLevel
+	SendLevel level
+	Send % keys
+	SendLevel prevLevel
+}
 
 ProcessExist(pidOrName := "") {
 	Process Exist, % pidOrName

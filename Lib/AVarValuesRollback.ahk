@@ -91,18 +91,15 @@ class AVarValuesRollback {
 	}
 
 	__Delete() {
-		; MsgBox % "Start restoring A_-variables:`n`n" ObjToString(this.m_storage)
-		for varName, varVal in this.m_storage {
+		for varName, varVal in this.m_storage
 			this[SubStr(varName, 3)](varVal)
-		}
 	}
 
 	__Call(methodName, args*) {
-		if (!IsFunc(this[methodName])) {
+		if (!IsFunc(this[methodName]))
 			Throw "You're trying to remember value of 'A_" methodName "' variable, but method '" methodName
 			    . "(val)' doesn't exist in class '" this.__Class
 			    . "'. Please, add the missing method and try again."
-		}
 	}
 
 	StoredValue[varNameString]
@@ -133,25 +130,23 @@ class AVarValuesRollback {
 	} CoordModeMenu(val) {
 		CoordMode Menu, % val
 	}
-
 	TitleMatchMode(val) {
 		SetTitleMatchMode % val
 	}
-
 	WinDelay(val) {
 		SetWinDelay % val
 	}
-
 	DetectHiddenWindows(val) {
 		DetectHiddenWindows % val
 	}
-
 	SendMode(val) {
 		SendMode % val
 	}
-
 	LastFoundWindow(val) {
 		WinExist("ahk_id" val)
+	}
+	SendLevel(level) {
+		SendLevel level
 	}
 
 	m_storage := {}
