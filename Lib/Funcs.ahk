@@ -580,6 +580,7 @@ strAlloc(charactersCount, initialValue := "") {
 
 	return str
 }
+;WARN: ByRef of @p str doesn't work for object properties! Assignment should be used instead: obj.prop := chop(obj.prop)
 chop(ByRef str, charCount := 1) {
 	return str := charCount > 0 ? SubStr(str, 1, StrLen(str) - charCount) ;chop from end
 	            : charCount < 0 ? SubStr(str, charCount)                  ;chop from begin
