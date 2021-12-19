@@ -56,7 +56,7 @@ class TextInputCollector {
 		; logDebug("keyName: {}", keyName)
 		this := object(instanceAddress)
 
-		static ignoredKeys := "i)Space|Tab|Enter|Shift|Caps"
+		static ignoredKeys := "i)Space|Tab|Enter|Shift|Caps|Delete"
 		if (keyName = "Backspace") {
 			this.m_textInputBuffer := SubStr(this.m_textInputBuffer, 1, StrLen(this.m_textInputBuffer) - 1)
 		} else if (!(keyName ~= ignoredKeys)) {
