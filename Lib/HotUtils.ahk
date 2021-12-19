@@ -132,7 +132,7 @@ HotstringExist(hs) {
  *
    ;prints "test" or "quest" depending on executed hotstring
    :*x?C:test::
-   :*x?C:quest::MsgBox % hotstringTrigger()
+   :*x?C:quest::MsgBox % normalizedHotstringTrigger()
  *
  * @endcode
  *
@@ -140,8 +140,14 @@ HotstringExist(hs) {
  *
  * @return  Hostring's trigger cleaned up from options
  */
-hotstringTrigger(hs := "") {
+normalizedHotstringTrigger(hs := "") {
 	return RegexReplace(hs ? hs : A_ThisHotkey, ":.*?:(.+)$", "$1")
+}
+/**
+ * The same as @ref normalizedHotstringTrigger() but for hotkeys
+ */
+normailizedHotkeyTrigger(hk := "") {
+	return RegExReplace(hk ? hk : A_ThisHotkey, "i)(?:[~#!<>\*\+\^\$]*([^ ]+)(?: UP)?)$", "$1")
 }
 
 /**
@@ -283,7 +289,7 @@ HandleMultiPressHotkey(pressHandlers, keyWaitDelayMax := 150, keyWaitDelayMin :=
 		Throw "Invalid keyWaitDelayMin"
 	}
 
-	strippedHotkey := RegExReplace(A_ThisHotkey, "i)(?:[~#!<>\*\+\^\$]*([^ ]+)(?: UP)?)$", "$1")
+	strippedHotkey := normailizedHotkeyTrigger()
 	if (preserveOriginalKeyOnEmptyHandlers && InStr(A_ThisHotkey, "joy")) {
 		preserveOriginalKeyOnEmptyHandlers := false
 	}
