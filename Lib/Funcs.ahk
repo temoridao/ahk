@@ -88,6 +88,33 @@ RunAsAdmin(Target, WorkingDir := "", Mode := "") {
 }
 
 /**
+ * Dynamically create hotkey remapping
+ *
+ * @code{.ahk}
+   ;Remap ^k => ^f
+   HotkeyRemap("^k::^f")
+ * @endcode
+ *
+ * Pass `true` to `swap` parameter, to register reverse remap also
+ * @code{.ahk}
+   ;Remap ^k => ^f AND ^f => ^k. In other words: ^k <=> ^f
+   HotkeyRemap("^k::^f",,, true)
+ * @endcode
+ *
+ * NOTE: As of AutoHotkey v1.1.33.09 this functionality is not supported by built-in `Hotkey` command/function
+ *
+ */
+HotkeyRemap(KeyName, Options := "", allowOverwriteLabel := false, swap := false) {
+	if (!InStr(KeyName, "::"))
+		throwException("Only remap supported in this function, f.e. " quote("^k::^f"))
+	RegexMatch(KeyName, "O)(.*)::(.*)$", m)
+	useHookPrefix := swap ? "$" : "" ;Prevent recursive triggering
+	Hotkey(useHookPrefix . m.value(1), FSendEx(m.value(2)), Options, allowOverwriteLabel)
+	if (swap)
+		Hotkey(useHookPrefix . m.value(2), FSendEx(m.value(1)), Options, allowOverwriteLabel)
+}
+
+/**
  * Execute command and get its stdout
  *
  * @param   command  The command
