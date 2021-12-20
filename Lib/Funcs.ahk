@@ -242,11 +242,11 @@ _F(funcName, params*) {
  *   keys; may be prefixed with `-` sign due `Sleep` command supports -1 delay.
  *
  * - Key Delay: `{KD N}`, where N is equivalent to first parameter of builtin `SetKeyDelay` command.
- *   May be prefixed with `-` sign. Omit N to restore value of `A_KeyDelay` as it was before
+ *   May be prefixed with `-` sign. Omit `N` to restore value of `A_KeyDelay` as it was before
  *   calling SendEx. `A_KeyDelay` value restored when this function returns.
  *
  * - Key press duration: `{KP N}`, where N is equivalent to second parameter of builtin
- *   `SetKeyDelay` command. May be prefixed with `-` sign. Omit N to restore value of
+ *   `SetKeyDelay` command. May be prefixed with `-` sign. Omit `N` to restore value of
  *   `A_KeyDuration` as it was before calling SendEx. `A_KeyDuration` value restored when this
  *   function returns.
  *
@@ -254,6 +254,9 @@ _F(funcName, params*) {
  *    or `Send {Raw}` mode in the middle of the string without need to issue separate `Send` command.
  *    Omitting `mode` enables standard behaviour: all characters (including SendEx's directives) up to end of string
  *    will be interpreted literally according to documentation of corresponding Text or Raw mode of `Send` command.
+ *
+ *  - Send level: `{SLV N}` where `N` is a digit parameter for SendLevel built-in command. Omit `N` to restore value of
+ *   `A_SendLevel` as it was before calling SendEx. `A_SendLevel` value restored when this function returns.
  *
  * @note {KD} and {KP} is not obeyed by SendInput; there is no delay between keystrokes in that mode.
  * @note All directives are case insensitive
@@ -273,12 +276,15 @@ _F(funcName, params*) {
 SendEx(ByRef keys) {
 	initialKeyDelay := A_KeyDelay
 	initialKeyDuration := A_KeyDuration
+	initialSendLevel := A_SendLevel
 
 	static cDirectivesRegex := "iOS)"
 	  .      "\{SL ?(?P<sleepDuration>-?\d+)\}"
 	  . "|"  "\{KD ?(?P<keyDelay>-?\d*)\}"
 	  . "|"  "\{KP ?(?P<keyDuration>-?\d*)\}"
 	  . "|"  "\{(?P<textMode>Text|Raw)\s*(?P<textModeToggle>(ON|OFF)?)\}"
+	  . "|"  "\{SLV ?(?P<sendLevel>\d+)\}"
+
 
 	textMode := ""
 	pos := 1
@@ -299,6 +305,8 @@ SendEx(ByRef keys) {
 				Goto SendExFinalize
 		} else if (m.Pos("keyDuration")) {
 			SetKeyDelay,, % (v := m.value("keyDuration")) ? v : initialKeyDuration
+		} else if (m.Pos("sendLevel")) {
+			SendLevel % (v := m.value("sendLevel")) ? v : initialSendLevel
 		}
 	}
 
@@ -307,6 +315,7 @@ SendEx(ByRef keys) {
 		Send % textMode . textLastChunk
 	}
 	SetKeyDelay, %initialKeyDelay%, %initialKeyDuration%
+	SendLevel % initialSendLevel
 	return
 }
 SendWithLevel(ByRef keys, level := 1) {
