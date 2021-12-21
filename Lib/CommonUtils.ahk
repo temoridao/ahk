@@ -100,7 +100,7 @@ class CommonUtils extends StaticClassBase {
 	 * @return  An array, each element of which is a path that cannot be restored (or partially
 	 *          restored if @c "A" option specified in @p options)
 	 */
-	reopenExplorerWindows(pathAndWinGeometry, options := "") {
+	openExplorerWindows(pathAndWinGeometry, options := "") {
 		raii := new AVarValuesRollback("A_TitleMatchMode=3") ; Exact title match
 		optTryOpenNearestDirectory := InStr(options, "A")
 

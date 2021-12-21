@@ -316,7 +316,7 @@ class ClosedWindowsCollector extends Serializable {
 		data := row > 0 ? this.m_savedWindowsInfo[row] : this.m_savedWindowsInfo.Pop()
 		if (this.m_openWindowCallback)
 			return this.m_openWindowCallback.Call(data.path)
-		failedToOpenList := CommonUtils.reopenExplorerWindows([data], "A")
+		failedToOpenList := CommonUtils.openExplorerWindows([data], "A")
 		if (failedToOpenList.Length())
 			CommonUtils.ShowToolTip("Failed to restore folder: " failedToOpenList[1], 5000)
 		if (this.m_ui)
