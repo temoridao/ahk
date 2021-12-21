@@ -73,7 +73,7 @@ class CommonUtils extends StaticClassBase {
 	 * Restores explorer.exe's directories from @p pathAndWinGeometry on the screen, creating new
 	 * instances or restoring already opened windows.
 	 *
-	 * The @p pathAndWinGeometry is an array of objects and has the following structure
+	 * The @p pathAndWinGeometry can be a simple path string or an array of objects with the following structure
 	 * (@c geometry and @c selectedFiles keys are optional):
 	 * @code
 	   "pathAndWinGeometry": [{
@@ -103,6 +103,8 @@ class CommonUtils extends StaticClassBase {
 	openExplorerWindows(pathAndWinGeometry, options := "") {
 		raii := new AVarValuesRollback("A_TitleMatchMode=3") ; Exact title match
 		optTryOpenNearestDirectory := InStr(options, "A")
+		if (!IsObject(pathAndWinGeometry))
+			pathAndWinGeometry := [{path: pathAndWinGeometry}]
 
 		nonExistentFoldersIndices := []
 		for i, value in pathAndWinGeometry {
