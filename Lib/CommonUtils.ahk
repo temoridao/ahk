@@ -154,9 +154,7 @@ class CommonUtils extends StaticClassBase {
 
 		return listOfFailedFolders
 	}
-	reopenExplorerWindow(path, winGeom := "", selectedFile := "", options := "") {
-		return CommonUtils.reopenExplorerWindows([{path : path, geometry: winGeom, selectedFiles: [selectedFile]}], options)
-	}
+
 	; Special folders like "This PC", "Control Panel", etc which represented as CLSID values f.e. ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}
 	isSpecialFolder(path) {
 		return InStr(path, "::{")

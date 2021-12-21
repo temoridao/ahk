@@ -96,6 +96,10 @@ class ClosedWindowsCollector extends Serializable {
 		this.m_isRunning := false
 	}
 
+	setOpenExplorerPathCallback(callback) {
+		this.m_openWindowCallback := IsObject(callback) ? callback : Func(callback)
+	}
+
 	setKeySequence(keySequenceReopenSavedWindow := "", keySequenceShowSavedWindowsSummary := "") {
 		if (!keySequenceReopenSavedWindow && !keySequenceShowSavedWindowsSummary) {
 			return
@@ -307,16 +311,16 @@ class ClosedWindowsCollector extends Serializable {
 
 	restoreClosedFileExplorerWindow(thisObjAddress, row := 0) {
 		this := object(thisObjAddress)
-
-		if (this.m_savedWindowsInfo.Length()) {
-			failedToOpenList :=  row > 0 ? CommonUtils.reopenExplorerWindow(this.m_savedWindowsInfo[row].path, this.m_savedWindowsInfo[row].geometry, "", "A") : CommonUtils.reopenExplorerWindows([this.m_savedWindowsInfo.Pop()], "A")
-			if (failedToOpenList.Length()) {
-				CommonUtils.ShowToolTip("Failed to restore folder: " failedToOpenList[1], 5000)
-			}
-		}
-		if (this.m_ui) {
+		if (!this.m_savedWindowsInfo.Length())
+			return
+		data := row > 0 ? this.m_savedWindowsInfo[row] : this.m_savedWindowsInfo.Pop()
+		if (this.m_openWindowCallback)
+			return this.m_openWindowCallback.Call(data.path)
+		failedToOpenList := CommonUtils.reopenExplorerWindows([data], "A")
+		if (failedToOpenList.Length())
+			CommonUtils.ShowToolTip("Failed to restore folder: " failedToOpenList[1], 5000)
+		if (this.m_ui)
 			this.m_ui.refresh()
-		}
 	}
 
 	showSavedWindowsSummary(thisObjAddress) {
@@ -342,6 +346,7 @@ class ClosedWindowsCollector extends Serializable {
 	m_ui                                 := "" ;instance of WindowGroupsSummaryUi class
 	m_isRunning                          := false
 	m_savedWindowsInfo                   := []
+	m_openWindowCallback                 := ""
 	m_savedWindowsCountLimit             := 0
 	m_windowDestroyEventsWatcher         := {}
 	m_keySequenceReopenSavedWindow       := "" ; hotkey to open recent window
