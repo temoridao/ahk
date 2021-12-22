@@ -1141,24 +1141,25 @@ class CommonUtils extends StaticClassBase {
 	 *                          current script
 	 * @param   titleMatchMode  This title match mode will be applied with SetTitleMatchMode before
 	 *                          searching for a script with title @p scriptWinTitle
+	 * @param   pCmdLine        Command line parameters to pass to reloaded script. Omit to preserve script's existing
+	 *                          command line
 	 *
 	 * @return  Process id of the new script instance or zero if error happens
 	 */
-	reloadScriptPreserveCmdLine(scriptWinTitle := "", titleMatchMode := "2") {
+	reloadScript(scriptWinTitle := "", pCmdLine := "", titleMatchMode := "2") {
 		raii := new AVarValuesRollback("A_DetectHiddenWindows=ON|A_TitleMatchMode=" titleMatchMode)
 
 		if (scriptWinTitle) {
 			if (!(WinGetClass(scriptWinTitle) ~= "AutoHotkey|AutoHotkeyGUI")) {
 				return 0
 			}
-
 			queryEnum := ComObjGet("winmgmts:").ExecQuery("SELECT * FROM Win32_Process WHERE ProcessId=" WinGet("PID", scriptWinTitle))._NewEnum()
 			proc := {}
 			if (queryEnum[proc]) {
 				static cNeedle := "isO)AutoHotkey.exe""?"
 				if (pos := RegExMatch(proc.CommandLine, cNeedle, m)) {
-					cmdLine := SubStr(proc.CommandLine, 1, pos + m.Len()) " /restart "
-					         . SubStr(proc.CommandLine,    pos + m.Len())
+					cmdLine := SubStr(proc.CommandLine, 1, pos + m.Len()) " /CP65001 /restart "
+					         . (pCmdLine ? pCmdLine : SubStr(proc.CommandLine, pos + m.Len()))
 					; logDebug(cmdLine)
 					return Run(cmdLine)
 				}
@@ -1173,9 +1174,11 @@ class CommonUtils extends StaticClassBase {
 
 		;Reload this script itself
 		cmdline := ""
-		for i, arg in A_Args {
-			cmdline .= arg " "
-		}
+		if (pCmdLine)
+			cmdLine := pCmdLine
+		else
+			for i, arg in A_Args
+				cmdline .= arg " "
 
 		;Place /restart switch immediately after the path of interpreter, because it is AutoHotkey's
 		;built-in cmd switch and will be removed from new process's A_Args in this case.

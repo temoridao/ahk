@@ -120,7 +120,7 @@ setupTray()
 /*
  * Win+Shift+Escape — reload this script (preserving command line) and all of its managed scripts
 */
-Hotkey(Config.ReloadAllShortcut, CommonUtils.getFuncObj("reloadScriptPreserveCmdLine"))
+Hotkey(Config.ReloadAllShortcut, CommonUtils.getFuncObj("reloadScript"))
 
 /* Win+Shift+` - Smart Reload Script matching %winTitle% (active window "A" by default)
  *
@@ -168,7 +168,7 @@ smartReloadScript(winTitle:="A") {
 		if (pidIndex := HasVal(g_scriptsPids, pid)) { ;this script managed by Starter.ahk
 			return reloadScript(pidIndex, scriptPath)
 		}
-		return CommonUtils.reloadScriptPreserveCmdLine(winTitle) ;this script is external, NOT managed by Starter.ahk
+		return CommonUtils.reloadScript(winTitle) ;this script is external, NOT managed by Starter.ahk
 	}
 
 	;If title of currently active window contains a (possibly part) file name of one of the
@@ -182,7 +182,7 @@ smartReloadScript(winTitle:="A") {
 			if (pidIndex := HasVal(g_scriptsPids, pid)) {
 				return reloadScript(pidIndex, fullPath)
 			} else {
-				return CommonUtils.reloadScriptPreserveCmdLine("ahk_pid" pid)
+				return CommonUtils.reloadScript("ahk_pid" pid)
 			}
 		}
 	}
@@ -467,7 +467,7 @@ setupTray() {
 
 	;Without explicit binding of empty parameter, the function will be called with standard parameters
 	;for Menu's function (ItemName, ItemPos, MenuName) which is obviously a wrong winTitle for target script
-	funcObj := CommonUtils.getFuncObj("reloadScriptPreserveCmdLine", "", "2")
+	funcObj := CommonUtils.getFuncObj("reloadScript", "", "", "2")
 	Menu Tray, Add, % "Reload (preserve command line) |" Config.ReloadAllShortcut "|", % funcObj
 
 	menuText := "Reload as admin (preserve command line)"
