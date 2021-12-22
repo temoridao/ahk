@@ -66,7 +66,7 @@ class TextInputCollector {
 	OnCharacterTyped(instanceAddress, hook, char) {
 		this := object(instanceAddress)
 		if (asc(char) = 10) { ; {Enter} key
-			this.m_textInputBuffer .= "`r`n"
+			this.m_textInputBuffer .= "`n"
 		} else if (char ~= "[^[:cntrl:]]") { ;All characters except control chars (see "POSIX character class" for more info)
 			; logDebug("char: " quote(char) " (code: " asc(char) ")")
 			this.m_textInputBuffer .= char
