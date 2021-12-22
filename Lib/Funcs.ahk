@@ -104,14 +104,18 @@ RunAsAdmin(Target, WorkingDir := "", Mode := "") {
  * NOTE: As of AutoHotkey v1.1.33.09 this functionality is not supported by built-in `Hotkey` command/function
  *
  */
-HotkeyRemap(KeyName, Options := "", allowOverwriteLabel := false, swap := false) {
+HotkeyRemap(KeyName, Options := "I1", allowOverwriteLabel := false, swap := false) {
 	if (!InStr(KeyName, "::"))
 		throwException("Only remap supported in this function, f.e. " quote("^k::^f"))
 	RegexMatch(KeyName, "O)(.*)::(.*)$", m)
-	useHookPrefix := swap ? "$" : "" ;Prevent recursive triggering
-	Hotkey(useHookPrefix . m.value(1), FSendEx(m.value(2)), Options, allowOverwriteLabel)
+
+	;Prevent recursive triggering
+	useHookPrefix := swap ? "$" : ""
+	opts := swap ? RegexReplace(Options, "i)I\d+") : Options
+
+	Hotkey(useHookPrefix . m.value(1), FSendEx(m.value(2)), opts, allowOverwriteLabel)
 	if (swap)
-		Hotkey(useHookPrefix . m.value(2), FSendEx(m.value(1)), Options, allowOverwriteLabel)
+		Hotkey(useHookPrefix . m.value(2), FSendEx(m.value(1)), opts, allowOverwriteLabel)
 }
 
 /**
