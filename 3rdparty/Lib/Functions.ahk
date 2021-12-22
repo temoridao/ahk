@@ -285,8 +285,11 @@ SetTitleMatchMode(MatchModeOrSpeed) {
 	static sModeMap := {"start": 1, "contain": 2, "exact": 3}
 	SetTitleMatchMode % sModeMap.HasKey(MatchModeOrSpeed) ? sModeMap[MatchModeOrSpeed] : MatchModeOrSpeed
 }
-Sleep(DelayInMilliseconds) {
-	Sleep DelayInMilliseconds
+Sleep(DelayInMilliseconds, uninterruptible := false) {
+	if (uninterruptible)
+		DllCall("Sleep", "UInt", DelayInMilliseconds)
+	else
+		Sleep DelayInMilliseconds
 }
 SoundBeep(Frequency:=523, Duration:=150) {
 	SoundBeep Frequency, Duration
