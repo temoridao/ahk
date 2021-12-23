@@ -9,43 +9,86 @@
  * object construction time and restore their previous values upon destruction. Very useful for
  * library code which generally should not change A_-variables as a side effect.
  *
- * @note AVarValuesRollback recognizes additional variable `A_LastFoundWndow` which is used to save & restore
- *       "last found window" which may be changed by WinExist()/WinWait/etc built-in commands. This is a way to ensure
- *       that client code still has its "last found window" unchanged after calling your library function for example
+ * @note AVarValuesRollback recognizes additional "variables" which are not existing in AutoHotkey but convenient in
+ * some cases:
+ * - `A_LastFoundWndow` for "last found window" which may be changed by WinExist()/WinWait/etc built-in commands.
+ *    This is a way to ensure that client code still has  its "last found window" unchanged after calling your
+ *    library function for example
+ * - `A_Clipboard` which can be used to save current clipboard content, optionally initialize clipboard with new value
+ *    and restore saved content upon exiting current function's scope (see code examples below). NOTE: if optional
+ *    new value passed to `A_Clipboard`, all content after `A_Clipboard=` till end of `aVarsString` constructor's
+ *    parameter will be used as initial content of clipboard, so it is recommended to use `A_Clipboard` at the very
+ *    end of `aVarsString` parameter.
  *
  * The function:
  * @code{.ahk}
- * fun() {
-   	raii := new AVarValuesRollback("A_TitleMatchMode=RegEx|A_BatchLines=44|A_LastFoundWindow|A_WinDelay=96")
-   	;…Your code…
- * }
+   fun() {
+   	;Using convenience factory function avarguard() which is shorter than `new AVarValuesRollback()`
+   	guard := avarguard("A_TitleMatchMode=RegEx|A_BatchLines=44|A_LastFoundWindow|"
+   	                 . "A_WinDelay=96|A_Clipboard=optional clipoard initializer")
+   	if (!FileExist("some_file"))
+   		return
+   	FileGetSize, size, some_file
+   	if (size < 1000) ;file too small, return
+   		return
+   	;File exists and has appropriate size, append Clipboard content and return
+   	FileAppend %Clipboard%, some_file
+   }
  * @endcode
  *
  * Is equivalent to:
  * @code{.ahk}
- * notSoFun() {
+   notSoFun() {
    	prevTitleMatchMode := A_TitileMatchMode
    	prevBatchLines := A_BatchLines
    	prevLastFoundWindow := WinExist()
    	prevWinDelay := A_WinDelay
+   	savedClipboard := ClipboardAll
+   	Clipboard := "optional clipoard initializer"
+   	ClipWait 2, 1
 
-   	;…Your code…
+   	if (!FileExist("some_file")) {
+   		;Restore previous values of builit-in variables
+   		SetTitleMatchMode %prevTitleMatchMode%
+   		SetBatchLines %prevBatchLines%
+   		WinExist("ahk_id" prevLastFoundWindow)
+   		SetWinDelay %prevWinDelay%
+   		Clipboard := savedClipboard
+   		ClipWait 2, 1
+   		return
+   	}
+   	FileGetSize, size, some_file
+   	if (size < 1000) { ;file too small, return
+   		;Restore previous values of builit-in variables
+   		SetTitleMatchMode %prevTitleMatchMode%
+   		SetBatchLines %prevBatchLines%
+   		WinExist("ahk_id" prevLastFoundWindow)
+   		SetWinDelay %prevWinDelay%
+   		Clipboard := savedClipboard
+   		ClipWait 2, 1
+   		return
+   	}
+   	;File exists and has appropriate size, append Clipboard content and return
+   	FileAppend %Clipboard%, some_file
 
+   	;Restore previous values of builit-in variables
    	SetTitleMatchMode %prevTitleMatchMode%
    	SetBatchLines %prevBatchLines%
    	WinExist("ahk_id" prevLastFoundWindow)
    	SetWinDelay %prevWinDelay%
- * }
+   	Clipboard := savedClipboard
+   	ClipWait 2, 1
+   }
  * @endcode
  *
- * @warning Avoid using multiple AVarValuesRollback objects **for same A_-varibale** inside the same
+ * @warning Avoid using multiple AVarValuesRollback objects **for same A_-variable** inside the same
  *          function scope. Seems like objects' destruction order in AutoHotkey is not determined so
  *          pay attention if you use multiple RAII objects at the same time this way. In this case
  *          you need manually destroy additional AVarValuesRollback objects by assigning empty
  *          string "" to them in right time because otherwise they may leave your A_-variables at
  *          inconsistent state
  *
- * Usage:
+ * Another example:
  * @code{.ahk}
    #include <AVarValuesRollback>
 
@@ -69,6 +112,7 @@
  *
  * @todo    Add method wrappers for all supported A_-variables
  */
+global g_AvarValuesRollbackClipboardBuffer := "" ;Buffer for ClipboardAll which cannot be stored into object properties and only accepts plain variables
 class AVarValuesRollback {
 	__New(aVarsString, delimiterCharacter := "|") {
 		Loop Parse, aVarsString, %delimiterCharacter%
@@ -77,13 +121,24 @@ class AVarValuesRollback {
 			hasNewValueToSet := pos != 0
 
 			varName := hasNewValueToSet ? SubStr(A_LoopField, 1, pos-1) : A_LoopField ;varName contains string like "A_BatchLines"
-			;Remember current value; statement '%varName%' retrieves actual value from f.e. A_BatchLines builitin variable.
+			;Remember current value; statement '%varName%' retrieves actual value from f.e. A_BatchLines built-in variable.
 			;A_LastFoundWindow is a special case and handled explicitly.
-			if (varName = "A_LastFoundWindow")
+			if (varName = "A_LastFoundWindow") {
 				this.m_storage[varName] := WinExist()
-			else
+			} else if (varName = "A_Clipboard") {
+				g_AvarValuesRollbackClipboardBuffer := ClipboardAll
+				Clipboard := ""
+				this.m_storage[varName] := ""
+			} else {
 				this.m_storage[varName] := %varName%
+			}
+
 			if (hasNewValueToSet) {
+				if (varName = "A_Clipboard") {
+					needle := "A_Clipboard="
+					this.Clipboard(SubStr(aVarsString, InStr(aVarsString, needle) + StrLen(needle)))
+					return this
+				}
 				newValue := SubStr(A_LoopField, pos+1) ; Assume that all after '=' is a new value for variable
 				this[SubStr(varName, 3)](newValue) ; Set new value for builtin variable by dynamically calling one of our wrapper methods below (more about dynamic method calling: https://www.autohotkey.com/docs/Objects.htm#Usage_Objects)
 			}
@@ -92,7 +147,10 @@ class AVarValuesRollback {
 
 	__Delete() {
 		for varName, varVal in this.m_storage
-			this[SubStr(varName, 3)](varVal)
+			if (varName = "A_Clipboard")
+				this[SubStr(varName, 3)](g_AvarValuesRollbackClipboardBuffer)
+			else
+				this[SubStr(varName, 3)](varVal)
 	}
 
 	__Call(methodName, args*) {
@@ -147,6 +205,12 @@ class AVarValuesRollback {
 	}
 	SendLevel(level) {
 		SendLevel level
+	}
+	Clipboard(val) {
+		Clipboard := ""
+		Clipboard := val
+		if (val)
+			ClipWait 2, 1
 	}
 
 	m_storage := {}
