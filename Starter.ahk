@@ -42,7 +42,7 @@ FileEncoding UTF-8-RAW
 	;@Ahk2Exe-Obey SelfCompilationCommandResult, RunWait %A_AhkPath% "%A_ScriptFullPath%" --compile-package`, "%A_ScriptFullPath%\.."
 	;-------------------------------------------------------------------------------------------------
 
-	global Config := { Version : "2.11.0"
+	global Config := { Version : "2.12.0"
 		;@Ahk2Exe-SetVersion %A_PriorLine~U)^(.+"){1}(.+)".*$~$2%
 
 		, Elevate               : HasVal(A_Args, "--elevate")
@@ -81,6 +81,8 @@ DetectHiddenWindows ON
 SetBatchLines -1
 
 global cScriptResourceAliasPrefix := "StarterExeResourcePrefix_"
+
+global g_exemptFromSuspensionScriptTitleRegex := ""
 
 ;@Ahk2Exe-IgnoreBegin
 if (Config.CompileMe) {
@@ -198,19 +200,25 @@ OnWM_COMMAND(wParam, lParam, msg, hWnd) {
 }
 
 setSuspendScripts(willSuspend, childScriptsOnly := true, showOsdIndication := true) {
-	; logDebug("childScriptsOnly:", childScriptsOnly)
+	regex := g_exemptFromSuspensionScriptTitleRegex
 	if (childScriptsOnly) {
 		if (A_IsCompiled) {
 			for each, pid in g_scriptsPids {
+				if (regex && (WinGetTitle("ahk_pid" pid) ~= regex))
+					continue
 				AhkScriptController.setSuspend("ahk_pid" pid, willSuspend)
 			}
 		} else {
 			if (Config.ChildScriptsMatchMode = "name") {
 				for i, name in g_initialScriptNames {
+					if (regex && (name ~= regex))
+						continue
 					AhkScriptController.setSuspend(name " ahk_class AutoHotkey", willSuspend)
 				}
 			} else if (Config.ChildScriptsMatchMode = "pid") {
 				for each, pid in g_scriptsPids {
+					if (regex && (WinGetTitle("ahk_pid" pid) ~= regex))
+						continue
 					AhkScriptController.setSuspend("ahk_pid" pid, willSuspend)
 				}
 			}
