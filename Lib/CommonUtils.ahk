@@ -594,11 +594,14 @@ class CommonUtils extends StaticClassBase {
 	toggleOnScreenKeyboard() {
 		hWnd := WinGet("ID", "A")
 		WinActivate("ahk_class Progman")
-		if (ProcessExist("TabTip.exe"))
-			return RunAsAdmin(A_ComSpec " /c taskkill /f /fi " quote("IMAGENAME eq TabTip.exe"), "", "Hide")
+		if (ProcessExist("TabTip.exe")) {
+			RunAsAdmin(A_ComSpec " /c taskkill /f /fi " quote("IMAGENAME eq TabTip.exe"), "", "Hide")
+			return false
+		}
 		Run tabtip
 		Sleep 300
 		WinActivate("ahk_id" hWnd)
+		return true
 	}
 
 	sendInputToWindow(keys, winTitle := "", useRegularSendIfAlreadyActiveWindow := false) {
