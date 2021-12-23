@@ -127,8 +127,8 @@ class AVarValuesRollback {
 				this.m_storage[varName] := WinExist()
 			} else if (varName = "A_Clipboard") {
 				g_AvarValuesRollbackClipboardBuffer := ClipboardAll
+				this.m_storage[varName] := Clipboard ;Save textual representation of Clipboard. Can be accessed by StoredValue property as all other variables
 				Clipboard := ""
-				this.m_storage[varName] := ""
 			} else {
 				this.m_storage[varName] := %varName%
 			}
