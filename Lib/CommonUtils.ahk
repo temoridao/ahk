@@ -298,7 +298,9 @@ class CommonUtils extends StaticClassBase {
 		clipText := Clipboard
 
 		if (restoreClipboard) {
+			Clipboard := ""
 			Clipboard := savedClipboard
+			ClipWait %clipboardWaitSec%, 1
 		}
 
 		Return clipText
