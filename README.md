@@ -1,5 +1,7 @@
 # General highlights
-See [Lib](https://github.com/temoridao/ahk/tree/master/Lib) folder for useful libraries used by scripts in the root of this repository. The majority of library code is documented and contains ready-to-use examples
+Clone this repo and all dependencies with `git clone --recursive https://github.com/temoridao/ahk` or [download latest self-contained snapshot](https://github.com/temoridao/ahk/releases)
+
+See [Lib](https://github.com/temoridao/ahk/tree/master/Lib) folder for useful libraries used by scripts in the root of this repository. The majority of library code is documented and contains ready-to-use examples.
 
 # Starter.ahk
 Smart launcher for your scripts with ability to compile/combine all of them into single portable _Starter.exe_ by one click!
