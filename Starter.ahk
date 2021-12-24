@@ -1,21 +1,19 @@
 /**
  * Description:
- *    Smart launcher for your scripts with optional ability to compile/combine them into
- *    a single portable Starter.exe executable by single click.
+ *    Smart launcher for your scripts with ability to compile/combine them into a single portable Starter.exe
+ *    executable by single click.
  * Requirements:
  *    AutoHotkey v1.1.33+
  * Installation:
  *    git clone --recursive https://github.com/temoridao/ahk
  *        or download latest snapshot here: https://github.com/temoridao/ahk/releases
  *
- *    Launch Starter.ahk and it will create Starter.txt, prompting you for the list of scripts to
- *    control.
- *    After you have done, save .txt file and launch Starter.ahk again. Now you have all your
+ *    Launch Starter.ahk and it will create Starter.txt, prompting you for the list of scripts to control.
+ *    After you have done, save Starter.txt file and launch Starter.ahk again. Now you have all your
  *    scripts running under control of Starter.ahk.
  *    Starter.ahk can be compiled into single portable .exe file, containing all your controlled
  *    scripts (either by right click in explorer > Compile Script or with tray menu > Compile Starter.exe).
- *
- *    See README for the list of features and other details: https://github.com/temoridao/ahk#starterahk
+ *    See README.md for the list of features and other details: https://github.com/temoridao/ahk#starterahk
  * Links:
  *    GitHub     : https://github.com/temoridao/ahk
  *    Forum Topic: https://www.autohotkey.com/boards/viewtopic.php?f=6&t=77910
@@ -27,14 +25,9 @@ ListLines Off
 FileEncoding UTF-8-RAW
 
 ;{ Config Section
-	;       Commented lines below starting with @ are directives for Ahk2Exe compiler
-	;              and DIRECTLY AFFECT THE BEHAVIOR of resulting executable.
-	;               Do not change these lines unless you know what you do.
-	;-------------------------------------------------------------------------------------------------
-	;Add scripts to launch here (they will be merged with contents of Starter.txt)
-	;Remove '*' chars and space before '@' to also mark script for inclusion into Starter.exe
-		; @Ahk2Exe-AddResource *RT_RCDATA *MyCoolScript1.ahk*
-		; @Ahk2Exe-AddResource *RT_RCDATA *3rdparty\MyCoolScript2.ahk*
+	;       WARNING: Commented lines below starting with @ are directives for Ahk2Exe compiler
+	;                       and DIRECTLY AFFECT THE BEHAVIOR of resulting executable.
+	;                        Do not change these lines unless you know what you do.
 	;-------------------------------------------------------------------------------------------------
 	;@Ahk2Exe-Bin Unicode 64*
 	;@Ahk2Exe-AddResource *RT_RCDATA %A_AhkPath%, RC_AHKRUNTIME
@@ -42,10 +35,9 @@ FileEncoding UTF-8-RAW
 	;@Ahk2Exe-Obey SelfCompilationCommandResult, RunWait %A_AhkPath% "%A_ScriptFullPath%" --compile-package`, "%A_ScriptFullPath%\.."
 	;-------------------------------------------------------------------------------------------------
 
-	global Config := { Version : "2.12.0"
+	global Config := { Version : "3.0.0"
 		;@Ahk2Exe-SetVersion %A_PriorLine~U)^(.+"){1}(.+)".*$~$2%
-
-		, Elevate               : HasVal(A_Args, "--elevate")
+		, Elevate               : HasVal(A_Args, "--elevate") ;Request elevated rights on startup
 		, ShowTrayTip           : HasVal(A_Args, "--enable-tray-tip") || !A_IsCompiled
 		, ChildScriptsMatchMode : GetCmdParameterValue("--child-scripts-match-mode", "name") ; Possible values: "name", "pid"
 		, ReloadAllShortcut     : "#+Escape"
@@ -53,13 +45,16 @@ FileEncoding UTF-8-RAW
 		;========================Options for compilation process========================================
 		, CompileMe       : !A_IsCompiled && HasVal(A_Args, "--compile-package") || (CommonUtils.isKeyboardKeyPressedDllCall("Ctrl") && scriptsFromCommandLine().Length())
 		, UseCompression  : HasVal(A_Args, "--compress-package")
-		, ProductName     : GetCmdParameterValue("--product-name", scriptBaseName())
+		, ProductName     : GetCmdParameterValue("--product-name", scriptBaseName()) ;Name of resulting executable
 		, CompilerPath    : FileExist("Ahk2Exe.exe") ? "Ahk2Exe.exe" : A_AhkPath "\..\Compiler\Ahk2Exe.exe"
-		, EmbedAhkAds     : true
-		, AdsName         : GetCmdParameterValue("--ads-name", "AutoHotkey.exe")
+		, EmbedAhkAds     : true ;Embed AutoHotkey.exe interpreter into Alternate Data Stream (ADS) of Starter.exe on supported file systems. Set to false to extract AutoHotkey.exe into A_Temp during Starter.exe runtime
+		, AdsName         : GetCmdParameterValue("--ads-name", "AutoHotkey.exe") ;Name of the embeded file if ADS supported
 		, SkipDirPattern  : GetCmdParameterValue("--skip-dir-pattern") } ;Directory names in A_ScriptDir (non-recursive) to skip to. (regex)
 		;===============================================================================================
 ;}
+
+global cScriptResourceAliasPrefix := "StarterExeResourcePrefix_"
+global g_exemptFromSuspensionScriptTitleRegex := ""
 
 #NoEnv
 #Warn UseUnsetLocal
@@ -80,10 +75,6 @@ SetTitleMatchMode 2 ;Match anywhere
 DetectHiddenWindows ON
 SetBatchLines -1
 
-global cScriptResourceAliasPrefix := "StarterExeResourcePrefix_"
-
-global g_exemptFromSuspensionScriptTitleRegex := ""
-
 ;@Ahk2Exe-IgnoreBegin
 if (Config.CompileMe) {
 	compilePackage()
@@ -91,9 +82,9 @@ if (Config.CompileMe) {
 }
 
 data := getScriptsForBundle()
-global g_scriptNames := data.scripts
+global g_scriptsPaths := data.scripts
      , g_scriptsCmdLines := data.cmdLines
-     , g_initialScriptNames := g_scriptNames.Clone() ;Immutable collection of script names
+     , g_cInitialScriptsPaths := g_scriptsPaths.Clone() ;Immutable collection of script paths
 ;@Ahk2Exe-IgnoreEnd
 
 if (otherInstancePid := ScriptInfoUtils.checkForExistingInstance()) {
@@ -109,7 +100,7 @@ if (Config.Elevate) {
 		CommonUtils.elevateThisScript()
 	}
 	global g_ahkRuntimeFile := extractExecutable()
-	     , g_scriptNames := fetchScriptsList()
+	     , g_scriptsPaths := fetchScriptsList()
 */
 
 OnExit("exitFunc")
@@ -149,7 +140,7 @@ Hotkey("!#+s", "toggleSuspendScriptsAll")
  * Place your custom code here if needed.
  * You can utilize g_scriptsPids global variable which contain all controlled scripts' PIDs
  * for use with "ahk_pid", for example. Alternatively (and preferably), place your code to the
- * optional injection file Starter_injection.ahk which included at the end of auto-execute section below.
+ * injection file(s). See Starter_injection.ahk for details; it included at the end of auto-execute section below.
 */
 #include *i %A_LineFile%\..\Starter_injection.ahk
 
@@ -210,7 +201,7 @@ setSuspendScripts(willSuspend, childScriptsOnly := true, showOsdIndication := tr
 			}
 		} else {
 			if (Config.ChildScriptsMatchMode = "name") {
-				for i, name in g_initialScriptNames {
+				for i, name in g_cInitialScriptsPaths {
 					if (regex && (name ~= regex))
 						continue
 					AhkScriptController.setSuspend(name " ahk_class AutoHotkey", willSuspend)
@@ -259,36 +250,30 @@ currentlyManagedScripts() {
 scriptsFromCommandLine() {
 	scripts := []
 	for i, param in A_Args {
-		if (param ~= "\.ahk" && FileExist(param)) {
+		attr := FileExist(param)
+		if (!attr)
+			continue
+		if (!InStr(attr, "D") && (param ~= "\.ahk$")) {
 			scripts.Push(param)
+			continue
 		}
+
+		Loop Files, %param%\*.ahk
+			if (FileExist(A_LoopFileLongPath))
+				scripts.Push(A_LoopFileLongPath)
 	}
 	return scripts
 }
 
-;Returns all scripts from Config Section, then all scripts from Starter.txt in that order
+;Returns list of script paths passed via command line. If command line has no scripts, then all scripts and their
+;command lines (if any) from Starter.txt file
 getScriptsForBundle() {
-	result := scriptsFromCommandLine()
-	if (result.Length()) {
-		return {scripts: result, cmdLines: []}
+	scripts := scriptsFromCommandLine()
+	if (scripts.Length()) {
+		return {scripts: scripts, cmdLines: []}
 	}
 
-	RegExMatch(FileRead(A_ScriptFullPath), "isO);\{ Config Section.+?;\}", matchObj)
-	configSection := matchObj[0]
 	cmdLines := []
-	pos := 1
-	while pos := RegExMatch(configSection
-	                      , "imO);" (Config.CompileMe ? "" : "\s*") "@Ahk2Exe-AddResource \*RT_RCDATA (.+\.ahk)$"
-	                      , matchObj
-	                      , pos) {
-		match := matchObj[1]
-		pos += StrLen(match)
-		if (!HasVal(result, match)) {
-			result.Push(match)
-			cmdLines.Push("")
-		}
-	}
-
 	if (FileExist(runPlanFile := runPlanFileName())) {
 		Loop Read, %runPlanFile%
 		{
@@ -322,21 +307,21 @@ getScriptsForBundle() {
 			}
 		}
 	}
-	; MsgBox % "Scripts to " (Config.CompileMe ? "compile: " : "launch: ") . ObjToString(result)
+	; MsgBox % "Scripts to " (Config.CompileMe ? "compile: " : "launch: ") . ObjToString(scripts)
 
-	if (result.Length() = 0) {
+	if (scripts.Length() = 0) {
 		showHelpDialog()
 	}
 
-	return {scripts: result, cmdLines: cmdLines}
+	return {scripts: scripts, cmdLines: cmdLines}
 
 	RememberScriptPath:
 		scriptPath := isDirectory ? A_LoopFileLongPath : path
-		if (HasVal(result, scriptPath))
+		if (HasVal(scripts, scriptPath))
 			return
 		if (Config.CompileMe && !fileWantCompile)
 			return
-		result.Push(scriptPath)
+		scripts.Push(scriptPath)
 		return
 }
 
@@ -364,37 +349,38 @@ reloadScript(oldPidIndex, scriptPath) {
 showHelpDialog() {
 	baseName := scriptBaseName()
 	helpTxt := A_ScriptName " cannot find any scripts to " (Config.CompileMe ? "compile" : "launch")
-		       . " in " runPlanFileName() " or auto-execute section or passed via drag & drop.`r`n`r`n"
+		       . " in " runPlanFileName() " or passed via command line parameters or by drag & drop from explorer.`r`n`r`n"
 	exampleTxtFile =
 	(LTrim
 		;Lines started with semicolon are comments and ignored, as well as empty lines
 		;Each line in this file is a script path (or folder with scripts) to launch (can be absolute or relative to this file)
-		;Put tilde (~) at the beginning of path to mark the script or folder for inclusion into compiled %baseName%.exe
+		;Put tilde (~) at the beginning of path to mark the script or folder for inclusion into portable compiled %baseName%.exe
+		;(just compile %A_ScriptName% after filling %baseName%.txt, or see README.md for other details)
 		;Command line parameters for each script (but not a directory) can be specified after pipe character (|)
 
 		;--------------------------------------Some Examples--------------------------------------------
 		;                                      -------------
 		;3rdparty\MyGoodScriptToLaunch.ahk
-		;~ThisScriptWillBeCompiled.ahk
-		;~C:\path\to\AnotherScriptWhichWillBeCompiled.ahk
-		;script\with\CommandLineParameters.ahk|--first-cmd-parameter --second --config myconfig.ini
+		;~ThisScriptWillBeIncludedIntoPortableExe.ahk
+		;~C:\path\to\AnotherScriptWhichWillBeIncludedIntoPortableExe.ahk
+		;ExampleScriptWithCommandLineParameters.ahk|--first-cmd-parameter --second --config my_config.ini
 		;
-		;Specify path to directory so all .ahk files in that directory will be launched
-		;or compiled (if preceded with ~) into Starter.exe
+		;By specifying path to a directory all .ahk files in that directory will be launched
+		;or compiled (if preceded with ~) into %baseName%.exe
 		;
 		;D:\Path\To\DirectoryWithScritpsToLaunch
-		;~D:\Path\To\DirectoryWithScriptsToLaunchAndCompile
+		;~D:\Path\To\DirectoryWithScriptsToLaunchAndIncludedIntoPortableExe
 		;
 		;-----------------------------------------------------------------------------------------------
 		;Put path to your scripts below and run %A_ScriptName% when you are done.
 
 	)
+	txtFile := runPlanFileName()
 	MsgBox % helpTxt "(Press OK to start editing scripts list)"
-	if (!FileExist(txtFile := scriptBaseName() ".txt")) {
+	if (!FileExist(txtFile)) {
 		FileAppend(exampleTxtFile, txtFile)
 	}
 	Run % quote(txtFile)
-
 	WinWait % txtFile,,3
 	WinActivate % txtFile
 	ExitApp
@@ -402,7 +388,7 @@ showHelpDialog() {
 
 setupTrayTip() {
 	tip := ""
-	for i, name in g_scriptNames {
+	for i, name in g_scriptsPaths {
 		tip .= " * " RegExReplace(cleanupScriptResourceAlias(name), "i)(.*[/\\])?(.+)\.ahk", "$2") "`n" ; Extract file's base name without extension
 	}
 
@@ -442,7 +428,7 @@ stopChildScripts() {
 ;@Ahk2Exe-IgnoreBegin
 runScripts() {
 	pids := []
-	for i, filePath in g_scriptNames {
+	for i, filePath in g_scriptsPaths {
 			pids.Push(runScript(filePath, g_scriptsCmdLines[i]))
 	}
 
@@ -450,7 +436,7 @@ runScripts() {
 }
 
 setupTray() {
-	for i, name in g_scriptNames {
+	for i, name in g_scriptsPaths {
 		Menu SubMenu_%name%, Add, View &Lines,       OnScriptTrayCommandClicked
 		Menu SubMenu_%name%, Add, View &Variables,   OnScriptTrayCommandClicked
 		Menu SubMenu_%name%, Add, View &Hotkeys,     OnScriptTrayCommandClicked
@@ -528,9 +514,9 @@ OnScriptTrayCommandClicked() {
 		tip := RegExReplace(A_IconTip, "\* " fileBaseName, "✘ " fileBaseName)
 		Menu Tray, Tip, % tip
 
-		for i, scriptPath in g_scriptNames {
+		for i, scriptPath in g_scriptsPaths {
 			if InStr(fullPath, scriptPath) {
-				g_scriptNames.Remove(i)
+				g_scriptsPaths.Remove(i)
 				g_scriptsPids.Remove(i)
 				g_scriptsCmdLines.Remove(i)
 				Menu Tray, Delete, %i%&
@@ -539,7 +525,7 @@ OnScriptTrayCommandClicked() {
 		}
 	} else if (cmd = Cmd_Reload) {
 		fullPath := CommonUtils.getAhkScriptFilePath(WinGet("ID", scriptNamePartial))
-		for i, scriptPath in g_scriptNames
+		for i, scriptPath in g_scriptsPaths
 			if InStr(fullPath, scriptPath)
 				return reloadScript(i, fullPath)
 		return
@@ -547,16 +533,16 @@ OnScriptTrayCommandClicked() {
 
 	AhkScriptController.sendCommand(scriptNamePartial, cmd)
 
-	if (g_scriptNames.Length() = 0) {
+	if (g_scriptsPaths.Length() = 0) {
 		ExitApp
 	}
 }
 
 showScriptsSummary() {
-	rows := g_scriptNames.MaxIndex() + 5
+	rows := g_scriptsPaths.MaxIndex() + 5
 	Gui Add, ListView, Grid +Resize r%rows% w600 Sort, Script|PID|Path|Command Line
-	Loop, % g_scriptNames.MaxIndex() {
-		SplitPath(g_scriptNames[A_Index], scriptName)
+	Loop, % g_scriptsPaths.MaxIndex() {
+		SplitPath(g_scriptsPaths[A_Index], scriptName)
 		pid := g_scriptsPids[A_Index]
 		path := CommonUtils.getAhkScriptFilePath(WinGet("ID", "ahk_pid" pid))
 		LV_Add(, scriptName, pid, path, g_scriptsCmdLines[A_Index])
@@ -799,7 +785,7 @@ extractExecutable() {
 
 runScripts() {
 	pids := []
-	for each, script in g_scriptNames {
+	for each, script in g_scriptsPaths {
 		bytesCount := DllRead(data, A_ScriptFullPath, "RT_RCDATA", script)
 		scriptText := StrGet(&data, bytesCount, "utf-8") ; convert bytes from utf-8 to native script's encoding
 		pids.Push(ExecScript(g_ahkRuntimeFile, scriptText))
