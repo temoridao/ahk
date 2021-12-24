@@ -40,6 +40,10 @@ class ScriptIniConfig {
 	 *                      interface for non-own configuration files
 	 */
 	__New(scriptName := "", create := true) {
+		if (isPipedExecution := InStr(A_ScriptFullPath, "\.\pipe")) {
+			logWarn("Skip config creation for script executed from named pipe")
+			return ""
+		}
 		filePath := this.getConfigPathForScript(scriptName)
 		if (!filePath) {
 			MsgBox Config file cannot be created
